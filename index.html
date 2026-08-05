@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MatchPoint — Tennis Court Booking</title>
+<meta name="description" content="Find an open court and book it. Reserve tennis courts at your club in Sofia." />
+
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#7bc133" />
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="icons/favicon-16.png" sizes="16x16" type="image/png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="MatchPoint" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  /* Tennis-ball palette */
+  --ball:#7bc133; --ball-2:#92d250; --leaf:#acdf77; --mist:#c3e69e; --pale:#dff6c8;
+  /* Floodlit court ground */
+  --court:#0f1a0b; --court-2:#16210f; --court-3:#1f2e15;
+  /* Surfaces */
+  --bg:#f5f9ec; --card:#ffffff; --card-2:#fbfdf6;
+  --line:#e4eed6; --line-2:#d3e2bd; --linewhite:rgba(255,255,255,.6);
+  /* Ink */
+  --ink:#13200b; --ink-2:#33422a; --muted:#61714f; --faint:#8a9a76;
+  /* Signals (kept in-family; clay terracotta only for destructive) */
+  --ok:#5aa522; --danger:#b4491f; --danger-bg:#f7e6de;
+  /* System */
+  --r:14px; --r-sm:10px; --r-lg:22px;
+  --shadow:0 1px 2px rgba(20,32,11,.06), 0 8px 24px -12px rgba(20,32,11,.18);
+  --shadow-lg:0 24px 60px -20px rgba(15,26,11,.45);
+  --display:"Archivo",system-ui,sans-serif;
+  --body:"Inter",system-ui,sans-serif;
+  --mono:"Space Mono",ui-monospace,monospace;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--body); color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+button{font-family:inherit}
+a{color:inherit}
+::selection{background:var(--ball);color:var(--court)}
+
+/* ---------- App shell ---------- */
+.app{min-height:100dvh;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:var(--court);color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.topbar__in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:14px;
+  padding:12px clamp(14px,4vw,26px);}
+.brand{display:flex;align-items:center;gap:11px;cursor:pointer;background:none;border:0;color:#fff;padding:0}
+.brand__mark{width:34px;height:34px;flex:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.brand__name{font-family:var(--display);font-weight:900;letter-spacing:-.02em;font-size:19px;line-height:1}
+.brand__name em{font-style:normal;color:var(--ball)}
+.brand__tag{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);
+  font-weight:700;margin-top:2px}
+.nav-desktop{margin-left:auto;display:flex;gap:4px}
+.nav-desktop a{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;
+  font-weight:600;font-size:14px;color:rgba(255,255,255,.72);text-decoration:none;transition:.15s}
+.nav-desktop a svg{width:17px;height:17px}
+.nav-desktop a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-desktop a.active{color:var(--court);background:var(--ball)}
+.topbar__user{margin-left:6px;display:flex;align-items:center;gap:8px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--ball);color:var(--court);
+  display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;cursor:pointer;border:0}
+
+main{flex:1;width:100%;max-width:1080px;margin:0 auto;padding:clamp(16px,3.5vw,30px);
+  padding-bottom:calc(96px + var(--safe-b))}
+@media(min-width:820px){ main{padding-bottom:40px} }
+
+/* ---------- Bottom nav (mobile) ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  padding:8px 8px calc(8px + var(--safe-b));display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border-radius:12px;
+  text-decoration:none;color:var(--faint);font-size:11px;font-weight:600;transition:.15s}
+.tabbar a svg{width:22px;height:22px}
+.tabbar a.active{color:var(--ink)}
+.tabbar a.active .tabbar__dot{background:var(--ball)}
+.tabbar__ic{position:relative;display:grid;place-items:center;height:26px}
+.tabbar__dot{position:absolute;inset:0;margin:auto;width:40px;height:26px;border-radius:999px;
+  background:transparent;transition:.18s;z-index:-1}
+@media(min-width:820px){ .tabbar{display:none} .nav-desktop{display:flex} }
+@media(max-width:819px){ .nav-desktop{display:none} }
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;border-radius:var(--r-lg);background:var(--court);
+  color:#fff;padding:clamp(22px,5vw,40px);margin-bottom:26px;isolation:isolate}
+.hero__seam{position:absolute;inset:0;z-index:-1;opacity:.9}
+.hero__seam svg,.club-card__seam svg{width:100%;height:100%;display:block}
+.hero__glow{position:absolute;width:340px;height:340px;right:-90px;top:-120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(123,193,51,.55),transparent 62%);z-index:-1}
+.hero__eyebrow{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--leaf);font-weight:700}
+.hero h1{font-family:var(--display);font-weight:900;letter-spacing:-.03em;
+  font-size:clamp(30px,6.4vw,50px);line-height:.98;margin:12px 0 10px}
+.hero h1 span{color:var(--ball)}
+.hero p{color:rgba(255,255,255,.78);max-width:44ch;font-size:15.5px;margin:0 0 20px}
+.hero__actions{display:flex;flex-wrap:wrap;gap:10px}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+  font-weight:700;font-size:14.5px;border-radius:999px;padding:12px 20px;border:1px solid transparent;
+  transition:transform .06s ease,filter .15s,background .15s,border-color .15s;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:18px;height:18px}
+.btn--primary{background:var(--ball);color:var(--court)}
+.btn--primary:hover{filter:brightness(1.05)}
+.btn--ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
+.btn--ghost:hover{background:rgba(255,255,255,.1)}
+.btn--soft{background:var(--pale);color:var(--ink)}
+.btn--soft:hover{background:var(--mist)}
+.btn--outline{background:var(--card);color:var(--ink);border-color:var(--line-2)}
+.btn--outline:hover{border-color:var(--ball);background:var(--card-2)}
+.btn--dark{background:var(--court);color:#fff}
+.btn--dark:hover{background:var(--court-2)}
+.btn--danger{background:var(--danger-bg);color:var(--danger)}
+.btn--danger:hover{filter:brightness(.97)}
+.btn--block{width:100%}
+.btn--sm{padding:8px 14px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn--google{background:#fff;color:#1f2937;border:1px solid var(--line-2);width:100%}
+.btn--google:hover{background:#f8fafc}
+
+/* ---------- Cards & grid ---------- */
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:26px 0 14px}
+.section-head h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;font-size:22px;margin:0}
+.section-head .sub{color:var(--muted);font-size:13.5px;margin-top:3px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--ball)}
+.eyebrow--muted{color:var(--faint)}
+
+.grid{display:grid;gap:14px}
+.grid--cards{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card--pad{padding:18px}
+.card--link{cursor:pointer;transition:transform .12s,box-shadow .15s,border-color .15s;text-align:left;width:100%;
+  border:1px solid var(--line);font-family:inherit;color:inherit}
+.card--link:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--line-2)}
+
+.club-card__top{height:96px;border-radius:var(--r) var(--r) 0 0;position:relative;overflow:hidden;
+  background:linear-gradient(120deg,var(--ball),var(--ball-2) 55%,var(--leaf))}
+.club-card__seam{position:absolute;inset:0;opacity:.85}
+.club-card__body{padding:15px 16px 16px}
+.club-card__body h3{font-family:var(--display);font-weight:800;font-size:18px;margin:0 0 4px;letter-spacing:-.01em}
+.club-card__meta{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
+.club-card__meta svg{width:14px;height:14px;color:var(--faint)}
+.chiprow{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  padding:5px 10px;border-radius:999px;background:var(--pale);color:var(--ink-2);border:1px solid transparent}
+.chip svg{width:13px;height:13px}
+.chip--clay{background:#f6e7dd;color:#9a4a24}
+.chip--grass{background:#e4f4d3;color:#487a1c}
+.chip--hard{background:#e2eefb;color:#2b6099}
+.chip--indoor{background:var(--court);color:var(--leaf)}
+.chip--lit{background:#fef3c7;color:#92700a}
+.chip--ghost{background:transparent;border-color:var(--line-2);color:var(--muted)}
+
+/* ---------- Detail header ---------- */
+.backlink{display:inline-flex;align-items:center;gap:6px;background:none;border:0;cursor:pointer;
+  color:var(--muted);font-weight:600;font-size:13.5px;padding:6px 0;margin-bottom:8px}
+.backlink svg{width:16px;height:16px}
+.backlink:hover{color:var(--ink)}
+.detail-hero{background:var(--court);color:#fff;border-radius:var(--r-lg);padding:clamp(20px,4vw,32px);
+  position:relative;overflow:hidden;margin-bottom:20px}
+.detail-hero h1{font-family:var(--display);font-weight:900;letter-spacing:-.02em;
+  font-size:clamp(24px,5vw,36px);margin:6px 0 8px;line-height:1}
+.detail-hero .meta{color:rgba(255,255,255,.8);font-size:14px;display:flex;flex-wrap:wrap;gap:14px}
+.detail-hero .meta span{display:inline-flex;align-items:center;gap:6px}
+.detail-hero .meta svg{width:15px;height:15px;color:var(--leaf)}
+
+/* ---------- Booking / scoreboard ---------- */
+.book-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:18px}
+.datepick{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line-2);
+  border-radius:999px;padding:6px 8px 6px 14px}
+.datepick label{font-weight:700;font-size:13px;color:var(--muted)}
+.datepick input{border:0;background:transparent;font-family:var(--mono);font-size:14px;color:var(--ink);padding:6px}
+.datepick input:focus{outline:none}
+.dayscroll{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;-webkit-overflow-scrolling:touch}
+.daybtn{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;
+  padding:9px 8px;border-radius:14px;border:1px solid var(--line-2);background:var(--card);cursor:pointer;transition:.15s}
+.daybtn b{font-family:var(--display);font-size:18px;font-weight:800}
+.daybtn small{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.daybtn:hover{border-color:var(--ball)}
+.daybtn.active{background:var(--court);border-color:var(--court);color:#fff}
+.daybtn.active small{color:var(--leaf)}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:4px 0 16px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:5px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.06)}
+.lg-free{background:var(--pale)} .lg-sel{background:var(--ball)} .lg-book{background:var(--court)} .lg-un{background:repeating-linear-gradient(45deg,#eef1ea,#eef1ea 4px,#e3e7dd 4px,#e3e7dd 8px)}
+
+.slotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
+.slot{position:relative;border:1px solid var(--line-2);background:var(--pale);border-radius:12px;
+  padding:11px 8px 10px;cursor:pointer;text-align:center;transition:transform .06s,background .12s,border-color .12s;
+  font-family:var(--mono)}
+.slot:active{transform:scale(.97)}
+.slot__t{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.slot__p{font-size:11px;color:var(--muted);margin-top:3px}
+.slot:hover:not(.is-booked):not(.is-un){border-color:var(--ball)}
+.slot.is-sel{background:var(--ball);border-color:var(--ball)}
+.slot.is-sel .slot__p{color:var(--court-2)}
+.slot.is-booked{background:var(--court);border-color:var(--court);cursor:not-allowed}
+.slot.is-booked .slot__t{color:#fff;text-decoration:line-through;text-decoration-color:var(--ball)}
+.slot.is-booked .slot__p{color:var(--leaf)}
+.slot.is-un{background:repeating-linear-gradient(45deg,#eef1ea,#eef1ea 5px,#e3e7dd 5px,#e3e7dd 10px);
+  border-color:#e0e5da;cursor:not-allowed}
+.slot.is-un .slot__t{color:#9aa693;text-decoration:none}
+.slot.is-un .slot__p{color:#9aa693}
+
+.book-summary{position:sticky;bottom:calc(84px + var(--safe-b));z-index:20;margin-top:18px}
+@media(min-width:820px){ .book-summary{bottom:16px} }
+.book-summary__in{background:var(--court);color:#fff;border-radius:var(--r);padding:14px 16px;
+  display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-lg)}
+.book-summary__info b{font-family:var(--display);font-size:17px}
+.book-summary__info small{display:block;color:var(--leaf);font-size:12px;font-weight:600}
+.book-summary .btn{margin-left:auto}
+.price-tag{font-family:var(--mono);font-weight:700}
+
+/* ---------- Reservations ---------- */
+.res-row{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.res-cal{flex:none;width:56px;text-align:center;background:var(--pale);border-radius:12px;padding:8px 4px;border:1px solid var(--line-2)}
+.res-cal b{display:block;font-family:var(--display);font-size:22px;line-height:1;color:var(--ink)}
+.res-cal small{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.res-main{flex:1;min-width:0}
+.res-main h3{margin:0 0 3px;font-family:var(--display);font-weight:800;font-size:16px}
+.res-main .l{color:var(--muted);font-size:13px;display:flex;gap:12px;flex-wrap:wrap}
+.res-main .l span{display:inline-flex;gap:5px;align-items:center}
+.res-main .l svg{width:13px;height:13px;color:var(--faint)}
+.res-actions{display:flex;gap:8px;flex:none}
+.status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 9px;border-radius:999px}
+.status--up{background:var(--pale);color:var(--ok)} .status--past{background:#eef1ea;color:var(--faint)}
+
+/* ---------- Auth ---------- */
+.auth-wrap{min-height:100dvh;display:grid;grid-template-columns:1fr;background:var(--court)}
+@media(min-width:900px){ .auth-wrap{grid-template-columns:1.05fr .95fr} }
+.auth-brandside{position:relative;overflow:hidden;color:#fff;padding:clamp(28px,6vw,64px);
+  display:flex;flex-direction:column;justify-content:space-between;min-height:40vh}
+.auth-brandside .b-top{display:flex;align-items:center;gap:12px}
+.auth-brandside .b-mark{width:44px;height:44px}
+.auth-brandside h1{font-family:var(--display);font-weight:900;letter-spacing:-.03em;
+  font-size:clamp(34px,6vw,64px);line-height:.95;margin:0}
+.auth-brandside h1 span{color:var(--ball)}
+.auth-brandside .lede{color:rgba(255,255,255,.82);font-size:16px;max-width:38ch;margin-top:16px}
+.auth-brandside .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.auth-brandside .pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;color:var(--pale)}
+.auth-formside{background:var(--bg);display:flex;align-items:center;justify-content:center;padding:clamp(22px,5vw,48px)}
+.auth-card{width:100%;max-width:400px}
+.auth-card h2{font-family:var(--display);font-weight:800;font-size:26px;margin:0 0 4px;letter-spacing:-.02em}
+.auth-card .muted{color:var(--muted);font-size:14px;margin:0 0 22px}
+.authtabs{display:flex;background:var(--pale);border-radius:999px;padding:4px;margin-bottom:20px}
+.authtabs button{flex:1;border:0;background:transparent;padding:9px;border-radius:999px;font-weight:700;
+  font-size:14px;color:var(--muted);cursor:pointer;transition:.15s}
+.authtabs button.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px 14px;border:1px solid var(--line-2);border-radius:12px;
+  background:var(--card);font-size:15px;font-family:inherit;color:var(--ink);transition:.15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--ball);box-shadow:0 0 0 3px rgba(123,193,51,.18)}
+.field .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.divider{display:flex;align-items:center;gap:12px;color:var(--faint);font-size:12px;margin:18px 0}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line-2)}
+
+/* ---------- Modal ---------- */
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(15,26,11,.5);backdrop-filter:blur(3px);
+  display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:.2s}
+@media(min-width:640px){ .modal-bg{align-items:center;padding:20px} }
+.modal-bg.open{opacity:1;pointer-events:auto}
+.modal{background:var(--bg);width:100%;max-width:480px;border-radius:22px 22px 0 0;
+  box-shadow:var(--shadow-lg);transform:translateY(24px);transition:.24s;max-height:92dvh;overflow:auto}
+@media(min-width:640px){ .modal{border-radius:22px} }
+.modal-bg.open .modal{transform:none}
+.modal__head{position:sticky;top:0;background:var(--bg);padding:18px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.modal__head h3{margin:0;font-family:var(--display);font-weight:800;font-size:19px}
+.modal__x{border:0;background:var(--pale);width:34px;height:34px;border-radius:50%;cursor:pointer;
+  display:grid;place-items:center;color:var(--ink)}
+.modal__body{padding:18px 20px 22px}
+.grabber{width:40px;height:4px;border-radius:99px;background:var(--line-2);margin:8px auto 0}
+@media(min-width:640px){ .grabber{display:none} }
+
+/* ---------- Misc ---------- */
+.empty{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty svg{width:52px;height:52px;color:var(--leaf);margin-bottom:12px}
+.empty h3{font-family:var(--display);font-size:20px;color:var(--ink);margin:0 0 6px}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line-2);border-top-color:var(--ball);
+  animation:spin .8s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skel{background:linear-gradient(90deg,#eef2e8 25%,#f6f9f1 50%,#eef2e8 75%);background-size:200% 100%;
+  animation:sh 1.2s infinite;border-radius:10px}
+@keyframes sh{to{background-position:-200% 0}}
+
+.toasts{position:fixed;left:0;right:0;bottom:calc(96px + var(--safe-b));z-index:80;display:flex;
+  flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+@media(min-width:820px){ .toasts{bottom:24px} }
+.toast{pointer-events:auto;background:var(--court);color:#fff;padding:12px 16px;border-radius:12px;
+  box-shadow:var(--shadow-lg);font-size:14px;font-weight:500;max-width:420px;display:flex;gap:10px;align-items:center;
+  animation:pop .22s ease}
+.toast.err{background:var(--danger)} .toast.ok{background:#2f6b12}
+.toast svg{width:18px;height:18px;flex:none}
+@keyframes pop{from{transform:translateY(12px);opacity:0}}
+
+/* Install banner */
+.install{display:flex;align-items:center;gap:12px;background:var(--court);color:#fff;
+  border-radius:var(--r);padding:14px 16px;margin-bottom:20px}
+.install img{width:40px;height:40px;flex:none}
+.install .t{flex:1}
+.install .t b{font-family:var(--display);font-size:15px}
+.install .t small{display:block;color:var(--leaf);font-size:12.5px}
+.install .x{background:none;border:0;color:rgba(255,255,255,.6);cursor:pointer;font-size:20px;padding:4px}
+
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.info-cell{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.info-cell small{display:block;color:var(--faint);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:4px}
+.info-cell b{font-size:15px;font-weight:600}
+.oh-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.oh-row:last-child{border-bottom:0}
+.oh-row .d{font-weight:600}
+.oh-row .h{font-family:var(--mono);color:var(--muted)}
+.oh-row.closed .h{color:var(--faint)}
+
+.staff-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+  background:var(--ball);color:var(--court);padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
+.hr{height:1px;background:var(--line);margin:20px 0}
+.demo-flag{font-size:11px;font-weight:700;color:var(--court);background:var(--leaf);padding:3px 8px;border-radius:999px}
+.small-note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.toggle:last-child{border-bottom:0}
+.toggle .t b{font-size:14.5px;font-weight:600} .toggle .t small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.switch{position:relative;width:46px;height:27px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch .track{position:absolute;inset:0;background:var(--line-2);border-radius:999px;transition:.2s;cursor:pointer}
+.switch .track::before{content:"";position:absolute;width:21px;height:21px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked + .track{background:var(--ball)}
+.switch input:checked + .track::before{transform:translateX(19px)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Toasts + modal host -->
+<div class="toasts" id="toasts"></div>
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+
+<script>
+/* =====================================================================
+   MatchPoint — front-end for the Django REST backend
+   (Corentin-dupriez/matchpoint). Vanilla JS, no build step.
+   ===================================================================== */
+(function () {
+"use strict";
+
+/* ---------- Icons ---------- */
+const I = {
+  ball:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M4 7c4 2 4 8 0 10M20 7c-4 2-4 8 0 10" stroke="currentColor" stroke-width="2"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4.5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 21c4-4.5 7-8 7-11a7 7 0 1 0-14 0c0 3 3 6.5 7 11Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  court:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 4v16M7 4v16M17 4v16" stroke="currentColor" stroke-width="1.6"/></svg>',
+  ticket:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1 0 4H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z" stroke="currentColor" stroke-width="2"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  bulb:'<svg viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 4 10.5c-.7.6-1 1.2-1 2H9c0-.8-.3-1.4-1-2A6 6 0 0 1 12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  indoor:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 11l8-6 8 6M6 10v9h12v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l1.5 5-2 1.5a11 11 0 0 0 5 5l1.5-2 5 1.5v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="2"/></svg>',
+  download:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v11m0 0l4-4m-4 4l-4-4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  logout:'<svg viewBox="0 0 24 24" fill="none"><path d="M15 4h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3M10 12H3m0 0l3.5-3.5M3 12l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 11v5M12 7.6h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="2"/><path d="M3 19c0-3 2.7-4.6 6-4.6S15 16 15 19M16 5.2a3.2 3.2 0 0 1 0 6M17 14.5c2.5.5 4 2 4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  tag:'<svg viewBox="0 0 24 24" fill="none"><path d="M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9-9-9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1.4" fill="currentColor"/></svg>',
+  ban:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M5.6 5.6l12.8 12.8" stroke="currentColor" stroke-width="2"/></svg>',
+  seam:'<svg viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M-20 60 C 80 -30, 120 150, 200 60 S 320 -30, 420 60" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="6"/></svg>'
+};
+const svg = k => I[k] || '';
+
+/* ---------- State / config ---------- */
+const LS = {
+  api:'mp_api', access:'mp_access', refresh:'mp_refresh', user:'mp_user',
+  demo:'mp_demo', staff:'mp_staff', demoRes:'mp_demo_res', dismissInstall:'mp_no_install'
+};
+const store = {
+  get api(){ return localStorage.getItem(LS.api) || 'http://localhost:8000'; },
+  set api(v){ localStorage.setItem(LS.api, v); },
+  get access(){ return localStorage.getItem(LS.access); },
+  get refresh(){ return localStorage.getItem(LS.refresh); },
+  setTokens(a,r){ if(a)localStorage.setItem(LS.access,a); if(r)localStorage.setItem(LS.refresh,r); },
+  clearTokens(){ [LS.access,LS.refresh,LS.user].forEach(k=>localStorage.removeItem(k)); },
+  get user(){ try{return JSON.parse(localStorage.getItem(LS.user)||'null')}catch{return null} },
+  set user(u){ localStorage.setItem(LS.user, JSON.stringify(u)); },
+  get demo(){ return localStorage.getItem(LS.demo) !== '0'; },   // demo ON by default so the design is viewable
+  set demo(v){ localStorage.setItem(LS.demo, v?'1':'0'); },
+  get staff(){ return localStorage.getItem(LS.staff) === '1'; },
+  set staff(v){ localStorage.setItem(LS.staff, v?'1':'0'); }
+};
+const state = { authed:false };
+
+/* ---------- Small DOM helpers ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const el = (tag, cls, html)=>{ const n=document.createElement(tag); if(cls)n.className=cls; if(html!=null)n.innerHTML=html; return n; };
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function toast(msg, kind){
+  const t = el('div','toast'+(kind?' '+kind:''), (kind==='err'?svg('x'):kind==='ok'?svg('check'):svg('info'))+'<span>'+esc(msg)+'</span>');
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='.3s'; setTimeout(()=>t.remove(),300); }, 3200);
+}
+
+/* ---------- Modal ---------- */
+function openModal(title, bodyNode){
+  const m = $('#modal');
+  m.innerHTML = '<div class="grabber"></div><div class="modal__head"><h3>'+esc(title)+'</h3>'+
+    '<button class="modal__x" aria-label="Close">'+svg('x')+'</button></div>';
+  const body = el('div','modal__body'); body.appendChild(bodyNode); m.appendChild(body);
+  $('.modal__x',m).onclick = closeModal;
+  $('#modalBg').classList.add('open');
+}
+function closeModal(){ $('#modalBg').classList.remove('open'); }
+$('#modalBg').addEventListener('click', e=>{ if(e.target.id==='modalBg') closeModal(); });
+
+/* =====================================================================
+   Demo data (mirrors the DRF serializers) so the UI is fully usable
+   without a running backend. Toggle off in Settings to hit the real API.
+   ===================================================================== */
+const DEMO = {
+  clubs:[
+    {id:1,name:"Lozenets Tennis Club",city:"Sofia",address:"bul. Cherni Vrah 45, Lozenets",description:"Six courts tucked below Vitosha — clay in summer, two covered hard courts year-round.",website:"https://example.com",phone:"+35929001122",email:"hello@lozenets.tennis"},
+    {id:2,name:"Serdika Sports Park",city:"Sofia",address:"ul. Iliyensko Shose 12, Serdika",description:"The city's biggest complex. Floodlit hard courts open till midnight.",website:"https://example.com",phone:"+35929887766",email:"book@serdika.park"},
+    {id:3,name:"Vitosha Grass Courts",city:"Sofia",address:"Dragalevtsi, foot of Vitosha",description:"A rare set of grass courts. Short season, long waitlist.",website:"https://example.com",phone:"+35929334455",email:"grass@vitosha.bg"}
+  ],
+  courts:[
+    {id:11,club_id:1,name:"Court 1 — Centre",sport_type:"Tennis",surface_type:"Clay",is_indoor:false,is_lit:true},
+    {id:12,club_id:1,name:"Court 2 — Clay",sport_type:"Tennis",surface_type:"Clay",is_indoor:false,is_lit:true},
+    {id:13,club_id:1,name:"Court 3 — Indoor Hard",sport_type:"Tennis",surface_type:"Hard",is_indoor:true,is_lit:true},
+    {id:21,club_id:2,name:"Arena A",sport_type:"Tennis",surface_type:"Hard",is_indoor:false,is_lit:true},
+    {id:22,club_id:2,name:"Arena B",sport_type:"Tennis",surface_type:"Hard",is_indoor:false,is_lit:true},
+    {id:23,club_id:2,name:"Dome (Indoor)",sport_type:"Tennis",surface_type:"Hard",is_indoor:true,is_lit:true},
+    {id:31,club_id:3,name:"Lawn 1",sport_type:"Tennis",surface_type:"Grass",is_indoor:false,is_lit:false},
+    {id:32,club_id:3,name:"Lawn 2",sport_type:"Tennis",surface_type:"Grass",is_indoor:false,is_lit:false}
+  ],
+  openingHours:{ // per club id
+    1:[["Monday","08:00","22:00"],["Tuesday","08:00","22:00"],["Wednesday","08:00","22:00"],["Thursday","08:00","22:00"],["Friday","08:00","23:00"],["Saturday","08:00","21:00"],["Sunday","09:00","20:00"]],
+    2:[["Monday","07:00","23:30"],["Tuesday","07:00","23:30"],["Wednesday","07:00","23:30"],["Thursday","07:00","23:30"],["Friday","07:00","23:30"],["Saturday","08:00","23:30"],["Sunday","08:00","22:00"]],
+    3:[["Monday","09:00","19:00"],["Wednesday","09:00","19:00"],["Friday","09:00","19:00"],["Saturday","09:00","18:00"],["Sunday","09:00","18:00"]]
+  },
+  employees:{ 1:[{first_name:"Ivana",last_name:"Petrova"},{first_name:"Georgi",last_name:"Dimitrov"}], 2:[{first_name:"Maria",last_name:"Koleva"}], 3:[{first_name:"Stefan",last_name:"Iliev"}] }
+};
+function demoReservations(){ try{return JSON.parse(localStorage.getItem(LS.demoRes)||'[]')}catch{return[]} }
+function saveDemoReservations(a){ localStorage.setItem(LS.demoRes, JSON.stringify(a)); }
+
+// Deterministic pseudo-random for stable demo availability per court+date+slot
+function seeded(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return ((h>>>0)%1000)/1000; }
+
+function demoAvailability(courtId, dateStr){
+  const court = DEMO.courts.find(c=>c.id===courtId);
+  const club = DEMO.clubs.find(c=>c.id===court.club_id);
+  const d = new Date(dateStr+"T00:00:00");
+  const wd = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][d.getDay()];
+  const oh = (DEMO.openingHours[club.id]||[]).find(r=>r[0]===wd);
+  if(!oh) return [];
+  const [oS] = oh[1].split(":").map(Number); const [cS] = oh[2].split(":").map(Number);
+  const slots=[];
+  const booked = new Set(demoReservations().filter(r=>r.court===courtId && r.date===dateStr).flatMap(r=>r.slots));
+  for(let h=oS; h<cS; h++){
+    for(let m of [0,30]){
+      const start = new Date(d); start.setHours(h,m,0,0);
+      const end = new Date(start.getTime()+30*60000);
+      const hh = String(h).padStart(2,'0')+":"+String(m).padStart(2,'0');
+      const peak = (h>=18 && h<=21);
+      const price = (peak?11:court.is_indoor?9:7) + (court.surface_type==='Grass'?3:0);
+      const rnd = seeded(courtId+"|"+dateStr+"|"+hh);
+      let available = rnd > 0.34;               // ~⅔ open
+      if(booked.has(hh)){ available=false; }
+      slots.push({ start:start.toISOString(), end:end.toISOString(), available, price, _booked:booked.has(hh), _t:hh });
+    }
+  }
+  return slots;
+}
+
+/* =====================================================================
+   API client — talks to the real backend, or serves DEMO data.
+   ===================================================================== */
+const api = {
+  url(p){ return store.api.replace(/\/$/,'') + p; },
+  async raw(path, opts={}){
+    const headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
+    if(store.access && !opts.noAuth) headers['Authorization'] = 'Bearer '+store.access;
+    let res = await fetch(this.url(path), Object.assign({}, opts, {headers}));
+    if(res.status===401 && store.refresh && !opts._retried){
+      const ok = await this.refreshToken();
+      if(ok) return this.raw(path, Object.assign({}, opts, {_retried:true}));
+    }
+    return res;
+  },
+  async json(path, opts){
+    const res = await this.raw(path, opts);
+    let data=null; try{ data = await res.json(); }catch{}
+    if(!res.ok){ const msg = data && (data.detail || data.non_field_errors?.[0] || Object.values(data)[0]) || ('Request failed ('+res.status+')'); throw new Error(Array.isArray(msg)?msg[0]:msg); }
+    return data;
+  },
+  async refreshToken(){
+    try{ const r = await fetch(this.url('/api/token/refresh/'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh:store.refresh})});
+      if(!r.ok) return false; const d = await r.json(); store.setTokens(d.access, d.refresh); return true;
+    }catch{ return false; }
+  },
+
+  /* ---- auth ---- */
+  async login(email,password){
+    if(store.demo){ store.setTokens('demo-access','demo-refresh'); store.user={email,first_name:'Demo',last_name:'Player',phone_number:'',preferred_language:'English'}; return; }
+    const d = await this.json('/api/token/',{method:'POST',noAuth:true,body:JSON.stringify({email,password})});
+    store.setTokens(d.access,d.refresh);
+    try{ store.user = await this.json('/api/v1/auth/user/'); }catch{ store.user={email}; }
+  },
+  async register(payload){
+    if(store.demo){ store.setTokens('demo-access','demo-refresh'); store.user={email:payload.email,first_name:payload.first_name,last_name:payload.last_name,phone_number:payload.phone_number||'',preferred_language:'English'}; return; }
+    await this.json('/api/v1/auth/registration',{method:'POST',noAuth:true,body:JSON.stringify({
+      email:payload.email, password1:payload.password, password2:payload.password,
+      first_name:payload.first_name, last_name:payload.last_name })});
+    await this.login(payload.email, payload.password);
+  },
+  googleUrl(){ return this.url('/api/v1/auth/google/'); },
+
+  /* ---- clubs ---- */
+  async clubs(){ return store.demo ? DEMO.clubs : this.json('/api/clubs/'); },
+  async club(id){ return store.demo ? DEMO.clubs.find(c=>c.id==id) : this.json('/api/clubs/'+id+'/'); },
+  async clubCourts(id){ return store.demo ? DEMO.courts.filter(c=>c.club_id==id) : this.json('/api/clubs/'+id+'/courts/'); },
+  async clubOpeningHours(id){ return store.demo ? (DEMO.openingHours[id]||[]).map(r=>({weekday:r[0],opening_hour:r[1],closing_hour:r[2]})) : this.json('/api/clubs/'+id+'/opening-hours/'); },
+  async addOpeningHour(id,body){ if(store.demo){ (DEMO.openingHours[id]=DEMO.openingHours[id]||[]).push([body.weekday,body.opening_hour,body.closing_hour]); return; } return this.json('/api/clubs/'+id+'/opening-hours/',{method:'POST',body:JSON.stringify(body)}); },
+  async clubEmployees(id){ return store.demo ? (DEMO.employees[id]||[]) : this.json('/api/clubs/'+id+'/employees/'); },
+  async updateClub(id,body){ if(store.demo){ Object.assign(DEMO.clubs.find(c=>c.id==id),body); return; } return this.json('/api/clubs/'+id+'/',{method:'PATCH',body:JSON.stringify(body)}); },
+
+  /* ---- courts ---- */
+  async court(id){ return store.demo ? DEMO.courts.find(c=>c.id==id) : this.json('/api/courts/'+id+'/'); },
+  async availability(id,date){ return store.demo ? demoAvailability(Number(id),date) : this.json('/api/courts/'+id+'/availabilities/?date='+date); },
+  async prices(id){ if(store.demo){ const c=DEMO.courts.find(x=>x.id==id); const base=c.is_indoor?9:7; return [{weekday:"All",time_start:"08:00",time_end:"18:00",price_per_30_minutes:base},{weekday:"All",time_start:"18:00",time_end:"22:00",price_per_30_minutes:base+4}]; } return this.json('/api/courts/'+id+'/prices/'); },
+  async setPrices(id,arr){ if(store.demo){ return; } return this.raw('/api/courts/'+id+'/prices/',{method:'PUT',body:JSON.stringify(arr)}); },
+  async unavailabilities(id){ if(store.demo){ return []; } return this.json('/api/courts/'+id+'/unavailabilities/'); },
+  async addUnavailability(id,body){ if(store.demo){ return; } return this.raw('/api/courts/'+id+'/unavailabilities/',{method:'PUT',body:JSON.stringify(body)}); },
+  async createCourt(body){ if(store.demo){ const id=Math.max(...DEMO.courts.map(c=>c.id))+1; DEMO.courts.push(Object.assign({id},body)); return {id}; } return this.json('/api/courts/',{method:'POST',body:JSON.stringify(body)}); },
+  async updateCourt(id,body){ if(store.demo){ Object.assign(DEMO.courts.find(c=>c.id==id),body); return; } return this.json('/api/courts/'+id+'/',{method:'PATCH',body:JSON.stringify(body)}); },
+  async deleteCourt(id){ if(store.demo){ const i=DEMO.courts.findIndex(c=>c.id==id); if(i>-1)DEMO.courts.splice(i,1); return; } return this.raw('/api/courts/'+id+'/',{method:'DELETE'}); },
+
+  /* ---- reservations ---- */
+  async reservations(){ if(store.demo){ return demoReservations().map(r=>({id:r.id,court:r.court,start_datetime:r.start,end_datetime:r.end,reservation_amt:r.amt})); } return this.json('/api/reservations/'); },
+  async createReservation(body){
+    if(store.demo){
+      const arr=demoReservations();
+      const start=new Date(body.start_datetime), end=new Date(body.end_datetime);
+      const slots=[]; for(let t=new Date(start); t<end; t=new Date(t.getTime()+30*60000)){ slots.push(String(t.getHours()).padStart(2,'0')+":"+String(t.getMinutes()).padStart(2,'0')); }
+      const rec={id:Date.now(),court:Number(body.court),start:body.start_datetime,end:body.end_datetime,amt:body._amt||0,date:body._date,slots};
+      arr.push(rec); saveDemoReservations(arr); return rec;
+    }
+    return this.json('/api/reservations/',{method:'POST',body:JSON.stringify({court:body.court,start_datetime:body.start_datetime,end_datetime:body.end_datetime})});
+  },
+  async deleteReservation(id){ if(store.demo){ saveDemoReservations(demoReservations().filter(r=>r.id!=id)); return; } return this.raw('/api/reservations/'+id+'/',{method:'DELETE'}); },
+  async updateReservation(id,body){ if(store.demo){ const a=demoReservations(); const r=a.find(x=>x.id==id); if(r){Object.assign(r,{court:Number(body.court),start:body.start_datetime,end:body.end_datetime});} saveDemoReservations(a); return; } return this.json('/api/reservations/'+id+'/',{method:'PATCH',body:JSON.stringify(body)}); }
+};
+
+/* ---------- Formatting ---------- */
+const fmt = {
+  time(iso){ const d=new Date(iso); return String(d.getHours()).padStart(2,'0')+":"+String(d.getMinutes()).padStart(2,'0'); },
+  dayNum(iso){ return new Date(iso).getDate(); },
+  mon(iso){ return new Date(iso).toLocaleDateString('en',{month:'short'}).toUpperCase(); },
+  weekday(iso){ return new Date(iso).toLocaleDateString('en',{weekday:'short'}).toUpperCase(); },
+  dateLong(iso){ return new Date(iso).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'long'}); },
+  money(n){ return (Math.round(n*100)/100).toFixed(2)+' лв'; },
+  isoDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+};
+function surfaceChip(s){ const cls={Clay:'chip--clay',Grass:'chip--grass',Hard:'chip--hard'}[s]||'chip--ghost'; return '<span class="chip '+cls+'">'+svg('court')+esc(s)+'</span>'; }
+function courtName(id){ const c=DEMO.courts.find(x=>x.id==id); return c?c.name:('Court #'+id); }
+
+/* =====================================================================
+   Router
+   ===================================================================== */
+const routes = {};
+function route(path, fn){ routes[path]=fn; }
+function nav(hash){ if(location.hash===hash) render(); else location.hash=hash; }
+window.addEventListener('hashchange', render);
+
+function currentRoute(){
+  const h = (location.hash||'#/clubs').replace(/^#/,'');
+  const parts = h.split('/').filter(Boolean); // e.g. ['clubs','1']
+  return { top:parts[0]||'clubs', a:parts[1], b:parts[2], c:parts[3] };
+}
+
+/* =====================================================================
+   Shell rendering
+   ===================================================================== */
+let deferredPrompt = null;
+
+function shell(contentNode, activeTab){
+  const root = $('#root');
+  const u = store.user;
+  const initials = u ? ((u.first_name||u.email||'?')[0]||'?').toUpperCase() : '?';
+  root.innerHTML='';
+  const app = el('div','app');
+
+  // top bar
+  const bar = el('header','topbar');
+  bar.innerHTML =
+    '<div class="topbar__in">'+
+      '<button class="brand" data-nav="#/clubs">'+
+        '<img class="brand__mark" src="icons/icon-192.png" alt=""/>'+
+        '<span><span class="brand__name">Match<em>Point</em></span><span class="brand__tag">Sofia · Book a court</span></span>'+
+      '</button>'+
+      '<nav class="nav-desktop">'+
+        navLink('#/clubs','ball','Clubs',activeTab==='clubs')+
+        navLink('#/reservations','ticket','Reservations',activeTab==='reservations')+
+        navLink('#/profile','user','Profile',activeTab==='profile')+
+        navLink('#/settings','gear','Settings',activeTab==='settings')+
+      '</nav>'+
+      '<div class="topbar__user"><button class="avatar" data-nav="#/profile" title="'+esc(u?u.email:'')+'">'+esc(initials)+'</button></div>'+
+    '</div>';
+  app.appendChild(bar);
+
+  const main = el('main'); main.appendChild(contentNode); app.appendChild(main);
+
+  // bottom tabs (mobile)
+  const tabs = el('nav','tabbar');
+  tabs.innerHTML =
+    tabLink('#/clubs','ball','Book',activeTab==='clubs')+
+    tabLink('#/reservations','ticket','Bookings',activeTab==='reservations')+
+    tabLink('#/profile','user','Profile',activeTab==='profile')+
+    tabLink('#/settings','gear','Settings',activeTab==='settings');
+  app.appendChild(tabs);
+
+  root.appendChild(app);
+  root.querySelectorAll('[data-nav]').forEach(n=>n.onclick=()=>nav(n.getAttribute('data-nav')));
+}
+function navLink(href,ic,label,active){ return '<a href="'+href+'" class="'+(active?'active':'')+'">'+svg(ic)+label+'</a>'; }
+function tabLink(href,ic,label,active){ return '<a href="'+href+'" class="'+(active?'active':'')+'"><span class="tabbar__ic"><span class="tabbar__dot"></span>'+svg(ic)+'</span>'+label+'</a>'; }
+
+function loadingNode(){ const n=el('div'); n.innerHTML='<div class="spinner"></div>'; return n; }
+
+/* =====================================================================
+   AUTH view
+   ===================================================================== */
+function renderAuth(){
+  const root=$('#root'); root.innerHTML='';
+  const wrap = el('div','auth-wrap');
+  wrap.innerHTML =
+    '<div class="auth-brandside">'+
+      '<div class="hero__seam">'+svg('seam')+'</div>'+
+      '<div class="hero__glow"></div>'+
+      '<div class="b-top"><img class="b-mark" src="icons/icon-192.png" alt=""/><span class="brand__tag" style="color:var(--leaf)">Tennis · Sofia</span></div>'+
+      '<div>'+
+        '<h1>Your court is<br><span>one tap</span> away.</h1>'+
+        '<p class="lede">See live availability, grab the slot, and get on court. No calls, no waitlists, no guesswork.</p>'+
+        '<div class="pills"><span class="pill">Live availability</span><span class="pill">Instant booking</span><span class="pill">Clay · Grass · Hard</span><span class="pill">Install as an app</span></div>'+
+      '</div>'+
+      '<div style="color:rgba(255,255,255,.45);font-size:12.5px">MatchPoint — powered by the Django REST backend.</div>'+
+    '</div>'+
+    '<div class="auth-formside"><div class="auth-card" id="authCard"></div></div>';
+  root.appendChild(wrap);
+  renderAuthForm('login');
+}
+
+function renderAuthForm(mode){
+  const c = $('#authCard');
+  const demoOn = store.demo;
+  c.innerHTML =
+    '<div class="authtabs">'+
+      '<button data-m="login" class="'+(mode==='login'?'active':'')+'">Sign in</button>'+
+      '<button data-m="register" class="'+(mode==='register'?'active':'')+'">Create account</button>'+
+    '</div>'+
+    '<h2>'+(mode==='login'?'Welcome back':'Join MatchPoint')+'</h2>'+
+    '<p class="muted">'+(mode==='login'?'Sign in to see courts and manage your bookings.':'A minute to set up. Then book in seconds.')+'</p>'+
+    (demoOn?'<div class="install" style="margin-bottom:18px"><span class="demo-flag">DEMO</span><div class="t" style="color:#fff"><b style="font-size:14px">Explore without a server</b><small>Any email &amp; password works. Turn off in Settings to use your real backend.</small></div></div>':'')+
+    '<form id="authForm">'+
+      (mode==='register'?'<div class="field"><div class="row2">'+
+        '<div><label>First name</label><input name="first_name" required autocomplete="given-name"/></div>'+
+        '<div><label>Last name</label><input name="last_name" required autocomplete="family-name"/></div>'+
+      '</div></div>':'')+
+      '<div class="field"><label>Email</label><input name="email" type="email" required autocomplete="email" placeholder="you@club.bg"/></div>'+
+      (mode==='register'?'<div class="field"><label>Phone (optional)</label><input name="phone_number" inputmode="tel" placeholder="+359…" autocomplete="tel"/></div>':'')+
+      '<div class="field"><label>Password</label><input name="password" type="password" required autocomplete="'+(mode==='login'?'current-password':'new-password')+'" minlength="'+(demoOn?1:6)+'" placeholder="••••••••"/></div>'+
+      '<button class="btn btn--primary btn--block" type="submit" id="authSubmit">'+(mode==='login'?'Sign in':'Create account')+'</button>'+
+    '</form>'+
+    '<div class="divider">or</div>'+
+    '<button class="btn btn--google" id="googleBtn"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.2-4.8 3.2-7.9Z"/><path fill="#34A853" d="M12 23c2.9 0 5.3-1 7.1-2.6l-3.6-2.7c-1 .7-2.3 1.1-3.5 1.1-2.7 0-5-1.8-5.9-4.3H2.4v2.8A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M6.1 14.5a6.6 6.6 0 0 1 0-4.2V7.5H2.4a11 11 0 0 0 0 9.8l3.7-2.8Z"/><path fill="#EA4335" d="M12 5.5c1.5 0 2.9.5 4 1.5l3-3A11 11 0 0 0 2.4 7.5l3.7 2.8C7 7.8 9.3 5.5 12 5.5Z"/></svg>Continue with Google</button>'+
+    '<p class="small-note" style="text-align:center">By continuing you agree to the club rules and booking policy.</p>';
+
+  c.querySelectorAll('.authtabs button').forEach(b=>b.onclick=()=>renderAuthForm(b.dataset.m));
+  $('#googleBtn').onclick=()=>{
+    if(store.demo){ toast('Google sign-in needs OAuth configured on the backend. Using demo instead.'); api.login('google@demo.bg','x').then(afterAuth); return; }
+    window.location.href = api.googleUrl();
+  };
+  $('#authForm').onsubmit = async (e)=>{
+    e.preventDefault();
+    const btn=$('#authSubmit'); btn.disabled=true; const orig=btn.textContent; btn.textContent='Please wait…';
+    const f=Object.fromEntries(new FormData(e.target).entries());
+    try{
+      if(mode==='login') await api.login(f.email,f.password);
+      else await api.register(f);
+      afterAuth();
+    }catch(err){ toast(err.message||'Something went wrong','err'); btn.disabled=false; btn.textContent=orig; }
+  };
+}
+function afterAuth(){ state.authed=true; toast('Signed in','ok'); if(!location.hash||location.hash==='#/auth') location.hash='#/clubs'; render(); }
+
+/* =====================================================================
+   CLUBS list
+   ===================================================================== */
+route('clubs', async ()=>{
+  const node = el('div');
+  // hero
+  const hero = el('section','hero');
+  hero.innerHTML =
+    '<div class="hero__seam">'+svg('seam')+'</div><div class="hero__glow"></div>'+
+    '<div class="hero__eyebrow">'+ (store.demo?'Demo mode · Sofia':'Sofia') +'</div>'+
+    '<h1>Find an open<br><span>court.</span></h1>'+
+    '<p>Pick a club, check live availability, and lock in your slot. Courts refresh in real time.</p>'+
+    '<div class="hero__actions">'+
+      '<button class="btn btn--primary" id="heroBook">'+svg('ball')+'Browse clubs</button>'+
+      '<button class="btn btn--ghost" data-nav="#/reservations">'+svg('ticket')+'My bookings</button>'+
+    '</div>';
+  node.appendChild(hero);
+
+  if(installBannerAllowed()) node.appendChild(installBanner());
+
+  const head = el('div','section-head');
+  head.innerHTML='<div><div class="eyebrow">Clubs</div><h2>Where do you want to play?</h2></div>';
+  node.appendChild(head);
+
+  const grid = el('div','grid grid--cards'); node.appendChild(grid);
+  for(let i=0;i<3;i++){ const s=el('div','card'); s.style.height='200px'; s.classList.add('skel'); grid.appendChild(s); }
+
+  shell(node,'clubs');
+  node.querySelectorAll('[data-nav]').forEach(n=>n.onclick=()=>nav(n.getAttribute('data-nav')));
+  $('#heroBook').onclick=()=>document.querySelector('.section-head').scrollIntoView({behavior:'smooth'});
+
+  try{
+    const clubs = await api.clubs();
+    grid.innerHTML='';
+    if(!clubs.length){ grid.appendChild(emptyState('No clubs yet','Clubs will show up here once they’re added.','ball')); return; }
+    for(const club of clubs){
+      const courts = store.demo ? DEMO.courts.filter(c=>c.club_id===club.id) : [];
+      const card = el('button','card card--link');
+      card.innerHTML =
+        '<div class="club-card__top"><div class="club-card__seam">'+svg('seam')+'</div></div>'+
+        '<div class="club-card__body">'+
+          '<h3>'+esc(club.name)+'</h3>'+
+          '<div class="club-card__meta">'+svg('pin')+'<span>'+esc(club.address||club.city||'Sofia')+'</span></div>'+
+          (club.description?'<p style="color:var(--muted);font-size:13.5px;margin:10px 0 0;line-height:1.45">'+esc(club.description)+'</p>':'')+
+          '<div class="chiprow">'+
+            (courts.length?('<span class="chip">'+svg('court')+courts.length+' courts</span>'):'')+
+            (store.demo?[...new Set(courts.map(c=>c.surface_type))].map(surfaceChip).join(''):'')+
+          '</div>'+
+        '</div>';
+      card.onclick=()=>nav('#/clubs/'+club.id);
+      grid.appendChild(card);
+    }
+  }catch(err){ grid.innerHTML=''; grid.appendChild(errorState(err.message)); }
+});
+
+/* =====================================================================
+   CLUB detail
+   ===================================================================== */
+route('clubDetail', async (id)=>{
+  const node = el('div'); node.appendChild(backLink('#/clubs','All clubs'));
+  const host = el('div'); host.appendChild(loadingNode()); node.appendChild(host);
+  shell(node,'clubs'); bindBack(node);
+
+  try{
+    const [club, courts, hours] = await Promise.all([ api.club(id), api.clubCourts(id), api.clubOpeningHours(id).catch(()=>[]) ]);
+    host.innerHTML='';
+
+    const hero = el('div','detail-hero');
+    hero.innerHTML='<div class="hero__seam">'+svg('seam')+'</div><div class="hero__glow"></div>'+
+      '<div class="hero__eyebrow" style="color:var(--leaf)">Tennis club</div>'+
+      '<h1>'+esc(club.name)+'</h1>'+
+      '<div class="meta">'+
+        '<span>'+svg('pin')+esc(club.address||club.city||'Sofia')+'</span>'+
+        (club.phone?'<span>'+svg('phone')+esc(club.phone)+'</span>':'')+
+        (club.email?'<span>'+svg('mail')+esc(club.email)+'</span>':'')+
+      '</div>';
+    host.appendChild(hero);
+
+    if(club.description){ const p=el('p'); p.style.cssText='color:var(--ink-2);font-size:15px;max-width:60ch;margin:0 0 8px'; p.textContent=club.description; host.appendChild(p); }
+
+    // staff controls
+    if(isStaff()){
+      const staffBar = el('div'); staffBar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px';
+      staffBar.innerHTML='<span class="staff-badge">'+svg('gear')+'Staff</span>';
+      const bEdit=el('button','btn btn--outline btn--sm',svg('edit')+'Edit club'); bEdit.onclick=()=>editClubModal(club);
+      const bOH=el('button','btn btn--outline btn--sm',svg('clock')+'Add opening hours'); bOH.onclick=()=>openingHoursModal(club.id);
+      const bEmp=el('button','btn btn--outline btn--sm',svg('users')+'View staff'); bEmp.onclick=()=>employeesModal(club.id);
+      const bNewCourt=el('button','btn btn--dark btn--sm',svg('plus')+'New court'); bNewCourt.onclick=()=>courtFormModal(null, club.id);
+      staffBar.append(bEdit,bOH,bEmp,bNewCourt); host.appendChild(staffBar);
+    }
+
+    // courts
+    const ch=el('div','section-head'); ch.innerHTML='<div><div class="eyebrow">Courts</div><h2>Pick a court to book</h2><div class="sub">Tap a court to see live 30-minute slots.</div></div>';
+    host.appendChild(ch);
+    const grid=el('div','grid grid--cards');
+    if(!courts.length){ grid.appendChild(emptyState('No courts listed','This club hasn’t added courts yet.','court')); }
+    courts.forEach(ct=>{
+      const card=el('button','card card--link'); card.style.padding='0';
+      card.innerHTML=
+        '<div class="card--pad">'+
+          '<h3 style="font-family:var(--display);font-weight:800;font-size:17px;margin:0 0 8px">'+esc(ct.name)+'</h3>'+
+          '<div class="chiprow" style="margin-top:0">'+
+            surfaceChip(ct.surface_type)+
+            (ct.is_indoor?'<span class="chip chip--indoor">'+svg('indoor')+'Indoor</span>':'<span class="chip chip--ghost">'+svg('indoor')+'Outdoor</span>')+
+            (ct.is_lit?'<span class="chip chip--lit">'+svg('bulb')+'Floodlit</span>':'')+
+          '</div>'+
+          '<div style="margin-top:14px;display:flex;align-items:center;gap:6px;color:var(--ball);font-weight:700;font-size:13.5px">'+svg('calendar')+'See availability →</div>'+
+        '</div>';
+      card.onclick=()=>nav('#/courts/'+ct.id);
+      grid.appendChild(card);
+    });
+    host.appendChild(grid);
+
+    // opening hours
+    const oh=el('div','card card--pad'); oh.style.marginTop='22px';
+    oh.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--ink)"><span style="color:var(--ball)">'+svg('clock')+'</span><b style="font-family:var(--display);font-size:17px">Opening hours</b></div>';
+    const order=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const byDay=Object.fromEntries((hours||[]).map(h=>[h.weekday,h]));
+    order.forEach(day=>{ const h=byDay[day]; const row=el('div','oh-row'+(h?'':' closed'));
+      row.innerHTML='<span class="d">'+day+'</span><span class="h">'+(h?(h.opening_hour.slice(0,5)+' – '+h.closing_hour.slice(0,5)):'Closed')+'</span>'; oh.appendChild(row); });
+    host.appendChild(oh);
+
+    bindBack(node);
+  }catch(err){ host.innerHTML=''; host.appendChild(errorState(err.message)); }
+});
+
+/* =====================================================================
+   COURT detail + booking
+   ===================================================================== */
+const booking = { selected:[], slots:[], court:null, date:null };
+route('courtDetail', async (id)=>{
+  const node = el('div'); node.appendChild(backLink(null,'Back'));
+  const host=el('div'); host.appendChild(loadingNode()); node.appendChild(host);
+  shell(node,'clubs');
+  $('.backlink',node).onclick=()=>history.back();
+
+  try{
+    const court = await api.court(id);
+    booking.court=court; booking.selected=[];
+    host.innerHTML='';
+
+    const hero=el('div','detail-hero');
+    hero.innerHTML='<div class="hero__seam">'+svg('seam')+'</div><div class="hero__glow"></div>'+
+      '<div class="hero__eyebrow" style="color:var(--leaf)">'+esc(court.sport_type||'Tennis')+' court</div>'+
+      '<h1>'+esc(court.name)+'</h1>'+
+      '<div class="meta">'+
+        '<span>'+svg('court')+esc(court.surface_type)+'</span>'+
+        '<span>'+svg('indoor')+(court.is_indoor?'Indoor':'Outdoor')+'</span>'+
+        (court.is_lit?'<span>'+svg('bulb')+'Floodlit</span>':'')+
+      '</div>';
+    host.appendChild(hero);
+
+    if(isStaff()){
+      const sb=el('div'); sb.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px';
+      sb.innerHTML='<span class="staff-badge">'+svg('gear')+'Staff</span>';
+      const e1=el('button','btn btn--outline btn--sm',svg('edit')+'Edit court'); e1.onclick=()=>courtFormModal(court, court.club_id);
+      const e2=el('button','btn btn--outline btn--sm',svg('tag')+'Set prices'); e2.onclick=()=>pricesModal(court.id);
+      const e3=el('button','btn btn--outline btn--sm',svg('ban')+'Block time'); e3.onclick=()=>unavailabilityModal(court.id);
+      const e4=el('button','btn btn--danger btn--sm',svg('trash')+'Delete'); e4.onclick=()=>confirmDeleteCourt(court);
+      sb.append(e1,e2,e3,e4); host.appendChild(sb);
+    }
+
+    // date picker row
+    const today=new Date(); booking.date=fmt.isoDate(today);
+    const bar=el('div');
+    bar.innerHTML='<div class="section-head" style="margin-top:6px"><div><div class="eyebrow">Availability</div><h2 id="dateTitle"></h2></div></div>';
+    const days=el('div','dayscroll');
+    for(let i=0;i<14;i++){ const d=new Date(today); d.setDate(today.getDate()+i);
+      const b=el('button','daybtn'+(i===0?' active':'')); b.dataset.date=fmt.isoDate(d);
+      b.innerHTML='<small>'+d.toLocaleDateString('en',{weekday:'short'}).toUpperCase()+'</small><b>'+d.getDate()+'</b><small>'+d.toLocaleDateString('en',{month:'short'}).toUpperCase()+'</small>';
+      b.onclick=()=>{ days.querySelectorAll('.daybtn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); booking.date=b.dataset.date; loadSlots(court.id); };
+      days.appendChild(b);
+    }
+    bar.appendChild(days);
+    const legend=el('div','legend');
+    legend.innerHTML='<span><i class="lg-free"></i>Open</span><span><i class="lg-sel"></i>Selected</span><span><i class="lg-book"></i>Booked</span><span><i class="lg-un"></i>Closed</span>';
+    bar.appendChild(legend);
+    host.appendChild(bar);
+
+    const slotHost=el('div','slotgrid'); host.appendChild(slotHost);
+    const summaryHost=el('div'); host.appendChild(summaryHost);
+    booking._slotHost=slotHost; booking._summaryHost=summaryHost;
+    updateDateTitle();
+    await loadSlots(court.id);
+
+    $('.backlink',node).onclick=()=>history.back();
+  }catch(err){ host.innerHTML=''; host.appendChild(errorState(err.message)); }
+});
+function updateDateTitle(){ const t=$('#dateTitle'); if(t) t.textContent = fmt.dateLong(booking.date+'T00:00:00'); }
+
+async function loadSlots(courtId){
+  updateDateTitle();
+  const host=booking._slotHost; host.innerHTML=''; booking.selected=[];
+  renderBookSummary();
+  for(let i=0;i<10;i++){ const s=el('div','skel'); s.style.height='58px'; host.appendChild(s); }
+  try{
+    const slots = await api.availability(courtId, booking.date);
+    booking.slots=slots; host.innerHTML='';
+    if(!slots.length){ host.appendChild(emptyState('Club is closed','No slots for this day — the club isn’t open. Try another date.','clock')); return; }
+    slots.forEach((s,idx)=>{
+      const booked = s._booked!==undefined ? s._booked : (!s.available);
+      const closed = (!s.available && !booked);
+      const cls = booked?'is-booked':closed?'is-un':'';
+      const b=el('button','slot '+cls);
+      b.innerHTML='<div class="slot__t">'+(s._t||fmt.time(s.start))+'</div><div class="slot__p">'+(booked?'Booked':closed?'—':fmt.money(s.price))+'</div>';
+      if(!booked && !closed){ b.onclick=()=>toggleSlot(idx,b); }
+      host.appendChild(b);
+    });
+  }catch(err){ host.innerHTML=''; host.appendChild(errorState(err.message)); }
+}
+function toggleSlot(idx,btn){
+  const pos=booking.selected.indexOf(idx);
+  if(pos>-1) booking.selected.splice(pos,1); else booking.selected.push(idx);
+  booking.selected.sort((a,b)=>a-b);
+  btn.classList.toggle('is-sel');
+  renderBookSummary();
+}
+function renderBookSummary(){
+  const host=booking._summaryHost; if(!host) return; host.innerHTML='';
+  if(!booking.selected.length) return;
+  // contiguity check
+  const sel=booking.selected;
+  const contiguous = sel.every((v,i)=> i===0 || v===sel[i-1]+1);
+  const total = sel.reduce((s,i)=>s+booking.slots[i].price,0);
+  const first=booking.slots[sel[0]], last=booking.slots[sel[sel.length-1]];
+  const wrap=el('div','book-summary');
+  wrap.innerHTML='<div class="book-summary__in">'+
+      '<div class="book-summary__info"><b>'+(first._t||fmt.time(first.start))+' – '+fmt.time(last.end)+'</b>'+
+      '<small>'+sel.length+' × 30 min'+(contiguous?'':' · pick consecutive slots')+'</small></div>'+
+      '<div class="price-tag" style="font-size:17px">'+fmt.money(total)+'</div>'+
+      '<button class="btn btn--primary" id="doBook" '+(contiguous?'':'disabled')+'>'+svg('check')+'Book</button>'+
+    '</div>';
+  host.appendChild(wrap);
+  if(contiguous) $('#doBook',wrap).onclick=()=>doBook(total);
+}
+async function doBook(total){
+  const sel=booking.selected; const first=booking.slots[sel[0]], last=booking.slots[sel[sel.length-1]];
+  const btn=$('#doBook'); btn.disabled=true; btn.textContent='Booking…';
+  try{
+    await api.createReservation({ court:booking.court.id, start_datetime:first.start, end_datetime:last.end, _amt:total, _date:booking.date });
+    toast('Court booked — see you there!','ok');
+    booking.selected=[]; await loadSlots(booking.court.id);
+  }catch(err){ toast(err.message||'Could not book','err'); btn.disabled=false; btn.innerHTML=svg('check')+'Book'; }
+}
+
+/* =====================================================================
+   RESERVATIONS
+   ===================================================================== */
+route('reservations', async ()=>{
+  const node=el('div');
+  const head=el('div','section-head');
+  head.innerHTML='<div><div class="eyebrow">Your bookings</div><h2>Reservations</h2>'+(isStaff()?'<div class="sub">Staff view — showing all reservations.</div>':'')+'</div>'+
+    '<button class="btn btn--soft btn--sm" data-nav="#/clubs">'+svg('plus')+'Book more</button>';
+  node.appendChild(head);
+  const host=el('div'); host.appendChild(loadingNode()); node.appendChild(host);
+  shell(node,'reservations'); node.querySelectorAll('[data-nav]').forEach(n=>n.onclick=()=>nav(n.getAttribute('data-nav')));
+
+  try{
+    let res = await api.reservations();
+    res = res.slice().sort((a,b)=> new Date(a.start_datetime)-new Date(b.start_datetime));
+    host.innerHTML='';
+    if(!res.length){ const e=emptyState('No bookings yet','When you reserve a court it’ll appear here.','ticket'); const b=el('button','btn btn--primary',svg('ball')+'Find a court'); b.style.marginTop='6px'; b.onclick=()=>nav('#/clubs'); e.appendChild(b); host.appendChild(e); return; }
+    const now=Date.now();
+    const upcoming=res.filter(r=>new Date(r.end_datetime).getTime()>=now);
+    const past=res.filter(r=>new Date(r.end_datetime).getTime()<now);
+    if(upcoming.length){ host.appendChild(sectionLabel('Upcoming')); const g=el('div','grid'); upcoming.forEach(r=>g.appendChild(resCard(r,true))); host.appendChild(g); }
+    if(past.length){ host.appendChild(sectionLabel('Past')); const g=el('div','grid'); past.forEach(r=>g.appendChild(resCard(r,false))); host.appendChild(g); }
+  }catch(err){ host.innerHTML=''; host.appendChild(errorState(err.message)); }
+});
+function sectionLabel(t){ const d=el('div'); d.style.cssText='margin:22px 0 10px'; d.innerHTML='<div class="eyebrow eyebrow--muted">'+t+'</div>'; return d; }
+function resCard(r, upcoming){
+  const card=el('div','card');
+  const dur=Math.round((new Date(r.end_datetime)-new Date(r.start_datetime))/60000);
+  card.innerHTML='<div class="res-row">'+
+    '<div class="res-cal"><small>'+fmt.mon(r.start_datetime)+'</small><b>'+fmt.dayNum(r.start_datetime)+'</b><small>'+fmt.weekday(r.start_datetime)+'</small></div>'+
+    '<div class="res-main"><h3>'+esc(courtName(r.court))+'</h3>'+
+      '<div class="l"><span>'+svg('clock')+fmt.time(r.start_datetime)+'–'+fmt.time(r.end_datetime)+' · '+dur+' min</span>'+
+      (r.reservation_amt?'<span>'+svg('tag')+'<span class="price-tag">'+fmt.money(r.reservation_amt)+'</span></span>':'')+'</div></div>'+
+    '<div class="res-actions"></div></div>';
+  const actions=$('.res-actions',card);
+  const status=el('span','status '+(upcoming?'status--up':'status--past'), upcoming?'Upcoming':'Played');
+  actions.appendChild(status);
+  if(upcoming){
+    const del=el('button','btn btn--danger btn--sm',svg('trash')); del.title='Cancel'; del.onclick=()=>cancelReservation(r);
+    actions.appendChild(del);
+  }
+  return card;
+}
+function cancelReservation(r){
+  const body=el('div');
+  body.innerHTML='<p style="margin:0 0 18px;color:var(--ink-2)">Cancel your booking for <b>'+esc(courtName(r.court))+'</b> on '+esc(fmt.dateLong(r.start_datetime))+' at '+fmt.time(r.start_datetime)+'?</p>';
+  const row=el('div'); row.style.cssText='display:flex;gap:10px';
+  const keep=el('button','btn btn--outline btn--block','Keep it'); keep.onclick=closeModal;
+  const go=el('button','btn btn--danger btn--block',svg('trash')+'Cancel booking');
+  go.onclick=async()=>{ go.disabled=true; try{ await api.deleteReservation(r.id); toast('Booking cancelled','ok'); closeModal(); render(); }catch(e){ toast(e.message,'err'); go.disabled=false; } };
+  row.append(keep,go); body.appendChild(row);
+  openModal('Cancel booking?', body);
+}
+
+/* =====================================================================
+   PROFILE
+   ===================================================================== */
+route('profile', async ()=>{
+  const u=store.user||{};
+  const node=el('div');
+  const head=el('div','detail-hero');
+  head.innerHTML='<div class="hero__seam">'+svg('seam')+'</div><div class="hero__glow"></div>'+
+    '<div class="hero__eyebrow" style="color:var(--leaf)">Your account</div>'+
+    '<h1>'+esc((u.first_name||'')+' '+(u.last_name||'')).trim()+'</h1>'+
+    '<div class="meta"><span>'+svg('mail')+esc(u.email||'—')+'</span>'+(u.phone_number?'<span>'+svg('phone')+esc(u.phone_number)+'</span>':'')+'</div>';
+  node.appendChild(head);
+
+  const info=el('div','info-grid');
+  info.innerHTML=
+    infoCell('First name',u.first_name||'—')+
+    infoCell('Last name',u.last_name||'—')+
+    infoCell('Email',u.email||'—')+
+    infoCell('Phone',u.phone_number||'—')+
+    infoCell('Language',u.preferred_language||'—')+
+    infoCell('Role', isStaff()?'Club staff':'Player');
+  node.appendChild(info);
+
+  const actions=el('div'); actions.style.cssText='display:flex;flex-wrap:wrap;gap:10px;margin-top:20px';
+  const b1=el('button','btn btn--outline',svg('ticket')+'My reservations'); b1.onclick=()=>nav('#/reservations');
+  const b2=el('button','btn btn--outline',svg('gear')+'Settings'); b2.onclick=()=>nav('#/settings');
+  const b3=el('button','btn btn--danger',svg('logout')+'Sign out'); b3.onclick=logout;
+  actions.append(b1,b2,b3); node.appendChild(actions);
+
+  shell(node,'profile');
+});
+function infoCell(k,v){ return '<div class="info-cell"><small>'+esc(k)+'</small><b>'+esc(v)+'</b></div>'; }
+function logout(){ store.clearTokens(); state.authed=false; toast('Signed out'); render(); }
+
+/* =====================================================================
+   SETTINGS
+   ===================================================================== */
+route('settings', async ()=>{
+  const node=el('div');
+  const head=el('div','section-head'); head.innerHTML='<div><div class="eyebrow">Preferences</div><h2>Settings</h2></div>';
+  node.appendChild(head);
+
+  // connection
+  const conn=el('div','card card--pad');
+  conn.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="color:var(--ball)">'+svg('gear')+'</span><b style="font-family:var(--display);font-size:17px">Backend connection</b></div>'+
+    '<div class="field"><label>API base URL</label><input id="apiUrl" value="'+esc(store.api)+'" placeholder="http://localhost:8000"/></div>'+
+    '<button class="btn btn--soft btn--sm" id="saveApi">'+svg('check')+'Save URL</button>'+
+    '<p class="small-note">Point this at your MatchPoint Django server. Endpoints used: <code>/api/token/</code>, <code>/api/clubs/</code>, <code>/api/courts/</code>, <code>/api/reservations/</code>.</p>';
+  node.appendChild(conn);
+
+  // toggles
+  const tog=el('div','card card--pad'); tog.style.marginTop='16px';
+  tog.innerHTML=
+    toggleRow('demo','Demo mode','Explore the app with sample Sofia clubs — no server needed.',store.demo)+
+    toggleRow('staff','Staff view','Unlock club-management buttons: create courts, set prices, block times, opening hours.',store.staff);
+  node.appendChild(tog);
+
+  // install
+  const inst=el('div','card card--pad'); inst.style.marginTop='16px';
+  inst.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="color:var(--ball)">'+svg('download')+'</span><b style="font-family:var(--display);font-size:17px">Install as an app</b></div>'+
+    '<p class="small-note" style="margin-top:0">Add MatchPoint to your home screen for full-screen, offline-ready access.</p>';
+  const ib=el('button','btn btn--dark',svg('download')+'Install MatchPoint'); ib.id='installNow';
+  ib.disabled=!deferredPrompt;
+  ib.onclick=triggerInstall;
+  inst.appendChild(ib);
+  if(!deferredPrompt){ const n=el('p','small-note'); n.innerHTML='On iPhone/iPad: tap the <b>Share</b> button, then <b>Add to Home Screen</b>. On desktop Chrome/Edge: use the install icon in the address bar.'; inst.appendChild(n); }
+  node.appendChild(inst);
+
+  shell(node,'settings');
+
+  $('#saveApi').onclick=()=>{ const v=$('#apiUrl').value.trim(); if(v){ store.api=v; toast('API URL saved','ok'); } };
+  tog.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.onchange=()=>{
+    if(cb.dataset.k==='demo'){ store.demo=cb.checked; toast(cb.checked?'Demo mode on':'Demo mode off — using your backend'); }
+    if(cb.dataset.k==='staff'){ store.staff=cb.checked; toast(cb.checked?'Staff view on':'Staff view off'); }
+  });
+});
+function toggleRow(k,title,desc,on){
+  return '<div class="toggle"><div class="t"><b>'+esc(title)+'</b><small>'+esc(desc)+'</small></div>'+
+    '<label class="switch"><input type="checkbox" data-k="'+k+'" '+(on?'checked':'')+'/><span class="track"></span></label></div>';
+}
+
+/* =====================================================================
+   Staff modals
+   ===================================================================== */
+function isStaff(){ return store.staff; }
+
+function editClubModal(club){
+  const b=el('div');
+  b.innerHTML=
+    '<div class="field"><label>Name</label><input name="name" value="'+esc(club.name)+'"/></div>'+
+    '<div class="field"><label>Address</label><input name="address" value="'+esc(club.address||'')+'"/></div>'+
+    '<div class="field"><label>Description</label><input name="description" value="'+esc(club.description||'')+'"/></div>'+
+    '<div class="field"><div class="row2"><div><label>Phone</label><input name="phone" value="'+esc(club.phone||'')+'"/></div><div><label>Email</label><input name="email" value="'+esc(club.email||'')+'"/></div></div></div>';
+  const save=el('button','btn btn--primary btn--block',svg('check')+'Save changes');
+  save.onclick=async()=>{ save.disabled=true; const body=collect(b); try{ await api.updateClub(club.id,body); toast('Club updated','ok'); closeModal(); render(); }catch(e){ toast(e.message,'err'); save.disabled=false; } };
+  b.appendChild(save); openModal('Edit club', b);
+}
+function openingHoursModal(clubId){
+  const b=el('div');
+  const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  b.innerHTML='<div class="field"><label>Weekday</label><select name="weekday">'+days.map(d=>'<option>'+d+'</option>').join('')+'</select></div>'+
+    '<div class="field"><div class="row2"><div><label>Opens</label><input name="opening_hour" type="time" step="1800" value="08:00"/></div><div><label>Closes</label><input name="closing_hour" type="time" step="1800" value="22:00"/></div></div></div>'+
+    '<p class="small-note">Times must be on 30-minute increments.</p>';
+  const save=el('button','btn btn--primary btn--block',svg('plus')+'Add opening hours');
+  save.onclick=async()=>{ save.disabled=true; const body=collect(b); body.opening_hour+=':00'; body.closing_hour+=':00'; try{ await api.addOpeningHour(clubId,body); toast('Opening hours added','ok'); closeModal(); render(); }catch(e){ toast(e.message,'err'); save.disabled=false; } };
+  b.appendChild(save); openModal('Add opening hours', b);
+}
+async function employeesModal(clubId){
+  const b=el('div'); b.innerHTML='<div class="spinner"></div>'; openModal('Club staff', b);
+  try{ const emp=await api.clubEmployees(clubId); b.innerHTML='';
+    if(!emp.length){ b.appendChild(emptyState('No staff','No employees are listed for this club.','users')); return; }
+    emp.forEach(e=>{ const row=el('div','res-row'); row.style.padding='10px 0';
+      row.innerHTML='<div class="avatar" style="background:var(--pale);color:var(--ink)">'+esc(((e.first_name||'?')[0]||'?').toUpperCase())+'</div>'+
+        '<div class="res-main"><h3 style="font-size:15px">'+esc((e.first_name||'')+' '+(e.last_name||''))+'</h3></div>'; b.appendChild(row); });
+  }catch(e){ b.innerHTML=''; b.appendChild(errorState(e.message)); }
+}
+function courtFormModal(court, clubId){
+  const editing=!!court; const b=el('div');
+  const surfaces=["Clay","Grass","Hard"];
+  b.innerHTML=
+    '<div class="field"><label>Court name</label><input name="name" value="'+esc(court?court.name:'')+'" placeholder="Court 1 — Centre"/></div>'+
+    '<div class="field"><label>Surface</label><select name="surface_type">'+surfaces.map(s=>'<option '+(court&&court.surface_type===s?'selected':'')+'>'+s+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>Sport</label><select name="sport_type"><option'+(!court||court.sport_type==='Tennis'?' selected':'')+'>Tennis</option></select></div>'+
+    '<div class="toggle"><div class="t"><b>Indoor</b></div><label class="switch"><input type="checkbox" name="is_indoor" '+(court&&court.is_indoor?'checked':'')+'/><span class="track"></span></label></div>'+
+    '<div class="toggle"><div class="t"><b>Floodlit</b></div><label class="switch"><input type="checkbox" name="is_lit" '+(court&&court.is_lit?'checked':'')+'/><span class="track"></span></label></div>';
+  const save=el('button','btn btn--primary btn--block',svg('check')+(editing?'Save court':'Create court')); save.style.marginTop='6px';
+  save.onclick=async()=>{ save.disabled=true;
+    const body={ name:$('[name=name]',b).value, surface_type:$('[name=surface_type]',b).value, sport_type:$('[name=sport_type]',b).value,
+      is_indoor:$('[name=is_indoor]',b).checked, is_lit:$('[name=is_lit]',b).checked, club_id:clubId };
+    try{ if(editing) await api.updateCourt(court.id,body); else await api.createCourt(body); toast(editing?'Court saved':'Court created','ok'); closeModal(); render(); }
+    catch(e){ toast(e.message,'err'); save.disabled=false; } };
+  b.appendChild(save); openModal(editing?'Edit court':'New court', b);
+}
+function confirmDeleteCourt(court){
+  const b=el('div'); b.innerHTML='<p style="margin:0 0 18px;color:var(--ink-2)">Delete <b>'+esc(court.name)+'</b>? This removes the court and its schedule.</p>';
+  const row=el('div'); row.style.cssText='display:flex;gap:10px';
+  const keep=el('button','btn btn--outline btn--block','Keep'); keep.onclick=closeModal;
+  const go=el('button','btn btn--danger btn--block',svg('trash')+'Delete court');
+  go.onclick=async()=>{ go.disabled=true; try{ await api.deleteCourt(court.id); toast('Court deleted','ok'); closeModal(); nav('#/clubs/'+court.club_id); }catch(e){ toast(e.message,'err'); go.disabled=false; } };
+  row.append(keep,go); b.appendChild(row); openModal('Delete court?', b);
+}
+async function pricesModal(courtId){
+  const b=el('div'); b.innerHTML='<div class="spinner"></div>'; openModal('Court prices', b);
+  const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  try{
+    const prices=await api.prices(courtId);
+    b.innerHTML='<p class="small-note" style="margin-top:0">Price per 30-minute block. Saving replaces the full price list.</p><div id="rows"></div>';
+    const rows=$('#rows',b);
+    function addRow(p){ const r=el('div','card card--pad'); r.style.marginBottom='10px';
+      r.innerHTML='<div class="field" style="margin-bottom:8px"><label>Weekday</label><select class="pw">'+days.map(d=>'<option '+(p&&p.weekday===d?'selected':'')+'>'+d+'</option>').join('')+'</select></div>'+
+        '<div class="field" style="margin-bottom:8px"><div class="row2"><div><label>From</label><input class="ps" type="time" step="1800" value="'+(p?p.time_start.slice(0,5):'08:00')+'"/></div><div><label>To</label><input class="pe" type="time" step="1800" value="'+(p?p.time_end.slice(0,5):'18:00')+'"/></div></div></div>'+
+        '<div class="field" style="margin-bottom:0"><label>Price / 30 min (лв)</label><input class="pp" type="number" step="0.5" value="'+(p?p.price_per_30_minutes:8)+'"/></div>';
+      const rm=el('button','btn btn--danger btn--sm',svg('trash')+'Remove'); rm.style.marginTop='8px'; rm.onclick=()=>r.remove();
+      r.appendChild(rm); rows.appendChild(r);
+    }
+    (prices.length?prices:[null]).forEach(addRow);
+    const add=el('button','btn btn--outline btn--sm',svg('plus')+'Add price band'); add.onclick=()=>addRow(null); b.appendChild(add);
+    const save=el('button','btn btn--primary btn--block',svg('check')+'Save prices'); save.style.marginTop='12px';
+    save.onclick=async()=>{ save.disabled=true;
+      const arr=[...rows.children].map(r=>({ weekday:$('.pw',r).value, time_start:$('.ps',r).value+':00', time_end:$('.pe',r).value+':00', price_per_30_minutes:parseFloat($('.pp',r).value) }));
+      try{ await api.setPrices(courtId,arr); toast('Prices saved','ok'); closeModal(); }catch(e){ toast(e.message,'err'); save.disabled=false; } };
+    b.appendChild(save);
+  }catch(e){ b.innerHTML=''; b.appendChild(errorState(e.message)); }
+}
+function unavailabilityModal(courtId){
+  const b=el('div');
+  const today=fmt.isoDate(new Date());
+  b.innerHTML='<p class="small-note" style="margin-top:0">Block a time range (maintenance, tournament, etc.). Players won’t be able to book it.</p>'+
+    '<div class="field"><div class="row2"><div><label>Start date</label><input id="sd" type="date" value="'+today+'"/></div><div><label>Start time</label><input id="st" type="time" step="1800" value="09:00"/></div></div></div>'+
+    '<div class="field"><div class="row2"><div><label>End date</label><input id="ed" type="date" value="'+today+'"/></div><div><label>End time</label><input id="et" type="time" step="1800" value="11:00"/></div></div></div>';
+  const save=el('button','btn btn--primary btn--block',svg('ban')+'Block this time');
+  save.onclick=async()=>{ save.disabled=true;
+    const body={ start_datetime:$('#sd',b).value+'T'+$('#st',b).value+':00', end_datetime:$('#ed',b).value+'T'+$('#et',b).value+':00' };
+    try{ await api.addUnavailability(courtId,body); toast('Time blocked','ok'); closeModal(); if(booking.court&&booking.court.id==courtId) loadSlots(courtId); }catch(e){ toast(e.message,'err'); save.disabled=false; } };
+  b.appendChild(save); openModal('Block court time', b);
+}
+function collect(scope){ const o={}; scope.querySelectorAll('input[name],select[name]').forEach(i=>{ o[i.name]= i.type==='checkbox'?i.checked:i.value; }); return o; }
+
+/* =====================================================================
+   Shared UI bits
+   ===================================================================== */
+function backLink(hash,label){ const b=el('button','backlink',svg('back')+esc(label)); if(hash) b.dataset.nav=hash; return b; }
+function bindBack(node){ node.querySelectorAll('.backlink[data-nav]').forEach(n=>n.onclick=()=>nav(n.getAttribute('data-nav'))); }
+function emptyState(title,desc,icon){ const d=el('div','empty'); d.innerHTML=svg(icon||'ball')+'<h3>'+esc(title)+'</h3><p>'+esc(desc)+'</p>'; return d; }
+function errorState(msg){ const d=el('div','empty'); d.innerHTML=svg('info')+'<h3>Couldn’t load</h3><p>'+esc(msg||'Please try again.')+'</p>';
+  const b=el('button','btn btn--soft btn--sm','Retry'); b.style.marginTop='6px'; b.onclick=render; d.appendChild(b);
+  const s=el('p','small-note'); s.innerHTML='If you’re not running the backend, enable <b>Demo mode</b> in Settings.'; d.appendChild(s); return d; }
+
+/* =====================================================================
+   Install (PWA)
+   ===================================================================== */
+window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); deferredPrompt=e; });
+function installBannerAllowed(){ return deferredPrompt && localStorage.getItem(LS.dismissInstall)!=='1'; }
+function installBanner(){
+  const d=el('div','install');
+  d.innerHTML='<img src="icons/icon-192.png" alt=""/><div class="t"><b>Install MatchPoint</b><small>Full-screen, offline-ready, one tap to book.</small></div>';
+  const go=el('button','btn btn--primary btn--sm',svg('download')+'Install'); go.onclick=triggerInstall;
+  const x=el('button','x','×'); x.onclick=()=>{ localStorage.setItem(LS.dismissInstall,'1'); render(); };
+  d.append(go,x); return d;
+}
+async function triggerInstall(){
+  if(!deferredPrompt){ toast('Use your browser menu: “Add to Home Screen”.'); return; }
+  deferredPrompt.prompt(); const {outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted') toast('Installing…','ok'); deferredPrompt=null; render();
+}
+
+/* =====================================================================
+   Master render
+   ===================================================================== */
+function render(){
+  // auth gate (demo mode still requires a lightweight "sign in" for realism)
+  if(!store.access){ renderAuth(); return; }
+  const r=currentRoute();
+  closeModal();
+  switch(r.top){
+    case 'clubs':
+      if(r.a) routes.clubDetail(r.a);
+      else routes.clubs();
+      break;
+    case 'courts': routes.courtDetail(r.a); break;
+    case 'reservations': routes.reservations(); break;
+    case 'profile': routes.profile(); break;
+    case 'settings': routes.settings(); break;
+    default: location.hash='#/clubs';
+  }
+}
+
+/* Register service worker */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+
+/* Boot */
+if(!location.hash) location.hash='#/clubs';
+render();
+
+})();
+</script>
+</body>
+</html>
