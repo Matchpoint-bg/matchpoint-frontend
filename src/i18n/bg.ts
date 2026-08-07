@@ -187,6 +187,15 @@ export const bg: Record<TranslationKey, string> = {
   label_description: "Описание",
 };
 
+/**
+ * Bulgarian CLDR renders `month: 'short'` as a number ("08"), which makes the 14-day
+ * strip and reservation cards read identically for every day in a month. These are the
+ * conventional 3-letter abbreviations instead.
+ */
+export const MONTHS_SHORT_BG = [
+  'яну', 'фев', 'мар', 'апр', 'май', 'юни', 'юли', 'авг', 'сеп', 'окт', 'ное', 'дек',
+] as const;
+
 export const WEEKDAYS_BG = [
   'Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък', 'Събота', 'Неделя',
 ] as const;

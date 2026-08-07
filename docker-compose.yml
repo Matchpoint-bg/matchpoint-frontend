@@ -1,0 +1,27 @@
+services:
+  # Production build served by nginx. `docker compose up web`
+  web:
+    build:
+      context: .
+      target: runtime
+    image: matchpoint-frontend
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    restart: unless-stopped
+
+  # Vite dev server with hot reload. `docker compose --profile dev up dev`
+  # Source is bind-mounted; node_modules stays inside the container so the host's
+  # copy (or absence of one) can't shadow it.
+  dev:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "${DEV_PORT:-5173}:5173"
+    profiles: ["dev"]
+
+volumes:
+  node_modules:

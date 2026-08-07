@@ -1,4 +1,5 @@
 import type { Lang } from './store';
+import { MONTHS_SHORT_BG } from '../i18n/bg';
 
 export function locale(lang: Lang): string {
   return lang === 'bg' ? 'bg-BG' : 'en';
@@ -13,7 +14,9 @@ export const fmt = {
     return new Date(iso).getDate();
   },
   mon(iso: string, lang: Lang): string {
-    return new Date(iso).toLocaleDateString(locale(lang), { month: 'short' }).toUpperCase();
+    const d = new Date(iso);
+    if (lang === 'bg') return (MONTHS_SHORT_BG[d.getMonth()] ?? '').toUpperCase();
+    return d.toLocaleDateString(locale(lang), { month: 'short' }).toUpperCase();
   },
   weekday(iso: string, lang: Lang): string {
     return new Date(iso).toLocaleDateString(locale(lang), { weekday: 'short' }).toUpperCase();
