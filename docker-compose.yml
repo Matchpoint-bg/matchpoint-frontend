@@ -4,7 +4,17 @@ services:
     build:
       context: .
       target: runtime
+      args:
+        # Empty = same origin; nginx proxies /api/ to API_ORIGIN below.
+        VITE_API_URL: "${VITE_API_URL-}"
     image: matchpoint-frontend
+    environment:
+      # Where nginx forwards /api/. On Linux, host.docker.internal needs the extra_hosts entry.
+      API_ORIGIN: "${API_ORIGIN:-http://host.docker.internal:8000}"
+      # Widen only if you build with an absolute VITE_API_URL (cross-origin API calls).
+      CSP_CONNECT_SRC: "${CSP_CONNECT_SRC:-'self'}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "${WEB_PORT:-8080}:80"
     restart: unless-stopped

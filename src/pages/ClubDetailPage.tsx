@@ -17,6 +17,8 @@ export function ClubDetailPage() {
   const navigate = useNavigate();
 
   const { data, error, loading, reload } = useAsync(async () => {
+    // `/clubs/abc` would otherwise fetch `/api/clubs/NaN/`.
+    if (!Number.isFinite(clubId)) return { club: undefined, courts: [], hours: [] };
     const [club, courts, hours] = await Promise.all([
       api.club(clubId),
       api.clubCourts(clubId),
@@ -33,6 +35,20 @@ export function ClubDetailPage() {
 
       {loading && <Spinner />}
       {!loading && error && <ErrorState msg={error} onRetry={reload} />}
+
+      {/* A resolved-but-empty club used to render nothing at all. */}
+      {!loading && !error && data && !data.club && (
+        <EmptyState title={t('club_missing_title')} desc={t('club_missing_desc')} icon="info">
+          <button
+            className="btn btn--primary"
+            style={{ marginTop: 6 }}
+            onClick={() => navigate('/clubs')}
+          >
+            <Icon name="ball" />
+            {t('go_to_clubs')}
+          </button>
+        </EmptyState>
+      )}
 
       {!loading && !error && data?.club && (
         <>

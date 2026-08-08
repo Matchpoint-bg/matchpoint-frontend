@@ -2,5 +2,8 @@ node_modules
 dist
 dist-ssr
 *.local
+# .env.example and .env.development are checked in on purpose; per-machine overrides are not.
+.env
+.env.*.local
 .DS_Store
 .vite

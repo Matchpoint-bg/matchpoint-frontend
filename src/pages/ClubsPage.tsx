@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, Seam } from '../components/Icons';
 import { SectionHead, Shell } from '../components/Shell';
@@ -18,6 +18,47 @@ export function ClubsPage() {
   const headRef = useRef<HTMLDivElement>(null);
 
   const { data: clubs, error, loading, reload } = useAsync(() => api.clubs(), [demo]);
+
+  const [query, setQuery] = useState('');
+  const [surface, setSurface] = useState<string | null>(null);
+
+  /**
+   * Surfaces per club come from the court fixtures, which only exist in demo mode — the
+   * club list endpoint doesn't carry them. Where there's no surface data the filter row is
+   * hidden rather than shown as a control that does nothing.
+   */
+  const courtsByClub = useMemo(() => {
+    const map = new Map<number, { count: number; surfaces: string[] }>();
+    if (!demo) return map;
+    for (const club of clubs ?? []) {
+      const courts = DEMO.courts.filter((c) => c.club_id === club.id);
+      map.set(club.id, {
+        count: courts.length,
+        surfaces: [...new Set(courts.map((c) => c.surface_type))],
+      });
+    }
+    return map;
+  }, [clubs, demo]);
+
+  const surfaceOptions = useMemo(
+    () => [...new Set([...courtsByClub.values()].flatMap((v) => v.surfaces))].sort(),
+    [courtsByClub],
+  );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (clubs ?? []).filter((club) => {
+      if (q) {
+        const haystack = [club.name, club.city, club.address, club.description]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      if (surface && !courtsByClub.get(club.id)?.surfaces.includes(surface)) return false;
+      return true;
+    });
+  }, [clubs, query, surface, courtsByClub]);
 
   return (
     <Shell active="clubs">
@@ -52,6 +93,42 @@ export function ClubsPage() {
         <SectionHead eyebrow={t('clubs_eyebrow')} title={t('clubs_h2')} />
       </div>
 
+      <div className="clubfilters">
+        <div className="field" style={{ margin: 0 }}>
+          <label htmlFor="club-search">{t('search_clubs')}</label>
+          <input
+            id="club-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('search_clubs_placeholder')}
+            autoComplete="off"
+          />
+        </div>
+
+        {surfaceOptions.length > 0 && (
+          <div className="chiprow" role="group" aria-label={t('surface')}>
+            <button
+              className={`chip chip--btn${surface === null ? ' chip--on' : ''}`}
+              aria-pressed={surface === null}
+              onClick={() => setSurface(null)}
+            >
+              {t('all_surfaces')}
+            </button>
+            {surfaceOptions.map((s) => (
+              <button
+                key={s}
+                className={`chip chip--btn${surface === s ? ' chip--on' : ''}`}
+                aria-pressed={surface === s}
+                onClick={() => setSurface(surface === s ? null : s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="grid grid--cards">
         {loading && <Skeleton height={200} count={3} />}
 
@@ -61,11 +138,25 @@ export function ClubsPage() {
           <EmptyState title={t('no_clubs_title')} desc={t('no_clubs_desc')} icon="ball" />
         )}
 
+        {!loading && !error && (clubs?.length ?? 0) > 0 && filtered.length === 0 && (
+          <EmptyState title={t('no_match_title')} desc={t('no_match_desc')} icon="info">
+            <button
+              className="btn btn--soft btn--sm"
+              style={{ marginTop: 6 }}
+              onClick={() => {
+                setQuery('');
+                setSurface(null);
+              }}
+            >
+              {t('clear_filters')}
+            </button>
+          </EmptyState>
+        )}
+
         {!loading &&
           !error &&
-          clubs?.map((club) => {
-            const courts = demo ? DEMO.courts.filter((c) => c.club_id === club.id) : [];
-            const surfaces = [...new Set(courts.map((c) => c.surface_type))];
+          filtered.map((club) => {
+            const { count = 0, surfaces = [] } = courtsByClub.get(club.id) ?? {};
             return (
               <button
                 key={club.id}
@@ -94,10 +185,10 @@ export function ClubsPage() {
                     </p>
                   )}
                   <div className="chiprow">
-                    {courts.length > 0 && (
+                    {count > 0 && (
                       <span className="chip">
                         <Icon name="court" />
-                        {courts.length} {t('courts_suffix')}
+                        {count} {t('courts_suffix')}
                       </span>
                     )}
                     {surfaces.map((s) => (

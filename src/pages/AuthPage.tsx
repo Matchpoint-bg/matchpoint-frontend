@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Seam } from '../components/Icons';
-import { ThemeLangToggles } from '../components/Shell';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AuthLayout } from '../components/AuthLayout';
 import { useI18n } from '../i18n';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -9,6 +9,11 @@ import { useToast } from '../context/ToastContext';
 import { api } from '../lib/api';
 
 type Mode = 'login' | 'register';
+
+/** Where RequireAuth stashes the route the visitor was originally aiming for. */
+interface FromState {
+  from?: { pathname?: string };
+}
 
 function GoogleMark() {
   return (
@@ -26,13 +31,25 @@ export function AuthPage() {
   const { login, register } = useAuth();
   const { demo } = useSettings();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [mode, setMode] = useState<Mode>('login');
   const [busy, setBusy] = useState(false);
+
+  // Land back on the guarded page that bounced us here, not always on /clubs.
+  const dest = (location.state as FromState | null)?.from?.pathname ?? '/clubs';
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     const f = Object.fromEntries(new FormData(e.currentTarget).entries()) as Record<string, string>;
+
+    if (mode === 'register' && (f.password ?? '') !== (f.password_confirm ?? '')) {
+      toast(t('password_mismatch'), 'err');
+      setBusy(false);
+      return;
+    }
+
     try {
       if (mode === 'login') {
         await login(f.email ?? '', f.password ?? '');
@@ -46,8 +63,10 @@ export function AuthPage() {
         });
       }
       toast(t('signed_in'), 'ok');
+      navigate(dest, { replace: true });
     } catch (err) {
       toast(err instanceof Error ? err.message : t('signin_fail'), 'err');
+    } finally {
       setBusy(false);
     }
   }
@@ -58,6 +77,7 @@ export function AuthPage() {
       try {
         await login('google@demo.bg', 'x');
         toast(t('signed_in'), 'ok');
+        navigate(dest, { replace: true });
       } catch {
         toast(t('signin_fail'), 'err');
       }
@@ -67,121 +87,132 @@ export function AuthPage() {
   }
 
   return (
-    <div className="auth-wrap">
-      <div className="auth-brandside">
-        <Seam />
-        <div className="hero__glow" />
-
-        <div className="b-top">
-          <img className="b-mark" src="/icons/icon-192.png" alt="" />
-          <span className="brand__tag" style={{ color: 'var(--leaf)' }}>
-            {t('tap_hero')}
-          </span>
-          <span style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            <ThemeLangToggles />
-          </span>
-        </div>
-
-        <div>
-          <h1>
-            {t('hero_title1')}
-            <br />
-            <span>{t('hero_title2')}</span>
-          </h1>
-          <p className="lede">{t('hero_lede')}</p>
-          <div className="pills">
-            <span className="pill">{t('pill_live')}</span>
-            <span className="pill">{t('pill_instant')}</span>
-            <span className="pill">{t('pill_surfaces')}</span>
-            <span className="pill">{t('pill_install')}</span>
-          </div>
-        </div>
-
-        <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 12.5 }}>{t('powered_by')}</div>
+    <AuthLayout>
+      <div className="authtabs" role="tablist">
+        <button
+          role="tab"
+          aria-selected={mode === 'login'}
+          className={mode === 'login' ? 'active' : ''}
+          onClick={() => setMode('login')}
+        >
+          {t('sign_in')}
+        </button>
+        <button
+          role="tab"
+          aria-selected={mode === 'register'}
+          className={mode === 'register' ? 'active' : ''}
+          onClick={() => setMode('register')}
+        >
+          {t('create_account')}
+        </button>
       </div>
 
-      <div className="auth-formside">
-        <div className="auth-card">
-          <div className="authtabs">
-            <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>
-              {t('sign_in')}
-            </button>
-            <button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>
-              {t('create_account')}
-            </button>
+      <h2>{mode === 'login' ? t('welcome_back') : t('join')}</h2>
+      <p className="muted">{mode === 'login' ? t('signin_sub') : t('register_sub')}</p>
+
+      {demo && (
+        <div className="install" style={{ marginBottom: 18 }}>
+          <span className="demo-flag">DEMO</span>
+          <div className="t" style={{ color: '#fff' }}>
+            <b style={{ fontSize: 14 }}>{t('demo_explore')}</b>
+            <small>{t('demo_explore_desc')}</small>
           </div>
-
-          <h2>{mode === 'login' ? t('welcome_back') : t('join')}</h2>
-          <p className="muted">{mode === 'login' ? t('signin_sub') : t('register_sub')}</p>
-
-          {demo && (
-            <div className="install" style={{ marginBottom: 18 }}>
-              <span className="demo-flag">DEMO</span>
-              <div className="t" style={{ color: '#fff' }}>
-                <b style={{ fontSize: 14 }}>{t('demo_explore')}</b>
-                <small>{t('demo_explore_desc')}</small>
-              </div>
-            </div>
-          )}
-
-          {/* Remounts on mode change so the browser clears fields that no longer apply. */}
-          <form onSubmit={onSubmit} key={mode}>
-            {mode === 'register' && (
-              <div className="field">
-                <div className="row2">
-                  <div>
-                    <label>{t('first_name')}</label>
-                    <input name="first_name" required autoComplete="given-name" />
-                  </div>
-                  <div>
-                    <label>{t('last_name')}</label>
-                    <input name="last_name" required autoComplete="family-name" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="field">
-              <label>{t('email')}</label>
-              <input name="email" type="email" required autoComplete="email" placeholder="you@club.bg" />
-            </div>
-
-            {mode === 'register' && (
-              <div className="field">
-                <label>{t('phone_opt')}</label>
-                <input name="phone_number" inputMode="tel" placeholder="+359…" autoComplete="tel" />
-              </div>
-            )}
-
-            <div className="field">
-              <label>{t('password')}</label>
-              <input
-                name="password"
-                type="password"
-                required
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                minLength={demo ? 1 : 6}
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button className="btn btn--primary btn--block" type="submit" disabled={busy}>
-              {busy ? t('please_wait') : mode === 'login' ? t('sign_in') : t('create_account')}
-            </button>
-          </form>
-
-          <div className="divider">{t('or')}</div>
-
-          <button className="btn btn--google" onClick={onGoogle}>
-            <GoogleMark />
-            {t('continue_google')}
-          </button>
-
-          <p className="small-note" style={{ textAlign: 'center' }}>
-            {t('terms_note')}
-          </p>
         </div>
-      </div>
-    </div>
+      )}
+
+      {/* Remounts on mode change so the browser clears fields that no longer apply. */}
+      <form onSubmit={onSubmit} key={mode}>
+        {mode === 'register' && (
+          <div className="field">
+            <div className="row2">
+              <div>
+                <label htmlFor="first_name">{t('first_name')}</label>
+                <input id="first_name" name="first_name" required autoComplete="given-name" />
+              </div>
+              <div>
+                <label htmlFor="last_name">{t('last_name')}</label>
+                <input id="last_name" name="last_name" required autoComplete="family-name" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="field">
+          <label htmlFor="email">{t('email')}</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@club.bg"
+          />
+        </div>
+
+        {mode === 'register' && (
+          <div className="field">
+            <label htmlFor="phone_number">{t('phone_opt')}</label>
+            <input
+              id="phone_number"
+              name="phone_number"
+              inputMode="tel"
+              placeholder="+359…"
+              autoComplete="tel"
+            />
+          </div>
+        )}
+
+        <div className="field">
+          <label htmlFor="password">{t('password')}</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            minLength={demo ? 1 : 8}
+            placeholder="••••••••"
+          />
+        </div>
+
+        {mode === 'register' && (
+          <div className="field">
+            <label htmlFor="password_confirm">{t('confirm_password')}</label>
+            <input
+              id="password_confirm"
+              name="password_confirm"
+              type="password"
+              required
+              autoComplete="new-password"
+              minLength={demo ? 1 : 8}
+              placeholder="••••••••"
+            />
+          </div>
+        )}
+
+        <button className="btn btn--primary btn--block" type="submit" disabled={busy}>
+          {busy ? t('please_wait') : mode === 'login' ? t('sign_in') : t('create_account')}
+        </button>
+      </form>
+
+      {mode === 'login' && (
+        <p style={{ textAlign: 'center', margin: '12px 0 0' }}>
+          <Link className="backlink" to="/forgot-password">
+            {t('forgot_password')}
+          </Link>
+        </p>
+      )}
+
+      <div className="divider">{t('or')}</div>
+
+      <button className="btn btn--google" onClick={onGoogle}>
+        <GoogleMark />
+        {t('continue_google')}
+      </button>
+
+      <p className="small-note" style={{ textAlign: 'center' }}>
+        {t('terms_note')}
+      </p>
+    </AuthLayout>
   );
 }

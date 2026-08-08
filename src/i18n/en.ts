@@ -183,6 +183,112 @@ export const en = {
   label_name: "Name",
   label_address: "Address",
   label_description: "Description",
+
+  // Not found
+  notfound_eyebrow: "Lost the ball",
+  notfound_title: "Page not found",
+  notfound_desc: "That link doesn’t lead anywhere. Let’s get you back on court.",
+  go_to_clubs: "Go to clubs",
+
+  // Password reset
+  forgot_password: "Forgot password?",
+  reset_eyebrow: "Account recovery",
+  reset_title: "Reset your password",
+  reset_desc: "Enter your email and we’ll send you a link to set a new password.",
+  send_reset_link: "Send reset link",
+  reset_sent_title: "Check your inbox",
+  reset_sent_desc: "If an account exists for that email, a reset link is on its way.",
+  back_to_signin: "Back to sign in",
+  new_password: "New password",
+  confirm_password: "Confirm password",
+  set_new_password: "Set new password",
+  choose_new_desc: "Choose a new password for your account.",
+  password_mismatch: "Passwords don’t match",
+  password_too_short: "Password must be at least 8 characters",
+  password_changed: "Password updated — sign in with it now",
+  reset_link_invalid: "This reset link is invalid or has expired",
+
+  // Profile editing
+  edit_profile: "Edit profile",
+  profile_saved: "Profile updated",
+  change_password: "Change password",
+  current_password: "Current password",
+  save: "Save",
+  email_readonly: "Email can’t be changed here — contact the club.",
+
+  // Club search
+  search_clubs: "Search clubs",
+  search_clubs_placeholder: "Club name, city or address…",
+  all_surfaces: "All surfaces",
+  no_match_title: "No clubs match",
+  no_match_desc: "Try a different search or clear the filters.",
+  clear_filters: "Clear filters",
+
+  // Reschedule
+  reschedule: "Reschedule",
+  rescheduling_title: "Rescheduling",
+  rescheduling_desc: "Pick a new time for this booking. The old slot is released once you confirm.",
+  confirm_reschedule: "Confirm new time",
+  rescheduled_toast: "Booking moved",
+  reschedule_fail: "Could not reschedule",
+  cancel_reschedule: "Keep original time",
+
+  // Not-found guards
+  club_missing_title: "Club not found",
+  club_missing_desc: "This club doesn’t exist, or it’s no longer listed.",
+  court_missing_title: "Court not found",
+  court_missing_desc: "This court doesn’t exist, or it’s no longer listed.",
+
+  // Settings tabs
+  tab_player: "Player",
+  tab_staff: "Club staff",
+
+  // Player: account
+  account_card: "Account",
+  account_card_desc: "Your details, synced to your MatchPoint account.",
+  signed_in_as: "Signed in as",
+
+  // Player: language (server-backed)
+  lang_synced_note: "Saved to your account, so it follows you to any device.",
+  lang_save_failed: "Couldn’t save your language preference",
+
+  // Player: device
+  device_card: "This device",
+  device_card_desc: "Stored in this browser only — not synced to your account.",
+
+  // Player: notifications
+  notifications: "Notifications",
+  notify_inactive_note:
+    "Preferences are saved on this device. Delivery isn’t switched on yet — the server doesn’t send notifications.",
+  notify_confirm: "Booking confirmations",
+  notify_confirm_desc: "Get a message when a booking is confirmed.",
+  notify_remind: "Match reminders",
+  notify_remind_desc: "A nudge shortly before your court time.",
+  notify_cancel: "Cancellations",
+  notify_cancel_desc: "Tell me when a booking is cancelled or moved.",
+
+  // Staff: club picker
+  staff_club_card: "Club you manage",
+  staff_club_desc: "Pick the club these settings apply to.",
+  no_clubs_staff: "No clubs available to manage.",
+  select_club_first: "Pick a club to manage its hours, courts and prices.",
+
+  // Staff: opening hours
+  hours_card: "Opening hours",
+  hours_card_desc: "When the club takes bookings. Times must land on 30-minute marks.",
+  add_day: "Set hours",
+  save_day: "Save",
+  clear_day: "Mark closed",
+  hours_saved: "Opening hours updated",
+  hours_removed: "Day marked closed",
+  hours_invalid_order: "Closing time must be after opening time",
+  hours_invalid_step: "Times must be on 30-minute increments",
+
+  // Staff: courts
+  courts_card: "Courts & pricing",
+  courts_card_desc: "Add courts, set price bands, and block time for maintenance.",
+  no_courts_staff: "This club has no courts yet.",
+  prices: "Prices",
 };
 
 /** Every translatable string in the app. Adding a key here forces bg.ts to define it too. */

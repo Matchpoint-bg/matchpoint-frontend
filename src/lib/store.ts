@@ -11,7 +11,13 @@ export const LS = {
   dismissInstall: 'mp_no_install',
   theme: 'mp_theme',
   lang: 'mp_lang',
+  staffClub: 'mp_staff_club',
+  notifyConfirm: 'mp_notify_confirm',
+  notifyRemind: 'mp_notify_remind',
+  notifyCancel: 'mp_notify_cancel',
 } as const;
+
+export type NotifyKey = 'notifyConfirm' | 'notifyRemind' | 'notifyCancel';
 
 export type Theme = 'light' | 'dark';
 export type Lang = 'en' | 'bg';
@@ -22,8 +28,22 @@ export type Lang = 'en' | 'bg';
  * React surfaces that need to re-render on change wrap these in context providers.
  */
 export const store = {
+  /**
+   * API base, baked in at build time via VITE_API_URL. An empty value means "same origin",
+   * which is what the Docker image uses (nginx proxies /api/). The localStorage override is
+   * honoured in dev only: in production the Settings field is hidden, and trusting a stored
+   * URL there would mean sending the Bearer token to whatever host was last typed in.
+   */
   get api(): string {
-    return localStorage.getItem(LS.api) || 'http://localhost:8000';
+    if (import.meta.env.DEV) {
+      const override = localStorage.getItem(LS.api);
+      if (override) return override;
+      return import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+    }
+    // Production falls back to the same origin, never to a developer's localhost: an
+    // unconfigured build should look for /api/ behind its own nginx, not a machine that
+    // isn't there.
+    return import.meta.env.VITE_API_URL ?? '';
   },
   set api(v: string) {
     localStorage.setItem(LS.api, v);
@@ -54,9 +74,16 @@ export const store = {
     localStorage.setItem(LS.user, JSON.stringify(u));
   },
 
-  /** Demo mode is ON by default so the design is viewable without a backend. */
+  /**
+   * Demo mode serves fixtures instead of the API. Off unless VITE_DEMO=1 (set in
+   * .env.development), and toggleable at runtime in dev only — a production build must never
+   * show fake clubs or accept a fake login.
+   */
   get demo(): boolean {
-    return localStorage.getItem(LS.demo) !== '0';
+    if (!import.meta.env.DEV) return false;
+    const override = localStorage.getItem(LS.demo);
+    if (override !== null) return override === '1';
+    return import.meta.env.VITE_DEMO === '1';
   },
   set demo(v: boolean) {
     localStorage.setItem(LS.demo, v ? '1' : '0');
@@ -81,5 +108,28 @@ export const store = {
   },
   set lang(v: Lang) {
     localStorage.setItem(LS.lang, v);
+  },
+
+  /** Which club the staff tab is currently managing. No API tells us, so the user picks. */
+  get staffClub(): number | null {
+    const raw = localStorage.getItem(LS.staffClub);
+    const n = raw === null ? NaN : Number(raw);
+    return Number.isFinite(n) ? n : null;
+  },
+  set staffClub(v: number | null) {
+    if (v === null) localStorage.removeItem(LS.staffClub);
+    else localStorage.setItem(LS.staffClub, String(v));
+  },
+
+  /**
+   * Notification preferences. Device-local and inert: the backend has no notification
+   * model or delivery mechanism, so nothing reads these but the settings screen itself.
+   * Default on, so enabling delivery later matches what the user was already shown.
+   */
+  notify(key: NotifyKey): boolean {
+    return localStorage.getItem(LS[key]) !== '0';
+  },
+  setNotify(key: NotifyKey, v: boolean) {
+    localStorage.setItem(LS[key], v ? '1' : '0');
   },
 };

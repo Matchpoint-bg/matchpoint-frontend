@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon, Seam } from '../components/Icons';
 import { BackLink, Shell } from '../components/Shell';
 import { ErrorState, EmptyState, Skeleton, Spinner } from '../components/States';
@@ -29,12 +29,22 @@ export function CourtDetailPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // `?reschedule=<id>` turns this screen into "pick a new time for that booking".
+  const [params] = useSearchParams();
+  const rescheduleParam = params.get('reschedule');
+  const rescheduleId = rescheduleParam !== null ? Number(rescheduleParam) : null;
+  const rescheduling = rescheduleId !== null && Number.isFinite(rescheduleId);
+
   const today = useMemo(() => new Date(), []);
   const [date, setDate] = useState(() => fmt.isoDate(new Date()));
   const [selected, setSelected] = useState<number[]>([]);
   const [booking, setBooking] = useState(false);
 
-  const court = useAsync(() => api.court(courtId), [courtId, demo]);
+  // `/courts/abc` would otherwise fetch `/api/courts/NaN/`.
+  const court = useAsync(
+    () => (Number.isFinite(courtId) ? api.court(courtId) : Promise.resolve(undefined)),
+    [courtId, demo],
+  );
   const slots = useAsync(() => api.availability(courtId, date), [courtId, date, demo]);
 
   // Slot indices only mean anything for the day they were picked on.
@@ -64,20 +74,30 @@ export function CourtDetailPage() {
   async function doBook() {
     if (!first || !last || !court.data) return;
     setBooking(true);
+    const body = {
+      court: court.data.id,
+      start_datetime: first.start,
+      end_datetime: last.end,
+    };
     try {
-      await api.createReservation({
-        court: court.data.id,
-        start_datetime: first.start,
-        end_datetime: last.end,
-        _amt: total,
-        _date: date,
-      });
+      if (rescheduling && rescheduleId !== null) {
+        await api.updateReservation(rescheduleId, body);
+        toast(t('rescheduled_toast'), 'ok');
+        // Land on the booking that just moved, rather than leaving the user on the grid.
+        navigate('/reservations', { state: { highlight: { id: rescheduleId, start: null } } });
+        return;
+      }
+      const created = await api.createReservation(body, { amt: total, date });
       toast(t('booked_toast'), 'ok');
       setSelected([]);
-      slots.reload();
+      // POST /api/reservations/ answers with a serializer that omits the new id, so the
+      // start time is the only handle we have on the row we just created.
+      navigate('/reservations', {
+        state: { highlight: { id: created?.id ?? null, start: body.start_datetime } },
+      });
     } catch (err) {
-      toast(err instanceof Error ? err.message : t('book_fail'), 'err');
-    } finally {
+      const fallback = rescheduling ? t('reschedule_fail') : t('book_fail');
+      toast(err instanceof Error ? err.message : fallback, 'err');
       setBooking(false);
     }
   }
@@ -89,8 +109,36 @@ export function CourtDetailPage() {
       {court.loading && <Spinner />}
       {!court.loading && court.error && <ErrorState msg={court.error} onRetry={court.reload} />}
 
+      {!court.loading && !court.error && !court.data && (
+        <EmptyState title={t('court_missing_title')} desc={t('court_missing_desc')} icon="info">
+          <button
+            className="btn btn--primary"
+            style={{ marginTop: 6 }}
+            onClick={() => navigate('/clubs')}
+          >
+            <Icon name="ball" />
+            {t('go_to_clubs')}
+          </button>
+        </EmptyState>
+      )}
+
       {!court.loading && !court.error && court.data && (
         <>
+          {rescheduling && (
+            <div className="notice" role="status">
+              <div>
+                <b>{t('rescheduling_title')}</b>
+                <small>{t('rescheduling_desc')}</small>
+              </div>
+              <button
+                className="btn btn--soft btn--sm"
+                onClick={() => navigate('/reservations', { replace: true })}
+              >
+                {t('cancel_reschedule')}
+              </button>
+            </div>
+          )}
+
           <div className="detail-hero">
             <Seam />
             <div className="hero__glow" />
@@ -214,7 +262,7 @@ export function CourtDetailPage() {
                   onClick={doBook}
                 >
                   <Icon name="check" />
-                  {booking ? t('booking') : t('book')}
+                  {booking ? t('booking') : rescheduling ? t('confirm_reschedule') : t('book')}
                 </button>
               </div>
             </div>

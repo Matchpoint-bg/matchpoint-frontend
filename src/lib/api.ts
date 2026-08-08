@@ -5,12 +5,14 @@ import type {
   Court,
   CreateReservationBody,
   DemoReservation,
+  DemoReservationMeta,
   Employee,
   OpeningHour,
   Price,
   RegisterPayload,
   Reservation,
   Slot,
+  UpdateUserPayload,
   User,
 } from '../types';
 
@@ -19,11 +21,25 @@ interface RequestOptions extends RequestInit {
   _retried?: boolean;
 }
 
+/**
+ * Called when the session is definitively gone (refresh rejected). AuthContext registers a
+ * handler at mount so the app can drop back to the sign-in screen instead of sitting in a
+ * shell where every request 401s forever.
+ */
+let onSessionExpired: (() => void) | null = null;
+
+export function setSessionExpiredHandler(fn: (() => void) | null): void {
+  onSessionExpired = fn;
+}
+
 function errorMessage(data: unknown, status: number): string {
   if (data && typeof data === 'object') {
     const d = data as Record<string, unknown>;
+    // `message` comes before the generic fallback because this backend answers with
+    // {"status":"error","message":"…"} — taking the first value would surface "error".
     const candidate =
       d.detail ??
+      d.message ??
       (Array.isArray(d.non_field_errors) ? d.non_field_errors[0] : undefined) ??
       Object.values(d)[0];
     if (Array.isArray(candidate)) return String(candidate[0]);
@@ -46,9 +62,13 @@ export const api = {
 
     const res = await fetch(this.url(path), { ...opts, headers });
 
-    if (res.status === 401 && store.refresh && !opts._retried) {
-      const ok = await this.refreshToken();
+    if (res.status === 401 && !opts.noAuth && !opts._retried) {
+      const ok = store.refresh ? await this.refreshToken() : false;
       if (ok) return this.raw(path, { ...opts, _retried: true });
+      // The session is unrecoverable: drop the dead tokens and tell the app, otherwise
+      // `authed` stays true on the strength of a token the server no longer accepts.
+      store.clearTokens();
+      onSessionExpired?.();
     }
     return res;
   },
@@ -82,6 +102,31 @@ export const api = {
   },
 
   /* ---- auth ---- */
+  /** Current user from the server. Also the token-validity probe used on app boot. */
+  async me(): Promise<User> {
+    if (store.demo) {
+      return (
+        store.user ?? {
+          email: 'demo@matchpoint.bg',
+          first_name: 'Demo',
+          last_name: 'Player',
+          is_staff: store.staff,
+        }
+      );
+    }
+    // Two calls, because neither endpoint alone describes the user: dj-rest-auth's
+    // /auth/user/ carries the pk but only email + names, while /api/users/{pk}/ carries
+    // phone_number and preferred_language but no pk of its own.
+    const base = await this.json<User>('/api/v1/auth/user/');
+    if (base.pk === undefined) return base;
+    try {
+      const details = await this.json<User>(`/api/users/${base.pk}/`);
+      return { ...base, ...details, pk: base.pk };
+    } catch {
+      return base;
+    }
+  },
+
   async login(email: string, password: string): Promise<void> {
     if (store.demo) {
       store.setTokens('demo-access', 'demo-refresh');
@@ -91,6 +136,7 @@ export const api = {
         last_name: 'Player',
         phone_number: '',
         preferred_language: store.lang === 'bg' ? 'Български' : 'English',
+        is_staff: store.staff,
       };
       return;
     }
@@ -101,10 +147,65 @@ export const api = {
     });
     store.setTokens(d.access, d.refresh);
     try {
-      store.user = await this.json<User>('/api/v1/auth/user/');
+      store.user = await this.me();
     } catch {
       store.user = { email };
     }
+  },
+
+  async updateUser(payload: UpdateUserPayload): Promise<User> {
+    if (store.demo) {
+      const next = { ...(store.user ?? { email: 'demo@matchpoint.bg' }), ...payload };
+      store.user = next;
+      return next;
+    }
+    // PATCH /api/v1/auth/user/ silently drops phone_number — its serializer only knows
+    // email and names. /api/users/{pk}/ is the one that can actually store it.
+    const pk = store.user?.pk ?? (await this.me()).pk;
+    if (pk === undefined) throw new Error('Cannot resolve the current user');
+    const details = await this.json<User>(`/api/users/${pk}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    const u = { ...(store.user ?? {}), ...details, pk };
+    store.user = u;
+    return u;
+  },
+
+  async changePassword(newPassword: string, confirm: string): Promise<void> {
+    if (store.demo) return;
+    await this.json('/api/v1/auth/password/change/', {
+      method: 'POST',
+      body: JSON.stringify({ new_password1: newPassword, new_password2: confirm }),
+    });
+  },
+
+  async requestPasswordReset(email: string): Promise<void> {
+    if (store.demo) return;
+    await this.json('/api/v1/auth/password/reset/', {
+      method: 'POST',
+      noAuth: true,
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async confirmPasswordReset(
+    uid: string,
+    token: string,
+    newPassword: string,
+    confirm: string,
+  ): Promise<void> {
+    if (store.demo) return;
+    await this.json('/api/v1/auth/password/reset/confirm/', {
+      method: 'POST',
+      noAuth: true,
+      body: JSON.stringify({
+        uid,
+        token,
+        new_password1: newPassword,
+        new_password2: confirm,
+      }),
+    });
   },
 
   async register(payload: RegisterPayload): Promise<void> {
@@ -116,10 +217,12 @@ export const api = {
         last_name: payload.last_name,
         phone_number: payload.phone_number || '',
         preferred_language: store.lang === 'bg' ? 'Български' : 'English',
+        is_staff: store.staff,
       };
       return;
     }
-    await this.json('/api/v1/auth/registration', {
+    // Trailing slash matters: Django's APPEND_SLASH redirect does not preserve a POST body.
+    await this.json('/api/v1/auth/registration/', {
       method: 'POST',
       noAuth: true,
       body: JSON.stringify({
@@ -151,7 +254,9 @@ export const api = {
   },
   async clubOpeningHours(id: number): Promise<OpeningHour[]> {
     return store.demo
-      ? (DEMO.openingHours[id] || []).map((r) => ({
+      ? // Synthetic pk so the hours editor can treat demo and real rows identically.
+        (DEMO.openingHours[id] || []).map((r, i) => ({
+          pk: i + 1,
           weekday: r[0],
           opening_hour: r[1],
           closing_hour: r[2],
@@ -169,6 +274,42 @@ export const api = {
       body: JSON.stringify(body),
     });
   },
+  /**
+   * Opening-hours rows are edited by their own pk, not through the club. Note the
+   * collection has no list route (`GET /api/openinghours/` 404s) — only detail
+   * PATCH/DELETE — so reads always go through `clubOpeningHours` above.
+   */
+  async updateOpeningHour(pk: number, body: OpeningHour): Promise<void> {
+    if (store.demo) {
+      for (const list of Object.values(DEMO.openingHours)) {
+        const row = list?.find((r) => r[0] === body.weekday);
+        if (row) {
+          row[1] = body.opening_hour;
+          row[2] = body.closing_hour;
+        }
+      }
+      return;
+    }
+    await this.json(`/api/openinghours/${pk}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        weekday: body.weekday,
+        opening_hour: body.opening_hour,
+        closing_hour: body.closing_hour,
+      }),
+    });
+  },
+
+  async deleteOpeningHour(pk: number, clubId: number, weekday: string): Promise<void> {
+    if (store.demo) {
+      const list = DEMO.openingHours[clubId];
+      const i = list?.findIndex((r) => r[0] === weekday) ?? -1;
+      if (list && i > -1) list.splice(i, 1);
+      return;
+    }
+    await this.json(`/api/openinghours/${pk}/`, { method: 'DELETE' });
+  },
+
   async clubEmployees(id: number): Promise<Employee[]> {
     return store.demo
       ? DEMO.employees[id] || []
@@ -205,7 +346,7 @@ export const api = {
   },
   async setPrices(id: number, arr: Price[]): Promise<void> {
     if (store.demo) return;
-    await this.raw(`/api/courts/${id}/prices/`, { method: 'PUT', body: JSON.stringify(arr) });
+    await this.json(`/api/courts/${id}/prices/`, { method: 'PUT', body: JSON.stringify(arr) });
   },
   async unavailabilities(id: number): Promise<{ start_datetime: string; end_datetime: string }[]> {
     if (store.demo) return [];
@@ -216,7 +357,7 @@ export const api = {
     body: { start_datetime: string; end_datetime: string },
   ): Promise<void> {
     if (store.demo) return;
-    await this.raw(`/api/courts/${id}/unavailabilities/`, {
+    await this.json(`/api/courts/${id}/unavailabilities/`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
@@ -246,7 +387,7 @@ export const api = {
       if (i > -1) DEMO.courts.splice(i, 1);
       return;
     }
-    await this.raw(`/api/courts/${id}/`, { method: 'DELETE' });
+    await this.json(`/api/courts/${id}/`, { method: 'DELETE' });
   },
 
   /* ---- reservations ---- */
@@ -263,7 +404,10 @@ export const api = {
     return this.json<Reservation[]>('/api/reservations/');
   },
 
-  async createReservation(body: CreateReservationBody): Promise<void> {
+  async createReservation(
+    body: CreateReservationBody,
+    meta?: DemoReservationMeta,
+  ): Promise<Reservation | null> {
     if (store.demo) {
       const arr = demoReservations();
       const start = new Date(body.start_datetime);
@@ -279,25 +423,27 @@ export const api = {
         court: Number(body.court),
         start: body.start_datetime,
         end: body.end_datetime,
-        amt: body._amt || 0,
-        date: body._date || '',
+        amt: meta?.amt ?? 0,
+        date: meta?.date ?? '',
         slots,
       };
       arr.push(rec);
       saveDemoReservations(arr);
-      return;
+      return {
+        id: rec.id,
+        court: rec.court,
+        start_datetime: rec.start,
+        end_datetime: rec.end,
+        reservation_amt: rec.amt,
+      };
     }
-    await this.json('/api/reservations/', {
+    return this.json<Reservation>('/api/reservations/', {
       method: 'POST',
-      body: JSON.stringify({
-        court: body.court,
-        start_datetime: body.start_datetime,
-        end_datetime: body.end_datetime,
-      }),
+      body: JSON.stringify(body),
     });
   },
 
-  /** Reschedule path. Exposed for completeness; no screen calls it yet. */
+  /** Reschedule: moves an existing booking to a new court/time. */
   async updateReservation(id: number, body: CreateReservationBody): Promise<void> {
     if (store.demo) {
       const a = demoReservations();
@@ -320,6 +466,6 @@ export const api = {
       saveDemoReservations(demoReservations().filter((r) => r.id !== id));
       return;
     }
-    await this.raw(`/api/reservations/${id}/`, { method: 'DELETE' });
+    await this.json(`/api/reservations/${id}/`, { method: 'DELETE' });
   },
 };

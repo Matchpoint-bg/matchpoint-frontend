@@ -34,6 +34,8 @@ export interface Court {
 }
 
 export interface OpeningHour {
+  /** Returned by GET /api/clubs/{id}/opening-hours/; needed to PATCH or DELETE the row. */
+  pk?: number;
   weekday: Weekday | string;
   opening_hour: string;
   closing_hour: string;
@@ -71,10 +73,27 @@ export interface Reservation {
 }
 
 export interface User {
+  /** Primary key, returned by /api/v1/auth/user/. Needed to address /api/users/{pk}/. */
+  pk?: number;
   email: string;
   first_name?: string;
   last_name?: string;
   phone_number?: string;
+  preferred_language?: string;
+  /**
+   * Staff flags come from the server. The UI uses them to decide what to render; the
+   * backend is still the only thing that actually enforces club-management permissions.
+   */
+  is_staff?: boolean;
+  is_superuser?: boolean;
+}
+
+/** Fields the profile screen may edit. Email and staff flags are deliberately not here. */
+export interface UpdateUserPayload {
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  /** The API stores the words "Bulgarian" / "English", not locale codes. */
   preferred_language?: string;
 }
 
@@ -101,7 +120,14 @@ export interface CreateReservationBody {
   court: number;
   start_datetime: string;
   end_datetime: string;
-  /** Demo-only bookkeeping, ignored by the real API. */
-  _amt?: number;
-  _date?: string;
+}
+
+/**
+ * Extra bookkeeping the demo store needs to render a reservation without a server.
+ * Passed alongside the body rather than inside it, so nothing demo-shaped can be
+ * serialised into a real API request.
+ */
+export interface DemoReservationMeta {
+  amt: number;
+  date: string;
 }

@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Icon, Seam } from '../components/Icons';
 import { Shell } from '../components/Shell';
+import { ChangePasswordModal, EditProfileModal } from '../components/ProfileModals';
 import { useI18n } from '../i18n';
 import { useAuth } from '../context/AuthContext';
-import { useSettings } from '../context/SettingsContext';
+import { useModal } from '../context/ModalContext';
 import { useToast } from '../context/ToastContext';
 
 function InfoCell({ label, value }: { label: string; value: string }) {
@@ -17,8 +18,8 @@ function InfoCell({ label, value }: { label: string; value: string }) {
 
 export function ProfilePage() {
   const { t } = useI18n();
-  const { user, logout } = useAuth();
-  const { staff } = useSettings();
+  const { user, logout, isStaff } = useAuth();
+  const { openModal } = useModal();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -54,10 +55,24 @@ export function ProfilePage() {
         <InfoCell label={t('email')} value={user?.email || dash} />
         <InfoCell label={t('phone')} value={user?.phone_number || dash} />
         <InfoCell label={t('language')} value={user?.preferred_language || dash} />
-        <InfoCell label={t('role')} value={staff ? t('club_staff') : t('player')} />
+        <InfoCell label={t('role')} value={isStaff ? t('club_staff') : t('player')} />
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 20 }}>
+        <button
+          className="btn btn--primary"
+          onClick={() => openModal(t('edit_profile'), <EditProfileModal />)}
+        >
+          <Icon name="edit" />
+          {t('edit_profile')}
+        </button>
+        <button
+          className="btn btn--outline"
+          onClick={() => openModal(t('change_password'), <ChangePasswordModal />)}
+        >
+          <Icon name="gear" />
+          {t('change_password')}
+        </button>
         <button className="btn btn--outline" onClick={() => navigate('/reservations')}>
           <Icon name="ticket" />
           {t('my_reservations')}

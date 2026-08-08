@@ -161,6 +161,48 @@ main{flex:1;width:100%;max-width:1080px;margin:0 auto;padding:clamp(16px,3.5vw,3
 .chip--indoor{background:var(--court);color:var(--leaf)}
 .chip--lit{background:#fef3c7;color:#92700a}
 .chip--ghost{background:transparent;border-color:var(--line-2);color:var(--muted)}
+/* Chip rendered as a filter toggle rather than a static label. */
+.chip--btn{cursor:pointer;border-color:var(--line-2)}
+.chip--btn:hover{border-color:var(--ball)}
+.chip--on{background:var(--ball);color:#12240a;border-color:var(--ball)}
+
+/* Marks the reservation just created or moved, so the user sees what changed. */
+.card--flash{border-color:var(--ball);box-shadow:0 0 0 3px rgba(123,193,51,.22)}
+
+/* Inline banner for a mode the page is in (e.g. rescheduling an existing booking). */
+.notice{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;
+  padding:12px 14px;border-radius:14px;border:1px solid var(--ball);background:var(--court)}
+.notice b{display:block;font-family:var(--display);font-size:15px}
+.notice small{display:block;color:var(--ink-2);font-size:12.5px;margin-top:2px}
+.notice > :last-child{margin-left:auto}
+
+/* ---------- Staff settings ---------- */
+.hours-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;
+  padding:10px 0;border-bottom:1px solid var(--line)}
+.hours-row:last-of-type{border-bottom:0}
+.hours-row__day{flex:0 0 108px;font-weight:700;font-size:13.5px}
+.hours-row input[type="time"]{padding:8px 10px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--card);color:var(--ink);font-size:13px;font-weight:600}
+.hours-row__sep{color:var(--muted)}
+.hours-row__closed{font-size:12px;font-weight:700;color:var(--muted);
+  padding:4px 10px;border-radius:999px;background:var(--pale)}
+.hours-row__actions{margin-left:auto;display:flex;gap:8px}
+
+.court-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  padding:14px 0;border-bottom:1px solid var(--line)}
+.court-row:last-of-type{border-bottom:0}
+.court-row__main b{font-family:var(--display);font-size:16px}
+.court-row__actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px}
+
+@media (max-width:640px){
+  .hours-row__day{flex-basis:100%}
+  .hours-row__actions,.court-row__actions{margin-left:0;width:100%}
+}
+
+/* ---------- Club search + filters ---------- */
+.clubfilters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:4px 0 16px}
+.clubfilters .field{flex:1 1 260px;max-width:420px}
+.clubfilters .chiprow{margin-top:0}
 
 /* ---------- Detail header ---------- */
 .backlink{display:inline-flex;align-items:center;gap:6px;background:none;border:0;cursor:pointer;

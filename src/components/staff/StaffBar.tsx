@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icons';
 import { useI18n } from '../../i18n';
 import { useModal } from '../../context/ModalContext';
-import { useSettings } from '../../context/SettingsContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   CourtFormModal,
   DeleteCourtModal,
@@ -28,10 +28,10 @@ function StaffBadge() {
 
 export function StaffBar({ club, onChanged }: { club: Club; onChanged: () => void }) {
   const { t } = useI18n();
-  const { staff } = useSettings();
+  const { isStaff } = useAuth();
   const { openModal } = useModal();
 
-  if (!staff) return null;
+  if (!isStaff) return null;
 
   return (
     <div style={BAR_STYLE}>
@@ -74,11 +74,11 @@ export function StaffBar({ club, onChanged }: { club: Club; onChanged: () => voi
 
 export function CourtStaffBar({ court, onChanged }: { court: Court; onChanged: () => void }) {
   const { t } = useI18n();
-  const { staff } = useSettings();
+  const { isStaff } = useAuth();
   const { openModal } = useModal();
   const navigate = useNavigate();
 
-  if (!staff) return null;
+  if (!isStaff) return null;
 
   return (
     <div style={{ ...BAR_STYLE, marginBottom: 16 }}>

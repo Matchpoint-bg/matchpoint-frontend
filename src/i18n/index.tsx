@@ -53,3 +53,17 @@ export function useI18n(): I18nValue {
 
 /** Canonical weekday keys the API expects, in display order. */
 export const API_WEEKDAYS = WEEKDAYS_EN;
+
+/**
+ * The API stores a language as the word "Bulgarian" or "English" (CustomUser.
+ * preferred_language); the UI works in locale codes. These convert between the two.
+ */
+export function langToApi(l: Lang): string {
+  return l === 'bg' ? 'Bulgarian' : 'English';
+}
+
+export function apiToLang(v: string | undefined): Lang | null {
+  if (v === 'Bulgarian') return 'bg';
+  if (v === 'English') return 'en';
+  return null;
+}

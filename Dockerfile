@@ -9,13 +9,26 @@ RUN npm ci
 
 COPY . .
 
+# Baked into the bundle at build time. Default is empty = same origin, which pairs with the
+# `location /api/` proxy in nginx.conf; set it to an absolute URL to call the API cross-origin
+# instead (the backend then needs CORS for this host).
+ARG VITE_API_URL=""
+ENV VITE_API_URL=$VITE_API_URL
+
 # `npm run build` typechecks before bundling, so a type error fails the image build.
 RUN npm run build
 
 # ---- serve ----------------------------------------------------------------
 FROM nginx:1.27-alpine AS runtime
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# As a template, not a plain conf: the entrypoint runs envsubst over it at container start
+# so API_ORIGIN can be set per-deployment without rebuilding the image. The FILTER is
+# essential — without it envsubst would also replace $uri, $host, $scheme and so on.
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+ENV NGINX_ENVSUBST_FILTER="^(API_ORIGIN|CSP_CONNECT_SRC)$"
+ENV API_ORIGIN="http://host.docker.internal:8000"
+ENV CSP_CONNECT_SRC="'self'"
+
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80

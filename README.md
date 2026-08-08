@@ -12,6 +12,11 @@ npm install
 npm run dev      # http://localhost:5173
 ```
 
+`npm run dev` reads `.env.development`, which turns **demo mode on** — the whole UI works
+with no backend running. Copy `.env.example` to `.env.local` to point dev at a different
+API. Demo mode is a development-only facility: it is compiled out of production builds, so
+a deployed app can never serve fixtures or accept a fake login.
+
 | Script | What it does |
 |---|---|
 | `npm run dev` | Vite dev server with HMR |
@@ -59,7 +64,7 @@ docker run --rm -p 8080:80 matchpoint-frontend
 | File | Role |
 |---|---|
 | `Dockerfile` | Multi-stage: `node:24-alpine` builds, `nginx:1.27-alpine` serves (~74 MB final image) |
-| `nginx.conf` | SPA fallback, cache headers, gzip, `.webmanifest` MIME type |
+| `nginx.conf` | SPA fallback, `/api/` proxy, security headers, cache headers, gzip, `.webmanifest` MIME type. Copied in as an envsubst **template** so `API_ORIGIN` is settable per-deployment |
 | `docker-compose.yml` | `web` (production) and `dev` (Vite HMR, under the `dev` profile) |
 | `.dockerignore` | Keeps `node_modules`, `dist`, and `.git` out of the build context |
 
@@ -70,11 +75,34 @@ image build rather than shipping.
 `sw.js`, `registerSW.js`, and the manifest are `no-cache`. That split matters: a cached
 `sw.js` or `index.html` pins clients to an old build with no way to update itself.
 
-**Talking to the backend.** The container serves static files only. Set the API base URL
-at runtime in **Settings → Backend connection** (it lives in `localStorage`, so there is no
-build-time env var), and allow the front-end origin in Django's `CORS_ALLOWED_ORIGINS` —
-e.g. `http://localhost:8080`. Alternatively, put both behind one origin and proxy `/api`
-to Django from nginx, which avoids CORS entirely.
+**Security headers.** nginx sends `X-Frame-Options: DENY`, `X-Content-Type-Options`,
+`Referrer-Policy`, `Permissions-Policy`, and a `Content-Security-Policy` that allows only
+this origin plus Google Fonts. Locations that set their own `Cache-Control` via `add_header`
+must repeat them — nginx's `add_header` replaces inherited headers rather than merging, which
+is why most cache rules use `expires` instead.
+
+**Talking to the backend.** Two options, both configured at deploy time — there is no
+user-facing API-URL field in production:
+
+1. **Same origin (default, recommended).** Build with an empty `VITE_API_URL`; the app calls
+   `/api/…` on its own origin and nginx proxies that to `API_ORIGIN`. No CORS at all.
+   ```bash
+   API_ORIGIN=http://host.docker.internal:8000 docker compose up web --build
+   ```
+2. **Cross-origin.** Bake in an absolute base URL, add the front-end origin to Django's
+   `CORS_ALLOWED_ORIGINS`, and widen the CSP so the browser is allowed to reach it:
+   ```bash
+   VITE_API_URL=https://api.example.com \
+   CSP_CONNECT_SRC="'self' https://api.example.com" \
+   docker compose up web --build
+   ```
+
+| Variable | Where it applies | Default |
+|---|---|---|
+| `VITE_API_URL` | Build arg, baked into the bundle | empty (same origin) |
+| `API_ORIGIN` | Container env, nginx `/api/` proxy target | `http://host.docker.internal:8000` |
+| `CSP_CONNECT_SRC` | Container env, CSP `connect-src` | `'self'` |
+| `VITE_DEMO` | Build/dev env, `1` enables fixtures | `0` (and always off in production) |
 
 ## Project layout
 
@@ -86,16 +114,19 @@ nginx.conf              Static-serving config used by the image
 docker-compose.yml      web (production) + dev (Vite HMR) services
 make_icons.py           Regenerates public/icons/ from icon-512.png
 public/icons/           PWA icons (any + maskable + apple-touch + favicons)
+.env.example            Documented build/runtime variables — copy to .env.local
+.env.development        Dev defaults (demo mode on)
 src/
-  main.tsx              Provider tree
-  App.tsx               HashRouter + routes + auth gate
+  main.tsx              Provider tree, wrapped in the top-level ErrorBoundary
+  App.tsx               HashRouter + routes + RequireAuth / RequireAnon guards
+  vite-env.d.ts         Types for the VITE_* env vars
   types.ts              Backend response shapes
   styles/global.css     The whole design system, including the dark-theme tokens
   lib/                  store (localStorage), api (fetch + JWT), demo data, formatters
   i18n/                 en.ts / bg.ts dictionaries + I18nProvider
   theme/                ThemeProvider (light/dark)
   context/              Auth, Settings, Toast, Modal providers
-  components/           Shell, Icons, Chip, ToggleRow, States, staff modals
+  components/           Shell, AuthLayout, ErrorBoundary, Icons, Chip, States, modals
   pages/                One file per view (see the routes table below)
   hooks/                useAsync, useInstallPrompt
 ```
@@ -105,39 +136,58 @@ src/
 Routing is **hash-based** (`#/clubs`) because the PWA manifest shortcuts point at
 `/?source=pwa#/clubs` and `#/reservations`.
 
-| Route | Page file |
-|---|---|
-| _(unauthenticated)_ | `pages/AuthPage.tsx` |
-| `#/clubs` | `pages/ClubsPage.tsx` |
-| `#/clubs/:id` | `pages/ClubDetailPage.tsx` |
-| `#/courts/:id` | `pages/CourtDetailPage.tsx` |
-| `#/reservations` | `pages/ReservationsPage.tsx` |
-| `#/profile` | `pages/ProfilePage.tsx` |
-| `#/settings` | `pages/SettingsPage.tsx` |
+| Route | Page file | Access |
+|---|---|---|
+| `#/login` | `pages/AuthPage.tsx` | signed out |
+| `#/forgot-password` | `pages/ForgotPasswordPage.tsx` | signed out |
+| `#/reset-password/:uid/:token` | `pages/ResetPasswordPage.tsx` | signed out |
+| `#/clubs` | `pages/ClubsPage.tsx` | signed in |
+| `#/clubs/:id` | `pages/ClubDetailPage.tsx` | signed in |
+| `#/courts/:id` | `pages/CourtDetailPage.tsx` | signed in — `?reschedule=<id>` moves an existing booking |
+| `#/reservations` | `pages/ReservationsPage.tsx` | signed in |
+| `#/profile` | `pages/ProfilePage.tsx` | signed in |
+| `#/settings` | `pages/SettingsPage.tsx` | signed in |
+| anything else | `pages/NotFoundPage.tsx` | — |
+
+`RequireAuth` in `App.tsx` bounces signed-out visitors to `#/login` and remembers where they
+were headed, so a deep link survives the detour. A stored token is verified against
+`GET /api/v1/auth/user/` on boot: an expired or hand-edited one lands on the sign-in screen
+instead of an app where every request 401s.
+
+> **Password-reset emails.** Routing is hash-based, so Django's reset email must link to
+> `<site>/#/reset-password/<uid>/<token>`.
 
 ## Connect to the backend
 
-The app opens in **Demo mode** (sample Sofia clubs, any email/password works) so the
-design is usable immediately. To use your real API:
+In development the app opens in **Demo mode** (sample Sofia clubs, any email/password
+works) so the design is usable immediately. To develop against your real API:
 
 1. Start the Django backend (`python manage.py runserver` → `http://localhost:8000`).
-2. In the app go to **Settings → Backend connection** and set the API base URL.
-3. Turn **Demo mode off**.
+2. Turn **Demo mode off** in **Settings** (a dev-only card, alongside the API base URL).
 
 > CORS: allow the front-end origin on the Django side (e.g. `django-cors-headers`,
-> `CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]`).
+> `CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]`). Deployments can skip this by using
+> the same-origin `/api/` proxy described under Docker.
 
 Auth is JWT: the app calls `POST /api/token/`, stores the access/refresh pair, sends
-`Authorization: Bearer …`, and silently refreshes via `POST /api/token/refresh/` on 401.
-All of that lives in `src/lib/api.ts`, which also serves the demo fixtures so every screen
-works without a server.
+`Authorization: Bearer …`, and refreshes via `POST /api/token/refresh/` on 401. If that
+refresh is rejected the tokens are cleared and the app returns to the sign-in screen. All of
+that lives in `src/lib/api.ts`, which also serves the demo fixtures so every screen works
+without a server.
+
+> **Tokens live in `localStorage`**, which means any XSS on this origin can read them. The
+> CSP is the mitigation; moving to httpOnly cookies would be the structural fix.
 
 ## Every backend feature has a button
 
 | Backend endpoint | Where in the UI |
 |---|---|
 | `POST /api/token/`, `/api/token/refresh/` | Sign in screen; automatic refresh |
-| `POST /api/v1/auth/registration` | **Create account** tab |
+| `POST /api/v1/auth/registration/` | **Create account** tab |
+| `GET · PATCH /api/v1/auth/user/` | Profile page · **Edit profile** modal (also the boot-time token check) |
+| `POST /api/v1/auth/password/change/` | **Change password** modal on the profile |
+| `POST /api/v1/auth/password/reset/` | **Forgot password?** on the sign-in screen |
+| `POST /api/v1/auth/password/reset/confirm/` | The link in the reset email |
 | `GET /api/v1/auth/google/` | **Continue with Google** button |
 | `GET /api/clubs/` | Clubs grid (home) |
 | `GET /api/clubs/{id}/` | Club detail header |
@@ -155,11 +205,12 @@ works without a server.
 | `GET /api/reservations/` | **Reservations** tab (own; all if staff) |
 | `POST /api/reservations/` | **Book** button after selecting slots |
 | `DELETE /api/reservations/{id}/` | **Cancel** on an upcoming booking |
-| `PATCH /api/reservations/{id}/` | `api.updateReservation` — exposed for the reschedule path, no screen calls it yet |
+| `PATCH /api/reservations/{id}/` | **Reschedule** on an upcoming booking |
 
-**Staff view** (Settings → Staff view) reveals the management buttons. On the real
-backend those endpoints enforce their own permissions, so non-staff accounts get a clear
-error toast rather than a broken action.
+**Staff UI** is driven by `is_staff` / `is_superuser` on the user the server returns, exposed
+as `isStaff` from `AuthContext`. Dev builds can force it on with **Settings → Staff view**;
+that toggle does not exist in production. The backend still enforces the real permissions —
+this only decides what gets rendered.
 
 ## Booking flow
 
@@ -167,6 +218,11 @@ Court page → pick a day (14-day strip) → the grid loads live 30-minute slots
 (`availabilities?date=`). Tap consecutive open slots; the sticky summary totals the price
 and **Book** sends one reservation spanning the selection. Non-consecutive selections
 disable the button. The backend rejects clashes (`CourtBusyException`), surfaced as a toast.
+On success the app jumps to **Reservations** with the new booking highlighted.
+
+**Reschedule** reuses the same screen: the button on an upcoming reservation opens
+`#/courts/<court>?reschedule=<id>`, which swaps the confirm action from `POST` to
+`PATCH /api/reservations/{id}/` and shows a banner explaining the mode.
 
 ## Theme and language
 
@@ -199,3 +255,20 @@ python3 make_icons.py
 
 Regenerates every size in `public/icons/` from `icon-512.png`, padding the maskable
 variants into Android's safe zone.
+
+## Known gaps
+
+Deliberately out of scope so far, in rough priority order:
+
+- **Accessibility.** The modal has no `role="dialog"`, focus trap, or Escape-to-close;
+  toasts aren't announced (`aria-live`); there's no `:focus-visible` ring or
+  `prefers-reduced-motion` handling.
+- **Validation in the staff modals.** An empty price field still POSTs `NaN`, and no modal
+  checks that an end time is after its start.
+- **No tests, linter, or CI.** `tsc --noEmit` (run by `npm run build`) is the only gate.
+- **No error telemetry.** Failures are toasts and console output; nothing is reported.
+- **No code splitting.** Every page is in one bundle, including the staff-only modals.
+- **SEO.** Hash routing plus client rendering means nothing is indexable; there are no
+  Open Graph or Twitter tags.
+- The demo fixtures are still bundled in production builds (unreachable — `store.demo` is
+  hard-false there — but not tree-shaken, since the branch is a runtime check).

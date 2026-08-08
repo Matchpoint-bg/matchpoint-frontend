@@ -185,6 +185,112 @@ export const bg: Record<TranslationKey, string> = {
   label_name: "Име",
   label_address: "Адрес",
   label_description: "Описание",
+
+  // Not found
+  notfound_eyebrow: "Топката излезе",
+  notfound_title: "Страницата не е намерена",
+  notfound_desc: "Този линк не води наникъде. Да те върнем на корта.",
+  go_to_clubs: "Към клубовете",
+
+  // Password reset
+  forgot_password: "Забравена парола?",
+  reset_eyebrow: "Възстановяване на профил",
+  reset_title: "Възстанови паролата си",
+  reset_desc: "Въведи имейла си и ще ти изпратим линк за нова парола.",
+  send_reset_link: "Изпрати линк",
+  reset_sent_title: "Провери пощата си",
+  reset_sent_desc: "Ако има профил с този имейл, линкът вече е на път.",
+  back_to_signin: "Обратно към вход",
+  new_password: "Нова парола",
+  confirm_password: "Потвърди паролата",
+  set_new_password: "Задай нова парола",
+  choose_new_desc: "Избери нова парола за профила си.",
+  password_mismatch: "Паролите не съвпадат",
+  password_too_short: "Паролата трябва да е поне 8 символа",
+  password_changed: "Паролата е обновена — влез с нея",
+  reset_link_invalid: "Този линк е невалиден или е изтекъл",
+
+  // Profile editing
+  edit_profile: "Редактирай профила",
+  profile_saved: "Профилът е обновен",
+  change_password: "Смени паролата",
+  current_password: "Текуща парола",
+  save: "Запази",
+  email_readonly: "Имейлът не може да се променя тук — свържи се с клуба.",
+
+  // Club search
+  search_clubs: "Търси клубове",
+  search_clubs_placeholder: "Име на клуб, град или адрес…",
+  all_surfaces: "Всички настилки",
+  no_match_title: "Няма съвпадения",
+  no_match_desc: "Опитай с друго търсене или изчисти филтрите.",
+  clear_filters: "Изчисти филтрите",
+
+  // Reschedule
+  reschedule: "Премести",
+  rescheduling_title: "Преместване",
+  rescheduling_desc: "Избери нов час за тази резервация. Старият слот се освобождава при потвърждение.",
+  confirm_reschedule: "Потвърди новия час",
+  rescheduled_toast: "Резервацията е преместена",
+  reschedule_fail: "Преместването не бе успешно",
+  cancel_reschedule: "Запази оригиналния час",
+
+  // Not-found guards
+  club_missing_title: "Клубът не е намерен",
+  club_missing_desc: "Този клуб не съществува или вече не е в списъка.",
+  court_missing_title: "Кортът не е намерен",
+  court_missing_desc: "Този корт не съществува или вече не е в списъка.",
+
+  // Settings tabs
+  tab_player: "Играч",
+  tab_staff: "Клубен персонал",
+
+  // Player: account
+  account_card: "Профил",
+  account_card_desc: "Твоите данни, синхронизирани с профила ти в MatchPoint.",
+  signed_in_as: "Влязъл си като",
+
+  // Player: language (server-backed)
+  lang_synced_note: "Запазва се в профила ти и те следва на всяко устройство.",
+  lang_save_failed: "Езикът не можа да бъде запазен",
+
+  // Player: device
+  device_card: "Това устройство",
+  device_card_desc: "Пази се само в този браузър — не се синхронизира с профила ти.",
+
+  // Player: notifications
+  notifications: "Известия",
+  notify_inactive_note:
+    "Настройките се пазят на това устройство. Изпращането още не е включено — сървърът не праща известия.",
+  notify_confirm: "Потвърждения на резервации",
+  notify_confirm_desc: "Съобщение, когато резервация бъде потвърдена.",
+  notify_remind: "Напомняния за мач",
+  notify_remind_desc: "Напомняне малко преди часа ти на корта.",
+  notify_cancel: "Отмени",
+  notify_cancel_desc: "Уведоми ме при отмяна или преместване на резервация.",
+
+  // Staff: club picker
+  staff_club_card: "Клуб, който управляваш",
+  staff_club_desc: "Избери клуба, за който важат тези настройки.",
+  no_clubs_staff: "Няма клубове за управление.",
+  select_club_first: "Избери клуб, за да управляваш часовете, кортовете и цените му.",
+
+  // Staff: opening hours
+  hours_card: "Работно време",
+  hours_card_desc: "Кога клубът приема резервации. Часовете трябва да са на всеки 30 минути.",
+  add_day: "Задай часове",
+  save_day: "Запази",
+  clear_day: "Отбележи като затворено",
+  hours_saved: "Работното време е обновено",
+  hours_removed: "Денят е отбелязан като затворен",
+  hours_invalid_order: "Часът на затваряне трябва да е след часа на отваряне",
+  hours_invalid_step: "Часовете трябва да са на интервали от 30 минути",
+
+  // Staff: courts
+  courts_card: "Кортове и цени",
+  courts_card_desc: "Добавяй кортове, задавай ценови зони и блокирай време за поддръжка.",
+  no_courts_staff: "Този клуб още няма кортове.",
+  prices: "Цени",
 };
 
 /**
