@@ -87,7 +87,7 @@ export const api = {
 
   async refreshToken(): Promise<boolean> {
     try {
-      const r = await fetch(this.url('/api/token/refresh/'), {
+      const r = await fetch(this.url('/api/v1/auth/token/refresh/'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh: store.refresh }),
@@ -140,7 +140,7 @@ export const api = {
       };
       return;
     }
-    const d = await this.json<{ access: string; refresh: string }>('/api/token/', {
+    const d = await this.json<{ access: string; refresh: string }>('/api/v1/auth/login/', {
       method: 'POST',
       noAuth: true,
       body: JSON.stringify({ email, password }),
