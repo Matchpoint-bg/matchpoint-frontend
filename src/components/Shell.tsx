@@ -33,14 +33,19 @@ export function ThemeLangToggles() {
 
 export function Shell({ children, active }: { children: ReactNode; active: Tab }) {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { authed, user } = useAuth();
   const navigate = useNavigate();
 
+  // Clubs is the only public tab — the rest would bounce a signed-out visitor to /login.
   const items: NavItem[] = [
     { to: '/clubs', icon: 'ball', desktopLabel: t('nav_clubs'), mobileLabel: t('tab_book'), tab: 'clubs' },
-    { to: '/reservations', icon: 'ticket', desktopLabel: t('nav_reservations'), mobileLabel: t('tab_bookings'), tab: 'reservations' },
-    { to: '/profile', icon: 'user', desktopLabel: t('nav_profile'), mobileLabel: t('nav_profile'), tab: 'profile' },
-    { to: '/settings', icon: 'gear', desktopLabel: t('nav_settings'), mobileLabel: t('nav_settings'), tab: 'settings' },
+    ...(authed
+      ? ([
+          { to: '/reservations', icon: 'ticket', desktopLabel: t('nav_reservations'), mobileLabel: t('tab_bookings'), tab: 'reservations' },
+          { to: '/profile', icon: 'user', desktopLabel: t('nav_profile'), mobileLabel: t('nav_profile'), tab: 'profile' },
+          { to: '/settings', icon: 'gear', desktopLabel: t('nav_settings'), mobileLabel: t('nav_settings'), tab: 'settings' },
+        ] satisfies NavItem[])
+      : []),
   ];
 
   const initials = ((user?.first_name || user?.email || '?')[0] || '?').toUpperCase();
@@ -71,9 +76,15 @@ export function Shell({ children, active }: { children: ReactNode; active: Tab }
           <ThemeLangToggles />
 
           <div className="topbar__user">
-            <button className="avatar" onClick={() => navigate('/profile')} title={user?.email || ''}>
-              {initials}
-            </button>
+            {authed ? (
+              <button className="avatar" onClick={() => navigate('/profile')} title={user?.email || ''}>
+                {initials}
+              </button>
+            ) : (
+              <button className="btn btn--primary btn--sm" onClick={() => navigate('/login')}>
+                {t('sign_in')}
+              </button>
+            )}
           </div>
         </div>
       </header>

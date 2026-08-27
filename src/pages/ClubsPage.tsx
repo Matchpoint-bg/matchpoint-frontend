@@ -6,6 +6,7 @@ import { SurfaceChip } from '../components/Chip';
 import { EmptyState, ErrorState, Skeleton } from '../components/States';
 import { InstallBanner } from '../components/InstallBanner';
 import { useI18n } from '../i18n';
+import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { useAsync } from '../hooks/useAsync';
 import { api } from '../lib/api';
@@ -13,6 +14,7 @@ import { DEMO } from '../lib/demo';
 
 export function ClubsPage() {
   const { t } = useI18n();
+  const { authed } = useAuth();
   const { demo } = useSettings();
   const navigate = useNavigate();
   const headRef = useRef<HTMLDivElement>(null);
@@ -80,10 +82,13 @@ export function ClubsPage() {
             <Icon name="ball" />
             {t('browse_clubs')}
           </button>
-          <button className="btn btn--ghost" onClick={() => navigate('/reservations')}>
-            <Icon name="ticket" />
-            {t('my_bookings')}
-          </button>
+          {/* Signed-out visitors browse freely; this link would only bounce them to /login. */}
+          {authed && (
+            <button className="btn btn--ghost" onClick={() => navigate('/reservations')}>
+              <Icon name="ticket" />
+              {t('my_bookings')}
+            </button>
+          )}
         </div>
       </section>
 

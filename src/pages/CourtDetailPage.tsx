@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon, Seam } from '../components/Icons';
 import { BackLink, Shell } from '../components/Shell';
 import { ErrorState, EmptyState, Skeleton, Spinner } from '../components/States';
 import { CourtStaffBar } from '../components/staff/StaffBar';
 import { useI18n } from '../i18n';
+import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { useToast } from '../context/ToastContext';
 import { useAsync } from '../hooks/useAsync';
@@ -25,9 +26,11 @@ export function CourtDetailPage() {
   const { id } = useParams();
   const courtId = Number(id);
   const { t, lang } = useI18n();
+  const { authed } = useAuth();
   const { demo } = useSettings();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // `?reschedule=<id>` turns this screen into "pick a new time for that booking".
   const [params] = useSearchParams();
@@ -73,6 +76,11 @@ export function CourtDetailPage() {
 
   async function doBook() {
     if (!first || !last || !court.data) return;
+    // Browsing the grid is public; committing to a slot isn't. Send them back here after.
+    if (!authed) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setBooking(true);
     const body = {
       court: court.data.id,
@@ -261,8 +269,14 @@ export function CourtDetailPage() {
                   disabled={!contiguous || booking}
                   onClick={doBook}
                 >
-                  <Icon name="check" />
-                  {booking ? t('booking') : rescheduling ? t('confirm_reschedule') : t('book')}
+                  <Icon name={authed ? 'check' : 'user'} />
+                  {!authed
+                    ? t('sign_in')
+                    : booking
+                      ? t('booking')
+                      : rescheduling
+                        ? t('confirm_reschedule')
+                        : t('book')}
                 </button>
               </div>
             </div>

@@ -77,30 +77,10 @@ export function App() {
             }
           />
 
-          <Route
-            path="/clubs"
-            element={
-              <RequireAuth>
-                <ClubsPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/clubs/:id"
-            element={
-              <RequireAuth>
-                <ClubDetailPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/courts/:id"
-            element={
-              <RequireAuth>
-                <CourtDetailPage />
-              </RequireAuth>
-            }
-          />
+          {/* Browsing is public — signing in is only required to book. */}
+          <Route path="/clubs" element={<ClubsPage />} />
+          <Route path="/clubs/:id" element={<ClubDetailPage />} />
+          <Route path="/courts/:id" element={<CourtDetailPage />} />
           <Route
             path="/reservations"
             element={

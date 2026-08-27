@@ -45,7 +45,13 @@ No local Node needed — the build happens inside the image.
 docker compose up web --build          # http://localhost:8080
 ```
 
-That builds the app and serves `dist/` with nginx. For a dev server with hot reload
+That builds the app and serves `dist/` with nginx. Keep the `--build`: the bundle is
+compiled into the image, so a plain `docker compose up -d` reuses whatever was built
+last and silently serves stale source. If a rebuilt page still looks old, the PWA
+service worker is caching it — hard-reload, or unregister it under DevTools →
+Application.
+
+For a dev server with hot reload
 inside a container instead (source is bind-mounted):
 
 ```bash

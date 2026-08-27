@@ -62,7 +62,9 @@ export const api = {
 
     const res = await fetch(this.url(path), { ...opts, headers });
 
-    if (res.status === 401 && !opts.noAuth && !opts._retried) {
+    // A 401 with no token at all is just a public page hitting a protected endpoint —
+    // there is no session to refresh or expire, so leave the signed-out state alone.
+    if (res.status === 401 && !opts.noAuth && !opts._retried && store.access) {
       const ok = store.refresh ? await this.refreshToken() : false;
       if (ok) return this.raw(path, { ...opts, _retried: true });
       // The session is unrecoverable: drop the dead tokens and tell the app, otherwise
