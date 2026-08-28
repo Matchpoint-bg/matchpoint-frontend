@@ -1,0 +1,1 @@
+export { OpeningHoursCard } from './OpeningHoursCard';

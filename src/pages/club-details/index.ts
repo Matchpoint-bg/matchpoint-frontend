@@ -1,0 +1,1 @@
+export { ClubDetailsPage } from './ClubDetailsPage';

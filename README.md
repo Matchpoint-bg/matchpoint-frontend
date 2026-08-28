@@ -123,19 +123,22 @@ public/icons/           PWA icons (any + maskable + apple-touch + favicons)
 .env.example            Documented build/runtime variables — copy to .env.local
 .env.development        Dev defaults (demo mode on)
 src/
-  main.tsx              Provider tree, wrapped in the top-level ErrorBoundary
-  App.tsx               HashRouter + routes + RequireAuth / RequireAnon guards
-  vite-env.d.ts         Types for the VITE_* env vars
-  types.ts              Backend response shapes
-  styles/global.css     The whole design system, including the dark-theme tokens
-  lib/                  store (localStorage), api (fetch + JWT), demo data, formatters
+  app/                  App composition: providers, router, guards, shell
+  pages/                Route-level composition; no API implementations
+  features/             Vertical slices: auth, clubs, courts, booking, staff, etc.
+    <feature>/api/       HTTP/demo operations for that domain
+    <feature>/model/     Types, query keys, hooks, mutations, state logic
+    <feature>/ui/        Feature components with colocated CSS modules
+    <feature>/index.ts   Public API used outside the feature
+  shared/               Domain-neutral API, storage, utilities, hooks and UI
+  demo/                 Development fixtures and demo persistence
+  styles/               Tokens and cross-app layout/design primitives by concern
   i18n/                 en.ts / bg.ts dictionaries + I18nProvider
   theme/                ThemeProvider (light/dark)
-  context/              Auth, Settings, Toast, Modal providers
-  components/           Shell, AuthLayout, ErrorBoundary, Icons, Chip, States, modals
-  pages/                One file per view (see the routes table below)
-  hooks/                useAsync, useInstallPrompt
+  main.tsx              Mounts AppProviders and App
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for dependency, export, and TanStack Query rules.
 
 ### Routes
 
@@ -144,18 +147,18 @@ Routing is **hash-based** (`#/clubs`) because the PWA manifest shortcuts point a
 
 | Route | Page file | Access |
 |---|---|---|
-| `#/login` | `pages/AuthPage.tsx` | signed out |
-| `#/forgot-password` | `pages/ForgotPasswordPage.tsx` | signed out |
-| `#/reset-password/:uid/:token` | `pages/ResetPasswordPage.tsx` | signed out |
-| `#/clubs` | `pages/ClubsPage.tsx` | signed in |
-| `#/clubs/:id` | `pages/ClubDetailPage.tsx` | signed in |
-| `#/courts/:id` | `pages/CourtDetailPage.tsx` | signed in — `?reschedule=<id>` moves an existing booking |
-| `#/reservations` | `pages/ReservationsPage.tsx` | signed in |
-| `#/profile` | `pages/ProfilePage.tsx` | signed in |
-| `#/settings` | `pages/SettingsPage.tsx` | signed in |
-| anything else | `pages/NotFoundPage.tsx` | — |
+| `#/login` | `pages/auth/AuthPage.tsx` | signed out |
+| `#/forgot-password` | `pages/forgot-password/ForgotPasswordPage.tsx` | signed out |
+| `#/reset-password/:uid/:token` | `pages/reset-password/ResetPasswordPage.tsx` | signed out |
+| `#/clubs` | `pages/clubs/ClubsPage.tsx` | public |
+| `#/clubs/:id` | `pages/club-details/ClubDetailsPage.tsx` | public |
+| `#/courts/:id` | `pages/court-details/CourtDetailsPage.tsx` | public; booking requires sign-in |
+| `#/reservations` | `pages/reservations/ReservationsPage.tsx` | signed in |
+| `#/profile` | `pages/profile/ProfilePage.tsx` | signed in |
+| `#/settings` | `pages/settings/SettingsPage.tsx` | signed in |
+| anything else | `pages/not-found/NotFoundPage.tsx` | public |
 
-`RequireAuth` in `App.tsx` bounces signed-out visitors to `#/login` and remembers where they
+`RequireAuth` in `src/app/router/RouteGuards.tsx` bounces signed-out visitors to `#/login` and remembers where they
 were headed, so a deep link survives the detour. A stored token is verified against
 `GET /api/v1/auth/user/` on boot: an expired or hand-edited one lands on the sign-in screen
 instead of an app where every request 401s.
@@ -175,11 +178,11 @@ works) so the design is usable immediately. To develop against your real API:
 > `CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]`). Deployments can skip this by using
 > the same-origin `/api/` proxy described under Docker.
 
-Auth is JWT: the app calls `POST /api/token/`, stores the access/refresh pair, sends
-`Authorization: Bearer …`, and refreshes via `POST /api/token/refresh/` on 401. If that
+Auth is JWT: the app calls `POST /api/v1/auth/login/`, stores the access/refresh pair, sends
+`Authorization: Bearer …`, and refreshes via `POST /api/v1/auth/token/refresh/` on 401. If that
 refresh is rejected the tokens are cleared and the app returns to the sign-in screen. All of
-that lives in `src/lib/api.ts`, which also serves the demo fixtures so every screen works
-without a server.
+that is split between `src/shared/api/httpClient.ts`, feature API modules, and `src/demo/`.
+TanStack Query owns server-state caching and invalidation.
 
 > **Tokens live in `localStorage`**, which means any XSS on this origin can read them. The
 > CSP is the mitigation; moving to httpOnly cookies would be the structural fix.
@@ -188,7 +191,7 @@ without a server.
 
 | Backend endpoint | Where in the UI |
 |---|---|
-| `POST /api/token/`, `/api/token/refresh/` | Sign in screen; automatic refresh |
+| `POST /api/v1/auth/login/`, `/api/v1/auth/token/refresh/` | Sign in screen; automatic refresh |
 | `POST /api/v1/auth/registration/` | **Create account** tab |
 | `GET · PATCH /api/v1/auth/user/` | Profile page · **Edit profile** modal (also the boot-time token check) |
 | `POST /api/v1/auth/password/change/` | **Change password** modal on the profile |
@@ -214,7 +217,7 @@ without a server.
 | `PATCH /api/reservations/{id}/` | **Reschedule** on an upcoming booking |
 
 **Staff UI** is driven by `is_staff` / `is_superuser` on the user the server returns, exposed
-as `isStaff` from `AuthContext`. Dev builds can force it on with **Settings → Staff view**;
+as `isStaff` from `useAuth()`. Dev builds can force it on with **Settings → Staff view**;
 that toggle does not exist in production. The backend still enforces the real permissions —
 this only decides what gets rendered.
 
@@ -266,8 +269,8 @@ variants into Android's safe zone.
 
 Deliberately out of scope so far, in rough priority order:
 
-- **Accessibility.** The modal has no `role="dialog"`, focus trap, or Escape-to-close;
-  toasts aren't announced (`aria-live`); there's no `:focus-visible` ring or
+- **Accessibility.** The modal has dialog semantics but no focus trap or Escape-to-close;
+  there's no global `:focus-visible` ring or
   `prefers-reduced-motion` handling.
 - **Validation in the staff modals.** An empty price field still POSTs `NaN`, and no modal
   checks that an end time is after its start.

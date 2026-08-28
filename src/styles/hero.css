@@ -1,0 +1,108 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 26px;
+  padding: clamp(22px, 5vw, 40px);
+  border-radius: var(--r-lg);
+  background: var(--court);
+  color: #fff;
+  isolation: isolate;
+}
+
+.hero__seam {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0.9;
+}
+
+.hero__seam svg,
+.club-card__seam svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero__glow {
+  position: absolute;
+  z-index: -1;
+  top: -120px;
+  right: -90px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(123, 193, 51, 0.55), transparent 62%);
+}
+
+.hero__eyebrow {
+  color: var(--leaf);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 12px 0 10px;
+  font-family: var(--display);
+  font-size: clamp(30px, 6.4vw, 50px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.hero h1 span {
+  color: var(--ball);
+}
+
+.hero p {
+  max-width: 44ch;
+  margin: 0 0 20px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 15.5px;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.detail-hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  padding: clamp(20px, 4vw, 32px);
+  border-radius: var(--r-lg);
+  background: var(--court);
+  color: #fff;
+}
+
+.detail-hero h1 {
+  margin: 6px 0 8px;
+  font-family: var(--display);
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.detail-hero .meta {
+  display: flex;
+  flex-wrap: wrap;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  gap: 14px;
+}
+
+.detail-hero .meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-hero .meta svg {
+  width: 15px;
+  height: 15px;
+  color: var(--leaf);
+}

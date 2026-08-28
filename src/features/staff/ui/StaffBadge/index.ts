@@ -1,0 +1,1 @@
+export { StaffBadge } from './StaffBadge';

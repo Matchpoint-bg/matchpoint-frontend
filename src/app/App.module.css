@@ -1,0 +1,5 @@
+.boot {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+}

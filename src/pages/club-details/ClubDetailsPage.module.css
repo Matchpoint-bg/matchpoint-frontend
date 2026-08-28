@@ -1,0 +1,10 @@
+.emptyAction {
+  margin-top: 6px;
+}
+
+.description {
+  max-width: 60ch;
+  margin: 0 0 8px;
+  color: var(--ink-2);
+  font-size: 15px;
+}

@@ -1,0 +1,14 @@
+.tag {
+  color: var(--leaf);
+}
+
+.controls {
+  display: flex;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.poweredBy {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12.5px;
+}

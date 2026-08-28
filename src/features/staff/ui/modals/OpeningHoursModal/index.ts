@@ -1,0 +1,1 @@
+export { OpeningHoursModal } from './OpeningHoursModal';

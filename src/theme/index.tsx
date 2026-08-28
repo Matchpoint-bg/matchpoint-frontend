@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { store } from '../lib/store';
-import type { Theme } from '../lib/store';
+import { store } from '../shared/storage/store';
+import type { Theme } from '../shared/storage/store';
 
 interface ThemeValue {
   theme: Theme;
