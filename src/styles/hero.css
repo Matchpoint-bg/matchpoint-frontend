@@ -16,8 +16,7 @@
   opacity: 0.9;
 }
 
-.hero__seam svg,
-.club-card__seam svg {
+.hero__seam svg {
   display: block;
   width: 100%;
   height: 100%;

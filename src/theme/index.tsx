@@ -22,7 +22,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute('data-theme', theme);
     document
       .querySelector('meta[name=theme-color]')
-      ?.setAttribute('content', theme === 'dark' ? '#0a1207' : '#7bc133');
+      ?.setAttribute('content', theme === 'dark' ? '#0d120f' : '#b7e85a');
   }, [theme]);
 
   const setTheme = useCallback((t: Theme) => {

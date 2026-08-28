@@ -1,0 +1,1 @@
+export { ClubResultCard } from './ClubResultCard';

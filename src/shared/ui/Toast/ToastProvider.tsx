@@ -30,9 +30,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="toasts" aria-live="polite">
+      <div className="toasts">
         {items.map((item) => (
-          <div key={item.id} className={`toast${item.kind ? ` ${item.kind}` : ''}`}>
+          <div
+            key={item.id}
+            className={`toast${item.kind ? ` ${item.kind}` : ''}`}
+            role={item.kind === 'err' ? 'alert' : 'status'}
+            aria-atomic="true"
+          >
             <Icon name={item.kind === 'err' ? 'x' : item.kind === 'ok' ? 'check' : 'info'} />
             <span>{item.message}</span>
           </div>

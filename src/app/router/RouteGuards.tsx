@@ -11,6 +11,6 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 export function RequireAnon({ children }: { children: ReactNode }) {
   const { authed } = useAuth();
-  if (authed) return <Navigate to="/clubs" replace />;
+  if (authed) return <Navigate to="/players" replace />;
   return <>{children}</>;
 }

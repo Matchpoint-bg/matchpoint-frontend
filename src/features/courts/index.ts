@@ -3,6 +3,7 @@ export { SurfaceChip } from './ui/SurfaceChip';
 export { CourtHero } from './ui/CourtHero';
 export { CourtCard } from './ui/CourtCard';
 export {
+  availabilityQueryOptions,
   courtKeys,
   courtQueryOptions,
   useAddUnavailabilityMutation,

@@ -5,7 +5,7 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { Icon } from '../../shared/ui/Icon';
 import styles from './NotFoundPage.module.css';
 
-/** Bad URLs used to redirect silently to /clubs, which hid typos and broken links. */
+/** Keep bad URLs visible instead of hiding broken links behind a silent redirect. */
 export function NotFoundPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export function NotFoundPage() {
       <EmptyState title={t('notfound_title')} desc={t('notfound_desc')} icon="info">
         <button
           className={`btn btn--primary ${styles.action}`}
-          onClick={() => navigate('/clubs')}
+          onClick={() => navigate('/players')}
         >
           <Icon name="ball" />
           {t('go_to_clubs')}

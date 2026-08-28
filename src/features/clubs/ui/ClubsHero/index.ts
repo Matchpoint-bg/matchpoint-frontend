@@ -1,1 +1,0 @@
-export { ClubsHero } from './ClubsHero';

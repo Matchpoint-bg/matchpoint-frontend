@@ -72,7 +72,7 @@ export function ReservationsPage() {
         title={t('reservations_h2')}
         {...(isStaff ? { sub: t('staff_res_note') } : {})}
       >
-        <button className="btn btn--soft btn--sm" onClick={() => navigate('/clubs')}>
+        <button className="btn btn--soft btn--sm" onClick={() => navigate('/players')}>
           <Icon name="plus" />
           {t('book_more')}
         </button>
@@ -87,7 +87,7 @@ export function ReservationsPage() {
         <EmptyState title={t('no_res_title')} desc={t('no_res_desc')} icon="ticket">
           <button
             className={`btn btn--primary ${styles.emptyAction}`}
-            onClick={() => navigate('/clubs')}
+            onClick={() => navigate('/players')}
           >
             <Icon name="ball" />
             {t('find_court')}

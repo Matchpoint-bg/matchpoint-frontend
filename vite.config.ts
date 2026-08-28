@@ -18,8 +18,8 @@ export default defineConfig({
         display: 'standalone',
         display_override: ['standalone', 'minimal-ui'],
         orientation: 'portrait-primary',
-        background_color: '#0f1a0b',
-        theme_color: '#7bc133',
+        background_color: '#111a15',
+        theme_color: '#b7e85a',
         categories: ['sports', 'lifestyle', 'utilities'],
         lang: 'en',
         dir: 'ltr',
@@ -33,7 +33,7 @@ export default defineConfig({
           {
             name: 'Book a court',
             short_name: 'Book',
-            url: '/?source=pwa#/clubs',
+            url: '/?source=pwa#/players',
             icons: [{ src: 'icons/icon-192.png', sizes: '192x192' }],
           },
           {

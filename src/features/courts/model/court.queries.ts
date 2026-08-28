@@ -26,15 +26,19 @@ export function useCourtQuery(courtId: number) {
   return useQuery(courtQueryOptions(courtId));
 }
 
-export function useAvailabilityQuery(courtId: number, date: string) {
+export function availabilityQueryOptions(courtId: number, date: string) {
   const scope = queryScope();
-  return useQuery({
+  return queryOptions({
     queryKey: courtKeys.availability(scope, courtId, date),
     queryFn: () =>
       Number.isFinite(courtId) ? courtsApi.availability(courtId, date) : Promise.resolve([]),
     staleTime: 0,
     refetchOnMount: 'always',
   });
+}
+
+export function useAvailabilityQuery(courtId: number, date: string) {
+  return useQuery(availabilityQueryOptions(courtId, date));
 }
 
 export function useCourtPricesQuery(courtId: number) {

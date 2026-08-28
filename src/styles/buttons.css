@@ -2,14 +2,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 20px;
+  min-height: 46px;
+  padding: 11px 18px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 13px;
   font-size: 14.5px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.06s ease, filter 0.15s, background 0.15s, border-color 0.15s;
+  transition: transform var(--duration-fast) var(--ease-out), filter var(--duration-fast), background var(--duration-fast), border-color var(--duration-fast), box-shadow var(--duration-fast);
   gap: 8px;
 }
 
@@ -28,7 +29,7 @@
 }
 
 .btn--primary:hover {
-  filter: brightness(1.05);
+  background: var(--brand-strong);
 }
 
 .btn--ghost {
@@ -84,13 +85,15 @@
 }
 
 .btn--sm {
-  padding: 8px 14px;
+  min-height: 44px;
+  padding: 8px 13px;
   font-size: 13px;
 }
 
 .btn[disabled] {
-  opacity: 0.5;
+  opacity: 0.52;
   cursor: not-allowed;
+  transform: none;
 }
 
 .btn--google {

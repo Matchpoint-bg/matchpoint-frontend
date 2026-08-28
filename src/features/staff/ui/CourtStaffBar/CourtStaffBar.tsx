@@ -65,7 +65,7 @@ export function CourtStaffBar({ court, onChanged }: CourtStaffBarProps) {
             <DeleteCourtModal
               court={court}
               onDeleted={() =>
-                navigate(court.club_id ? `/clubs/${court.club_id}` : '/clubs')
+                navigate(court.club_id ? `/clubs/${court.club_id}` : '/players')
               }
             />,
           )

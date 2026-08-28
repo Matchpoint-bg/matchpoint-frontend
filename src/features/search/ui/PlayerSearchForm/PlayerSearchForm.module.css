@@ -1,0 +1,297 @@
+.form {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: clamp(24px, 5vw, 42px);
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid color-mix(in srgb, var(--line-2) 78%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--card) 97%, transparent);
+  box-shadow: 0 24px 70px -34px rgba(0, 0, 0, 0.72);
+  color: var(--ink);
+}
+
+.formHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 20px;
+}
+
+.formEyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.formHeading h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.step {
+  flex: none;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.urlNotice {
+  display: flex;
+  align-items: flex-start;
+  margin: -2px 0 16px;
+  padding: 11px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 26%, var(--line));
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 12.5px;
+  line-height: 1.4;
+  gap: 9px;
+}
+
+.urlNotice svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+}
+
+.urlNotice strong {
+  display: block;
+  margin-bottom: 1px;
+  color: inherit;
+}
+
+.fields {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: block;
+  min-width: 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+  margin: 0 0 6px 2px;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  gap: 5px;
+}
+
+.label em {
+  color: var(--faint);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.control svg {
+  position: absolute;
+  z-index: 1;
+  left: 15px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.control input,
+.control select {
+  width: 100%;
+  min-height: 54px;
+  padding: 0 14px 0 44px;
+  border: 1px solid var(--line-2);
+  border-radius: 13px;
+  background: var(--card-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.control select {
+  cursor: pointer;
+}
+
+.control input:hover,
+.control select:hover {
+  border-color: color-mix(in srgb, var(--ball) 58%, var(--line-2));
+  background: var(--card);
+}
+
+.control input:focus-visible,
+.control select:focus-visible {
+  border-color: var(--focus);
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  background: var(--card);
+}
+
+.control input[aria-invalid='true'],
+.control select[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.field small {
+  display: block;
+  margin: 5px 2px 0;
+  color: var(--danger);
+  font-size: 11px;
+}
+
+.formFooter {
+  display: grid;
+  margin-top: 17px;
+  gap: 16px;
+}
+
+.quickDates {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quickDates > span {
+  width: 100%;
+  margin: 0 0 2px 2px;
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quickDates button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.quickDates button:hover,
+.quickDates button:focus-visible {
+  border-color: var(--ball);
+  color: var(--ink);
+}
+
+.quickDates button:focus-visible,
+.submit:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.quickDates .quickDateActive {
+  border-color: color-mix(in srgb, var(--ball) 75%, var(--line));
+  background: color-mix(in srgb, var(--ball) 17%, var(--card));
+  color: var(--ink);
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--ball);
+  box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--ball) 72%, #000);
+  color: #10190c;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.submit span:last-child {
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.submit:hover {
+  filter: brightness(1.045);
+  transform: translateY(-1px);
+}
+
+.submit:hover span:last-child {
+  transform: translateX(3px);
+}
+
+.submit:active {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quickDates > span {
+    width: auto;
+    margin-right: 3px;
+  }
+}
+
+@media (min-width: 940px) {
+  .fields {
+    grid-template-columns: 1.1fr 1fr 1.15fr 0.85fr;
+  }
+
+  .formFooter {
+    align-items: end;
+    grid-template-columns: minmax(0, 1fr) 190px;
+  }
+
+  .submit {
+    align-self: end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control input,
+  .control select,
+  .quickDates button,
+  .submit,
+  .submit span:last-child {
+    transition: none;
+  }
+}

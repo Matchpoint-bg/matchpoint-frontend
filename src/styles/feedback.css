@@ -149,8 +149,9 @@
 }
 
 .switch input {
-  width: 0;
-  height: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
   opacity: 0;
 }
 
@@ -182,6 +183,11 @@
 
 .switch input:checked + .track::before {
   transform: translateX(19px);
+}
+
+.switch input:focus-visible + .track {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
 }
 
 @keyframes spin {
