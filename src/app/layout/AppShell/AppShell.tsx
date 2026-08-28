@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 import { useI18n } from '../../../i18n';
+import { Icon } from '../../../shared/ui/Icon';
 import { ThemeLanguageControls } from '../ThemeLanguageControls';
 import { DesktopNavigation, MobileNavigation } from './AppNavigation';
 import type { AppTab, NavigationItem } from './navigation.types';
@@ -14,10 +15,9 @@ interface AppShellProps {
 export function AppShell({ children, active }: AppShellProps) {
   const { t } = useI18n();
   const { authed, user } = useAuth();
-  const navigate = useNavigate();
-  const items: NavigationItem[] = [
+  const primaryItems: NavigationItem[] = [
     {
-      to: '/clubs',
+      to: '/players',
       icon: 'ball',
       desktopLabel: t('nav_clubs'),
       mobileLabel: t('tab_book'),
@@ -32,62 +32,97 @@ export function AppShell({ children, active }: AppShellProps) {
             mobileLabel: t('tab_bookings'),
             tab: 'reservations',
           },
-          {
-            to: '/profile',
-            icon: 'user',
-            desktopLabel: t('nav_profile'),
-            mobileLabel: t('nav_profile'),
-            tab: 'profile',
-          },
-          {
-            to: '/settings',
-            icon: 'gear',
-            desktopLabel: t('nav_settings'),
-            mobileLabel: t('nav_settings'),
-            tab: 'settings',
-          },
         ] satisfies NavigationItem[])
       : []),
   ];
+
+  const mobileItems: NavigationItem[] = [
+    ...primaryItems,
+    ...(authed
+      ? ([
+          {
+            to: active === 'settings' ? '/settings' : '/profile',
+            icon: active === 'settings' ? 'gear' : 'user',
+            desktopLabel: active === 'settings' ? t('nav_settings') : t('nav_profile'),
+            mobileLabel: active === 'settings' ? t('nav_settings') : t('nav_profile'),
+            tab: active === 'settings' ? 'settings' : 'profile',
+          },
+        ] satisfies NavigationItem[])
+      : ([
+          {
+            to: '/login',
+            icon: 'user',
+            desktopLabel: t('sign_in'),
+            mobileLabel: t('sign_in'),
+          },
+        ] satisfies NavigationItem[])),
+  ];
+
   const initials = ((user?.first_name || user?.email || '?')[0] || '?').toUpperCase();
+  const accountName = user?.first_name || t('nav_profile');
 
   return (
     <div className="app">
+      <a className="skip-link" href="#main-content">
+        {t('skip_to_content')}
+      </a>
       <header className="topbar">
         <div className="topbar__in">
-          <button className="brand" onClick={() => navigate('/clubs')}>
-            <img className="brand__mark" src="/icons/icon-192.png" alt="" />
-            <span>
+          <Link className="brand" to="/players" aria-label={`MatchPoint · ${t('tab_book')}`}>
+            <span className="brand__mark" aria-hidden="true">
+              <Icon name="ball" />
+            </span>
+            <span className="brand__copy">
               <span className="brand__name">
                 Match<em>Point</em>
               </span>
               <span className="brand__tag">{t('tagline')}</span>
             </span>
-          </button>
-          <DesktopNavigation items={items} active={active} />
-          <ThemeLanguageControls />
-          <div className="topbar__user">
-            {authed ? (
-              <button
-                className="avatar"
-                onClick={() => navigate('/profile')}
-                title={user?.email || ''}
-              >
-                {initials}
-              </button>
-            ) : (
-              <button
-                className="btn btn--primary btn--sm"
-                onClick={() => navigate('/login')}
-              >
-                {t('sign_in')}
-              </button>
-            )}
+          </Link>
+
+          <DesktopNavigation items={primaryItems} active={active} />
+
+          <div className="topbar__actions">
+            <ThemeLanguageControls />
+
+            <div className="topbar__user">
+              {authed ? (
+                <>
+                  <Link
+                    className={`shell-icon-button${active === 'settings' ? ' active' : ''}`}
+                    to="/settings"
+                    aria-label={t('nav_settings')}
+                    aria-current={active === 'settings' ? 'page' : undefined}
+                  >
+                    <Icon name="gear" />
+                  </Link>
+                  <Link
+                    className={`account-link${active === 'profile' ? ' active' : ''}`}
+                    to="/profile"
+                    aria-label={t('nav_profile')}
+                    aria-current={active === 'profile' ? 'page' : undefined}
+                    title={user?.email || t('nav_profile')}
+                  >
+                    <span className="avatar" aria-hidden="true">{initials}</span>
+                    <span className="account-link__copy">
+                      <strong>{accountName}</strong>
+                      <span>{t('nav_profile')}</span>
+                    </span>
+                  </Link>
+                </>
+              ) : (
+                <Link className="topbar__signin btn btn--primary btn--sm" to="/login">
+                  {t('sign_in')}
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </header>
-      <main>{children}</main>
-      <MobileNavigation items={items} active={active} />
+      <main id="main-content" className="app__main" tabIndex={-1}>
+        {children}
+      </main>
+      <MobileNavigation items={mobileItems} active={active} />
     </div>
   );
 }

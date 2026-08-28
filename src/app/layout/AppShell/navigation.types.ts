@@ -7,5 +7,5 @@ export interface NavigationItem {
   icon: IconName;
   desktopLabel: string;
   mobileLabel: string;
-  tab: AppTab;
+  tab?: AppTab;
 }

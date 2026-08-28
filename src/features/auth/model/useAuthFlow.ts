@@ -10,7 +10,7 @@ import { useAuth } from './AuthProvider';
 export type AuthMode = 'login' | 'register';
 
 interface AuthLocationState {
-  from?: { pathname?: string };
+  from?: { pathname?: string; search?: string; hash?: string };
 }
 
 export function useAuthFlow() {
@@ -22,7 +22,10 @@ export function useAuthFlow() {
   const location = useLocation();
   const [mode, setMode] = useState<AuthMode>('login');
   const [busy, setBusy] = useState(false);
-  const destination = (location.state as AuthLocationState | null)?.from?.pathname ?? '/clubs';
+  const from = (location.state as AuthLocationState | null)?.from;
+  const destination = from?.pathname
+    ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
+    : '/players';
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

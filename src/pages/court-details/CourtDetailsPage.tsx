@@ -43,7 +43,13 @@ export function CourtDetailsPage() {
   const rescheduleId = rescheduleParam !== null ? Number(rescheduleParam) : null;
   const rescheduling = rescheduleId !== null && Number.isFinite(rescheduleId);
 
-  const [date, setDate] = useState(() => fmt.isoDate(new Date()));
+  const [date, setDate] = useState(() => {
+    const requested = params.get('date');
+    const today = fmt.isoDate(new Date());
+    return requested && /^\d{4}-\d{2}-\d{2}$/.test(requested) && requested >= today
+      ? requested
+      : today;
+  });
 
   const courtQuery = useCourtQuery(courtId);
   const availabilityQuery = useAvailabilityQuery(courtId, date);
@@ -113,7 +119,7 @@ export function CourtDetailsPage() {
         <EmptyState title={t('court_missing_title')} desc={t('court_missing_desc')} icon="info">
           <button
             className={`btn btn--primary ${styles.emptyAction}`}
-            onClick={() => navigate('/clubs')}
+            onClick={() => navigate('/players')}
           >
             <Icon name="ball" />
             {t('go_to_clubs')}

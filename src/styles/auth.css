@@ -95,21 +95,22 @@
   display: flex;
   margin-bottom: 20px;
   padding: 4px;
-  border-radius: 999px;
+  border-radius: 14px;
   background: var(--pale);
 }
 
 .authtabs button {
   flex: 1;
-  padding: 9px;
+  min-height: 44px;
+  padding: 9px 12px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 10px;
   background: transparent;
   color: var(--muted);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.15s;
+  transition: color var(--duration-fast), background var(--duration-fast), box-shadow var(--duration-fast);
 }
 
 .authtabs button.active {
@@ -131,8 +132,10 @@
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
+  min-height: 48px;
   padding: 12px 14px;
   border: 1px solid var(--line-2);
   border-radius: 12px;
@@ -140,14 +143,15 @@
   color: var(--ink);
   font-family: inherit;
   font-size: 15px;
-  transition: 0.15s;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast), background var(--duration-fast);
 }
 
-.field input:focus,
-.field select:focus {
-  border-color: var(--ball);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(123, 193, 51, 0.18);
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  border-color: var(--focus);
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .field .row2 {

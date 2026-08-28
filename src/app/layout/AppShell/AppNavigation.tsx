@@ -4,10 +4,16 @@ import type { AppTab, NavigationItem } from './navigation.types';
 
 export function DesktopNavigation({ items, active }: { items: NavigationItem[]; active: AppTab }) {
   return (
-    <nav className="nav-desktop">
+    <nav className="nav-desktop" aria-label="MatchPoint">
       {items.map((item) => (
-        <NavLink key={item.to} to={item.to} className={active === item.tab ? 'active' : ''}>
-          <Icon name={item.icon} />{item.desktopLabel}
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={active === item.tab ? 'active' : ''}
+          aria-current={active === item.tab ? 'page' : undefined}
+        >
+          <Icon name={item.icon} />
+          <span>{item.desktopLabel}</span>
         </NavLink>
       ))}
     </nav>
@@ -16,13 +22,27 @@ export function DesktopNavigation({ items, active }: { items: NavigationItem[]; 
 
 export function MobileNavigation({ items, active }: { items: NavigationItem[]; active: AppTab }) {
   return (
-    <nav className="tabbar">
-      {items.map((item) => (
-        <NavLink key={item.to} to={item.to} className={active === item.tab ? 'active' : ''}>
-          <span className="tabbar__ic"><span className="tabbar__dot" /><Icon name={item.icon} /></span>
-          {item.mobileLabel}
-        </NavLink>
-      ))}
+    <nav className="tabbar" aria-label="MatchPoint">
+      <div className="tabbar__in">
+        {items.map((item) => {
+          const isCurrent = item.tab !== undefined && active === item.tab;
+
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={isCurrent ? 'active' : ''}
+              aria-current={isCurrent ? 'page' : undefined}
+            >
+              <span className="tabbar__ic" aria-hidden="true">
+                <span className="tabbar__dot" />
+                <Icon name={item.icon} />
+              </span>
+              <span className="tabbar__label">{item.mobileLabel}</span>
+            </NavLink>
+          );
+        })}
+      </div>
     </nav>
   );
 }

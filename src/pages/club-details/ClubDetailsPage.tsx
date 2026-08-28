@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import {
   ClubHero,
@@ -23,6 +23,9 @@ export function ClubDetailsPage() {
   const clubId = Number(id);
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const search = searchParams.toString();
+  const playersUrl = search ? `/players?${search}` : '/players';
   const clubQuery = useClubQuery(clubId);
   const courtsQuery = useClubCourtsQuery(clubId);
   const hoursQuery = useClubOpeningHoursQuery(clubId);
@@ -35,7 +38,7 @@ export function ClubDetailsPage() {
 
   return (
     <AppShell active="clubs">
-      <BackLink label={t('all_clubs')} onClick={() => navigate('/clubs')} />
+      <BackLink label={t('all_clubs')} onClick={() => navigate(playersUrl)} />
 
       {loading && <Spinner />}
       {!loading && error && <ErrorState msg={error.message} onRetry={reload} />}
@@ -44,7 +47,7 @@ export function ClubDetailsPage() {
         <EmptyState title={t('club_missing_title')} desc={t('club_missing_desc')} icon="info">
           <button
             className={`btn btn--primary ${styles.emptyAction}`}
-            onClick={() => navigate('/clubs')}
+            onClick={() => navigate('/players')}
           >
             <Icon name="ball" />
             {t('go_to_clubs')}
@@ -76,7 +79,7 @@ export function ClubDetailsPage() {
               <CourtCard
                 key={court.id}
                 court={court}
-                onClick={() => navigate(`/courts/${court.id}`)}
+                onClick={() => navigate(`/courts/${court.id}${search ? `?${search}` : ''}`)}
               />
             ))}
           </div>

@@ -1,30 +1,94 @@
 :root {
-  --ball: #7bc133;
-  --ball-2: #92d250;
-  --leaf: #acdf77;
-  --mist: #c3e69e;
-  --pale: #dff6c8;
-  --court: #0f1a0b;
-  --court-2: #16210f;
-  --court-3: #1f2e15;
-  --bg: #f5f9ec;
+  color-scheme: light;
+  --brand: #b7e85a;
+  --brand-rgb: 183 232 90;
+  --brand-strong: #9fd63c;
+  --brand-soft: #edf8d6;
+  --brand-ink: #18230f;
+  --brand-text: #4b6f00;
+  --canvas: #f4f5ef;
+  --surface: #ffffff;
+  --surface-subtle: #fafbf7;
+  --surface-raised: #ffffff;
+  --text: #152019;
+  --text-secondary: #526056;
+  --text-tertiary: #626f66;
+  --border: #e1e5dd;
+  --border-strong: #89958d;
+  --focus: #3d7c62;
+  --success: #237a50;
+  --warning: #9b6708;
+  --danger: #b23d31;
+  --danger-bg: #fbe9e6;
+  --clay: #ad5a35;
+  --ball: var(--brand);
+  --ball-2: #c9ef7e;
+  --leaf: #ccefa0;
+  --mist: #dbefbd;
+  --pale: var(--brand-soft);
+  --court: #111a15;
+  --court-2: #18251e;
+  --court-3: #223229;
+  --bg: var(--canvas);
   --card: #ffffff;
-  --card-2: #fbfdf6;
-  --line: #e4eed6;
-  --line-2: #d3e2bd;
+  --card-2: var(--surface-subtle);
+  --line: var(--border);
+  --line-2: var(--border-strong);
   --linewhite: rgba(255, 255, 255, 0.6);
-  --ink: #13200b;
-  --ink-2: #33422a;
-  --muted: #61714f;
-  --faint: #8a9a76;
-  --ok: #5aa522;
-  --danger: #b4491f;
-  --danger-bg: #f7e6de;
-  --r: 14px;
-  --r-sm: 10px;
-  --r-lg: 22px;
-  --shadow: 0 1px 2px rgba(20, 32, 11, 0.06), 0 8px 24px -12px rgba(20, 32, 11, 0.18);
-  --shadow-lg: 0 24px 60px -20px rgba(15, 26, 11, 0.45);
+  --ink: var(--text);
+  --ink-2: var(--text-secondary);
+  --muted: var(--text-secondary);
+  --faint: var(--text-tertiary);
+  --ok: var(--success);
+  --r: 16px;
+  --r-sm: 12px;
+  --r-lg: 26px;
+  --shadow: 0 1px 2px rgba(18, 30, 23, 0.05), 0 12px 32px -24px rgba(18, 30, 23, 0.32);
+  --shadow-lg: 0 28px 72px -30px rgba(10, 18, 13, 0.48);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: clamp(1.75rem, 4vw, 2.5rem);
+  --text-display: clamp(2.25rem, 7vw, 4.75rem);
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-display: 800;
+  --leading-tight: 1.08;
+  --leading-heading: 1.2;
+  --leading-body: 1.5;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+  --border-width: 1px;
+  --border-width-emphasis: 2px;
+  --z-base: 0;
+  --z-header: 40;
+  --z-sticky: 30;
+  --z-dropdown: 50;
+  --z-overlay: 60;
+  --z-dialog: 70;
+  --z-toast: 80;
+  --z-skip-link: 100;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 280ms;
   --display: 'Archivo', system-ui, sans-serif;
   --body: 'Inter', system-ui, sans-serif;
   --mono: 'Space Mono', ui-monospace, monospace;
@@ -32,20 +96,41 @@
 }
 
 :root[data-theme='dark'] {
+  color-scheme: dark;
+  --brand: #bde968;
+  --brand-rgb: 189 233 104;
+  --brand-strong: #ccef87;
+  --brand-soft: #23331f;
+  --brand-ink: #111a15;
+  --brand-text: #c6ee76;
+  --canvas: #0d120f;
+  --surface: #141c17;
+  --surface-subtle: #101713;
+  --surface-raised: #19231d;
+  --text: #f2f5f0;
+  --text-secondary: #b5beb7;
+  --text-tertiary: #89958c;
+  --border: #273229;
+  --border-strong: #66736a;
+  --focus: #a9dfd0;
+  --success: #65c997;
+  --warning: #efbe5a;
+  --danger: #f08d80;
+  --danger-bg: #3c211d;
   --court: #0a1207;
-  --court-2: #101c0a;
-  --court-3: #182611;
-  --bg: #0d130a;
-  --card: #151f0f;
-  --card-2: #101809;
-  --line: #26361c;
-  --line-2: #334a24;
+  --court-2: #111c16;
+  --court-3: #1b2a21;
+  --bg: var(--canvas);
+  --card: var(--surface);
+  --card-2: var(--surface-subtle);
+  --line: var(--border);
+  --line-2: var(--border-strong);
   --linewhite: rgba(255, 255, 255, 0.12);
-  --ink: #eef6e4;
-  --ink-2: #cfe0bd;
-  --muted: #96a884;
-  --faint: #66784f;
-  --danger-bg: #3a2015;
+  --ink: var(--text);
+  --ink-2: var(--text-secondary);
+  --muted: var(--text-secondary);
+  --faint: var(--text-tertiary);
+  --pale: var(--brand-soft);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.65);
 }
@@ -60,18 +145,51 @@ body {
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  overflow-x: hidden;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
   text-rendering: optimizeLegibility;
-  transition: background 0.2s, color 0.2s;
+  transition: background var(--duration-base), color var(--duration-base);
   -webkit-font-smoothing: antialiased;
 }
 
-button {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
 }
 
 a {
@@ -81,4 +199,48 @@ a {
 ::selection {
   background: var(--ball);
   color: var(--court);
+}
+
+.skip-link {
+  position: fixed;
+  z-index: var(--z-skip-link);
+  top: 8px;
+  left: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--card);
+  box-shadow: var(--shadow-lg);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+p,
+li,
+dd,
+label,
+button,
+a {
+  overflow-wrap: break-word;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

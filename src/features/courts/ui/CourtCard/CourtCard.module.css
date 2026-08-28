@@ -18,7 +18,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 14px;
-  color: var(--ball);
+  color: var(--brand-text);
   font-size: 13.5px;
   font-weight: 700;
 }

@@ -99,7 +99,7 @@
 
 :global(:root[data-theme='dark']) .upcoming {
   background: var(--court-3);
-  color: var(--ball);
+  color: var(--brand-text);
 }
 
 :global(:root[data-theme='dark']) .past {

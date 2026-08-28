@@ -7,10 +7,23 @@ export function ThemeLanguageControls() {
   const { theme, toggleTheme } = useTheme();
   return (
     <>
-      <button className="lang-toggle" onClick={toggleLang} title={t('language')}>
+      <button
+        className="lang-toggle"
+        type="button"
+        onClick={toggleLang}
+        title={t('language')}
+        aria-label={`${t('language')}: ${lang === 'bg' ? 'English' : 'Български'}`}
+      >
         {lang === 'bg' ? 'EN' : 'BG'}
       </button>
-      <button className="theme-toggle" onClick={toggleTheme} title={t('theme_label')}>
+      <button
+        className="theme-toggle"
+        type="button"
+        onClick={toggleTheme}
+        title={t('theme_label')}
+        aria-label={t('theme_label')}
+        aria-pressed={theme === 'dark'}
+      >
         <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
       </button>
     </>

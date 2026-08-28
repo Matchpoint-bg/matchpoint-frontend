@@ -1,3 +1,6 @@
+import { useI18n } from '../../../i18n';
+
 export function Spinner() {
-  return <div className="spinner" role="status" aria-label="Loading" />;
+  const { t } = useI18n();
+  return <div className="spinner" role="status" aria-label={t('loading')} />;
 }

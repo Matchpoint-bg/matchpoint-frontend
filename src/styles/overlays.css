@@ -1,16 +1,16 @@
 .modal-bg {
   position: fixed;
-  z-index: 60;
+  z-index: var(--z-overlay);
   inset: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding: 0;
-  background: rgba(15, 26, 11, 0.5);
+  background: rgba(8, 14, 10, 0.58);
   opacity: 0;
   pointer-events: none;
-  transition: 0.2s;
-  backdrop-filter: blur(3px);
+  transition: opacity var(--duration-base) var(--ease-out);
+  backdrop-filter: blur(6px);
 }
 
 .modal-bg.open {
@@ -24,10 +24,10 @@
   max-height: 92dvh;
   overflow: auto;
   border-radius: 22px 22px 0 0;
-  background: var(--bg);
+  background: var(--surface);
   box-shadow: var(--shadow-lg);
   transform: translateY(24px);
-  transition: 0.24s;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .modal-bg.open .modal {
@@ -42,7 +42,8 @@
   justify-content: space-between;
   padding: 18px 20px 12px;
   border-bottom: 1px solid var(--line);
-  background: var(--bg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(12px);
 }
 
 .modal__head h3 {
@@ -54,11 +55,11 @@
 
 .modal__x {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 50%;
-  background: var(--pale);
+  background: var(--surface-subtle);
   color: var(--ink);
   cursor: pointer;
   place-items: center;
@@ -78,7 +79,7 @@
 
 .toasts {
   position: fixed;
-  z-index: 80;
+  z-index: var(--z-toast);
   right: 0;
   bottom: calc(96px + var(--safe-b));
   left: 0;

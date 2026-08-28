@@ -10,15 +10,15 @@ export function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="toggle">
-      <div className="t">
+    <label className="toggle">
+      <span className="t">
         <b>{title}</b>
         {desc && <small>{desc}</small>}
-      </div>
-      <label className="switch">
+      </span>
+      <span className="switch">
         <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-        <span className="track" />
-      </label>
-    </div>
+        <span className="track" aria-hidden="true" />
+      </span>
+    </label>
   );
 }
