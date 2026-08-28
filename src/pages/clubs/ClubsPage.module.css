@@ -199,6 +199,10 @@
   color: var(--muted);
 }
 
+.refine {
+  margin-bottom: 20px;
+}
+
 .resultGrid {
   display: grid;
   gap: 14px;

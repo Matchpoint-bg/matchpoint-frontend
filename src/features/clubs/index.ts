@@ -14,8 +14,6 @@ export {
 export type { Club, Employee, OpeningHour, Weekday } from './model/club.types';
 export { useClubFilters } from './model/useClubFilters';
 export type { ClubCourtSummary, ClubFilterCriteria } from './model/useClubFilters';
-export { ClubCard } from './ui/ClubCard';
 export { ClubFilters } from './ui/ClubFilters';
 export { ClubHero } from './ui/ClubHero';
-export { ClubsHero } from './ui/ClubsHero';
 export { OpeningHoursCard } from './ui/OpeningHoursCard';

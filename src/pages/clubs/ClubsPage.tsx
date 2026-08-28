@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
-import { useClubFilters, useClubsQuery } from '../../features/clubs';
+import { ClubFilters, useClubFilters, useClubsQuery } from '../../features/clubs';
 import { InstallBanner } from '../../features/install';
 import { useSettings } from '../../features/preferences';
 import { ClubResultCard, PlayerSearchForm, usePlayerSearch } from '../../features/search';
@@ -114,6 +114,18 @@ export function ClubsPage() {
               <span><Icon name="clock" />{t('search_from_time')} {criteria.time}</span>
             )}
           </div>
+
+          {!clubsQuery.isPending && !clubsQuery.error && clubs.length > 0 && (
+            <div className={styles.refine}>
+              <ClubFilters
+                query={filters.query}
+                surface={filters.surface}
+                surfaces={filters.surfaceOptions}
+                onQueryChange={filters.setQuery}
+                onSurfaceChange={filters.setSurface}
+              />
+            </div>
+          )}
 
           <div className={styles.resultGrid}>
             {clubsQuery.isPending && <Skeleton height={280} count={2} />}
