@@ -1,0 +1,9 @@
+.fallback {
+  margin: 48px auto;
+  max-width: 420px;
+  text-align: center;
+}
+
+.reload {
+  margin-top: 6px;
+}

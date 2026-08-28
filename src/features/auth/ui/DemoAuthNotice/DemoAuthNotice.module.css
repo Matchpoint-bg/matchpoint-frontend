@@ -1,0 +1,25 @@
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--court);
+  color: #fff;
+}
+
+.text {
+  flex: 1;
+}
+
+.text b {
+  font-family: var(--display);
+  font-size: 14px;
+}
+
+.text small {
+  display: block;
+  color: var(--leaf);
+  font-size: 12.5px;
+}

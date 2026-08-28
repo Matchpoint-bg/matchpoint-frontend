@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { en, WEEKDAYS_EN } from './en';
 import type { TranslationKey } from './en';
 import { bg, WEEKDAYS_BG } from './bg';
-import { store } from '../lib/store';
-import type { Lang } from '../lib/store';
+import { store } from '../shared/storage/store';
+import type { Lang } from '../shared/storage/store';
 
 const DICTS: Record<Lang, Record<TranslationKey, string>> = { en, bg };
 

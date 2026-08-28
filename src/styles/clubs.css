@@ -1,0 +1,81 @@
+.club-card__top {
+  position: relative;
+  height: 96px;
+  overflow: hidden;
+  border-radius: var(--r) var(--r) 0 0;
+  background: linear-gradient(120deg, var(--ball), var(--ball-2) 55%, var(--leaf));
+}
+
+.club-card__seam {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+}
+
+.club-card__body {
+  padding: 15px 16px 16px;
+}
+
+.club-card__body h3 {
+  margin: 0 0 4px;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.club-card__meta {
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+  gap: 6px;
+}
+
+.club-card__meta svg {
+  width: 14px;
+  height: 14px;
+  color: var(--faint);
+}
+
+.clubfilters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin: 4px 0 16px;
+  gap: 12px;
+}
+
+.clubfilters .field {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.clubfilters .chiprow {
+  margin-top: 0;
+}
+
+.oh-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.oh-row:last-child {
+  border-bottom: 0;
+}
+
+.oh-row .d {
+  font-weight: 600;
+}
+
+.oh-row .h {
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.oh-row.closed .h {
+  color: var(--faint);
+}

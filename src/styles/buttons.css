@@ -1,0 +1,105 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.06s ease, filter 0.15s, background 0.15s, border-color 0.15s;
+  gap: 8px;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.btn--primary {
+  background: var(--ball);
+  color: var(--court);
+}
+
+.btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn--ghost {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #fff;
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn--soft {
+  background: var(--pale);
+  color: var(--ink);
+}
+
+.btn--soft:hover {
+  background: var(--mist);
+}
+
+.btn--outline {
+  border-color: var(--line-2);
+  background: var(--card);
+  color: var(--ink);
+}
+
+.btn--outline:hover {
+  border-color: var(--ball);
+  background: var(--card-2);
+}
+
+.btn--dark {
+  background: var(--court);
+  color: #fff;
+}
+
+.btn--dark:hover {
+  background: var(--court-2);
+}
+
+.btn--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.btn--danger:hover {
+  filter: brightness(0.97);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--sm {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--google {
+  width: 100%;
+  border: 1px solid var(--line-2);
+  background: #fff;
+  color: #1f2937;
+}
+
+.btn--google:hover {
+  background: #f8fafc;
+}

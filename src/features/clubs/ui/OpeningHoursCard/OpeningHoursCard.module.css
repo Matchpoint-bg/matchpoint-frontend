@@ -1,0 +1,20 @@
+.card {
+  margin-top: 22px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+
+.icon {
+  color: var(--ball);
+}
+
+.title {
+  font-family: var(--display);
+  font-size: 17px;
+}

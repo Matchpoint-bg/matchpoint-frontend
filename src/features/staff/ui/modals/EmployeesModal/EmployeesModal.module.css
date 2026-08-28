@@ -1,0 +1,22 @@
+.employee {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.avatar {
+  background: var(--pale);
+  color: var(--ink);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 15px;
+}

@@ -1,0 +1,23 @@
+.intro {
+  margin-top: 0;
+}
+
+.row {
+  margin-bottom: 10px;
+}
+
+.field {
+  margin-bottom: 8px;
+}
+
+.lastField {
+  margin-bottom: 0;
+}
+
+.remove {
+  margin-top: 8px;
+}
+
+.save {
+  margin-top: 12px;
+}

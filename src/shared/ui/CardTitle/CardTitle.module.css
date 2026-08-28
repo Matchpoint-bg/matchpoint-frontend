@@ -1,0 +1,15 @@
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.title b {
+  font-family: var(--display);
+  font-size: 17px;
+}
+
+.icon {
+  color: var(--ball);
+}

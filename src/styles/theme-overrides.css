@@ -1,0 +1,104 @@
+:root[data-theme='dark'] .tabbar {
+  background: rgba(21, 31, 15, 0.92);
+}
+
+:root[data-theme='dark'] .chip--clay {
+  background: #3a2317;
+  color: #e0a583;
+}
+
+:root[data-theme='dark'] .chip--grass {
+  background: #22350f;
+  color: #a9d97a;
+}
+
+:root[data-theme='dark'] .chip--hard {
+  background: #14263a;
+  color: #8fc0ef;
+}
+
+:root[data-theme='dark'] .chip--lit {
+  background: #3a3110;
+  color: #e9cd6a;
+}
+
+:root[data-theme='dark'] .chip {
+  background: var(--court-3);
+  color: var(--ink-2);
+}
+
+:root[data-theme='dark'] .chip--indoor {
+  background: var(--ball);
+  color: var(--court);
+}
+
+:root[data-theme='dark'] .btn--soft {
+  background: var(--court-3);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .btn--soft:hover {
+  background: var(--line-2);
+}
+
+:root[data-theme='dark'] .btn--google {
+  background: var(--card);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .btn--google:hover,
+:root[data-theme='dark'] .authtabs {
+  background: var(--card-2);
+}
+
+:root[data-theme='dark'] .modal__x,
+:root[data-theme='dark'] .slot {
+  background: var(--court-3);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .slot__t {
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .slot.is-sel {
+  border-color: var(--ball);
+  background: var(--ball);
+}
+
+:root[data-theme='dark'] .slot.is-sel .slot__t {
+  color: var(--court);
+}
+
+:root[data-theme='dark'] .slot.is-sel .slot__p {
+  color: var(--court-2);
+}
+
+:root[data-theme='dark'] .lg-free {
+  background: var(--court-3);
+}
+
+:root[data-theme='dark'] .lg-book {
+  background: #000;
+}
+
+:root[data-theme='dark'] .slot.is-booked {
+  border-color: #050903;
+  background: #050903;
+}
+
+:root[data-theme='dark'] .slot.is-un,
+:root[data-theme='dark'] .lg-un {
+  border-color: #22301a;
+  background: repeating-linear-gradient(45deg, #1a2412, #1a2412 5px, #131c0d 5px, #131c0d 10px);
+}
+
+:root[data-theme='dark'] .slot.is-un .slot__t,
+:root[data-theme='dark'] .slot.is-un .slot__p {
+  color: #5f6f4d;
+}
+
+:root[data-theme='dark'] .skel {
+  background: linear-gradient(90deg, #182210 25%, #22301a 50%, #182210 75%);
+  background-size: 200% 100%;
+}

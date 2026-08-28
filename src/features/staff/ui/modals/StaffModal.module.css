@@ -1,0 +1,17 @@
+.intro {
+  margin-top: 0;
+}
+
+.submit {
+  margin-top: 6px;
+}
+
+.confirmation {
+  margin: 0 0 18px;
+  color: var(--ink-2);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
