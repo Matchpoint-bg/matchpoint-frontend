@@ -35,7 +35,7 @@
 .btn--ghost {
   border-color: rgba(255, 255, 255, 0.3);
   background: transparent;
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .btn--ghost:hover {
@@ -64,7 +64,7 @@
 
 .btn--dark {
   background: var(--court);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .btn--dark:hover {
@@ -99,6 +99,8 @@
 .btn--google {
   width: 100%;
   border: 1px solid var(--line-2);
+  /* Documented exception: Google mandates these exact brand values for the
+     "Continue with Google" button, so they are not themeable. */
   background: #fff;
   color: #1f2937;
 }

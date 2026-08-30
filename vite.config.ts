@@ -19,7 +19,7 @@ export default defineConfig({
         display_override: ['standalone', 'minimal-ui'],
         orientation: 'portrait-primary',
         background_color: '#111a15',
-        theme_color: '#b7e85a',
+        theme_color: '#7bc133',
         categories: ['sports', 'lifestyle', 'utilities'],
         lang: 'en',
         dir: 'ltr',

@@ -12,7 +12,6 @@ import {
 } from '../../features/booking';
 import { CourtHero, useAvailabilityQuery, useCourtQuery } from '../../features/courts';
 import { useSettings } from '../../features/preferences';
-import { CourtStaffBar } from '../../features/staff';
 import { useI18n } from '../../i18n';
 import { useToast } from '../../shared/ui/Toast';
 import {
@@ -136,8 +135,6 @@ export function CourtDetailsPage() {
           )}
 
           <CourtHero court={court.data} />
-
-          <CourtStaffBar court={court.data} onChanged={slots.reload} />
 
           <div className={`section-head ${styles.availabilityHeading}`}>
             <div>

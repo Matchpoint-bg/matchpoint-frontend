@@ -70,41 +70,13 @@
 
 .actions {
   display: flex;
+  align-items: center;
   flex: none;
   gap: 8px;
 }
 
-.status {
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.upcoming {
-  background: var(--pale);
-  color: var(--ok);
-}
-
-.past {
-  background: #eef1ea;
-  color: var(--faint);
-}
-
 :global(:root[data-theme='dark']) .calendar {
   background: var(--court-3);
-}
-
-:global(:root[data-theme='dark']) .upcoming {
-  background: var(--court-3);
-  color: var(--brand-text);
-}
-
-:global(:root[data-theme='dark']) .past {
-  background: var(--court-2);
-  color: var(--faint);
 }
 
 @media (max-width: 520px) {

@@ -222,32 +222,63 @@ MatchPoint трябва да комбинира:
 - [ ] Определи responsive breakpoints според content behavior.
 - [x] Определи z-index и overlay layers.
 - [x] Определи motion durations и easing tokens.
-- [ ] Определи focus, hover, active, pressed, disabled и loading states.
+- [x] Определи focus, hover, active, pressed, disabled и loading states.
 - [x] Определи light/dark strategy; не допускай dark theme да забави основния redesign.
-- [ ] Създай малка internal design-system showcase страница или development route.
+- [x] Създай малка internal design-system showcase страница или development route. (`/showcase`, само в dev build)
 
 ### TODO — shared primitives
 
-- [ ] `Button`: primary, secondary, outline, ghost, danger, loading, icon-only.
-- [ ] `Input`, `SearchInput`, `Select`, `DateField`, `TimeField`, `Textarea`.
-- [ ] `Field`, hint, error message и required state.
-- [ ] `Chip`, `FilterChip`, `StatusBadge`, `SurfaceBadge`.
-- [ ] `Card`, `Section`, `Divider`, `Toolbar`.
+- [x] `Button`: primary, secondary, outline, ghost, dark, danger, google, loading, block, sm. Плюс `LinkButton`.
+- [x] `IconButton` с задължителен accessible label.
+- [x] `Input`, `SearchInput`, `Select`, `DateField`, `TimeField`, `Textarea`.
+- [x] `Field`, hint, error message и required state.
+- [x] `Chip` и `FilterChip` (toggle с `aria-pressed`).
+- [x] `StatusBadge`, `SurfaceBadge`. Плюс базовия `Badge` и `BookingStatus`.
+- [x] `Card`, `Section`, `Divider`.
+- [x] `Toolbar`.
 - [x] `Dialog` с focus trap, Escape close и focus return.
-- [ ] Mobile `BottomSheet` и desktop side panel behavior.
+- [x] Mobile `BottomSheet` и desktop side panel behavior (`Sheet`, `placement="bottom" | "side"`).
 - [x] `Toast` с accessible live region.
-- [ ] `Skeleton`, `Spinner`, `EmptyState`, `ErrorState`.
-- [ ] `Tabs` и segmented controls с keyboard support.
-- [ ] `IconButton` с задължителен accessible label.
-- [ ] `Price`, `DateTime`, `BookingStatus` display components.
+- [x] `Skeleton`, `Spinner`, `EmptyState`, `ErrorState`.
+- [x] `Tabs` и segmented controls с keyboard support (Left/Right/Home/End, roving tabindex).
+- [x] `Price`, `DateTime`, `BookingStatus` display components.
+
+> **Миграция.** Новите form primitives се използват от `PlayerSearchForm`, `AuthForm`,
+> `ClubFilters` и `ReservationCard`. Останалите екрани още пишат глобалния `.field` клас и
+> се местят в отделен pass: staff modals (`CourtFormModal`, `EditClubModal`,
+> `OpeningHoursModal`, `PricesModal`, `UnavailabilityModal`, `OpeningHoursDayRow`,
+> `StaffSettings`), profile modals (`EditProfileModal`, `ChangePasswordModal`),
+> `ForgotPasswordPage`, `ResetPasswordPage`, `PlayerSettings`, `DeveloperSettings`.
+> Legacy `.field` правилата живеят в `src/styles/forms.css` и се трият след тази миграция.
 
 ### Acceptance criteria
 
-- [ ] Няма hardcoded feature colors извън tokens, освен документировано изключение.
-- [ ] Всички interactive states са видими и consistent.
+- [x] Няма hardcoded feature colors извън tokens, освен документировано изключение.
+- [x] Всички interactive states са видими и consistent.
 - [ ] Components работят при 320 px viewport и 200% zoom.
 - [ ] Bulgarian и English layouts са проверени.
-- [ ] Core components имат keyboard и screen-reader semantics.
+- [x] Core components имат keyboard и screen-reader semantics.
+
+**Бележки по критериите**
+
+- *Feature colors.* Chip, slot, legend и skeleton цветовете вече са semantic token
+  двойки в `foundation.css` (light + dark на едно място). `theme-overrides.css` вече
+  съдържа само structural dark правила, не цветови дубликати. Единственото
+  документирано изключение е `.btn--google` (`#fff` / `#1f2937` / `#f8fafc`) — Google
+  изисква точно тези brand стойности.
+- *Interactive states.* Глобален `button/a/input/select/textarea:focus-visible` ring в
+  `foundation.css`; `:active` и `:disabled` за `.btn`, `.chip--btn`, `.input`/`.select`/
+  `.textarea` и `.tabs__tab`. `Tabs` ползва inset focus ring, за да не се отрязва в
+  segmented контейнера.
+- *Keyboard/SR.* Проверено: няма icon-only бутон без accessible name; `Tabs` е истински
+  tablist с roving tabindex; `Modal` и `Sheet` споделят `useFocusTrap` (focus trap,
+  Escape, focus restore, refcounted scroll lock); `Chip` изнася `aria-pressed`; `Field`
+  свързва грешките през `aria-describedby`/`aria-invalid`; `Toast` е live region.
+  Пълнотата на BG речника е гарантирана от типа `Record<TranslationKey, string>`.
+- *Остават за browser QA (не могат да се потвърдят статично):* 320 px и 200% zoom
+  reflow, както и BG/EN layout проверката. Статичният преглед не откри fixed-width
+  преливане, но `.btn` е `white-space: nowrap` — по-дългите български етикети в тесни
+  `btn--sm` контейнери са основният риск за проверка.
 
 ---
 
@@ -255,25 +286,62 @@ MatchPoint трябва да комбинира:
 
 ### Player shell
 
-- [ ] Нова desktop header навигация: logo/home, „За играчи“, „За клубове“, account/login.
+- [x] Нова desktop header навигация: logo/home, „За играчи“, „За клубове“, account/login.
 - [x] Logged-in navigation: „Резервации“ и profile menu.
 - [x] Mobile bottom navigation да показва само primary destinations.
-- [ ] Profile, language, theme и logout да се преместят в account menu/settings.
+- [x] Profile, language, theme и logout да се преместят в account menu/settings.
 - [x] Active route state да бъде правилно отразен.
 - [x] Header да остава компактен и да не конкурира search/booking CTA.
 
+> **Бележки.** Account menu-то стои зад нов `Menu` primitive (`shared/ui/Menu`) — ARIA menu
+> button с roving tabindex, Escape/outside-click/Tab-away затваряне и focus return; съзнателно
+> *не* ползва `useFocusTrap`, защото меню трябва да се затваря при напускане на фокуса, а не
+> да го заключва. `.topbar__user` е скрит под 900 px, затова на mobile език, тема и изход
+> остават в Settings и на `/profile` — sign out съзнателно е запазен и там.
+>
+> „За клубове“ води към нов публичен `/for-clubs` stub (`src/pages/for-clubs/`): hero, benefits
+> и contact блок с `mailto:`. Phase 6 (§13) заменя contact блока с истинска lead форма. Няма го
+> в mobile tab bar-а — B2B destination, а не player primary destination.
+
 ### Club workspace shell
 
-- [ ] Отделна desktop sidebar/topbar IA за operator tasks.
-- [ ] Mobile navigation за Schedule, Bookings, Courts и More.
+- [x] Отделна desktop sidebar/topbar IA за operator tasks.
+- [x] Mobile navigation за Schedule, Bookings, Courts и More.
 - [ ] Club switcher само ако user има достъп до повече от един клуб.
-- [ ] Role/staff контекстът да е ясен, без staff controls в player страниците.
+- [x] Role/staff контекстът да е ясен, без staff controls в player страниците.
 
 ### Acceptance criteria
 
-- [ ] Player никога не вижда административни actions в marketplace flow.
-- [ ] Staff може да премине към club workspace без да губи player account access.
-- [ ] Основните destinations са достъпни с максимум един navigation action.
+- [x] Player никога не вижда административни actions в marketplace flow.
+- [x] Staff може да премине към club workspace без да губи player account access.
+- [x] Основните destinations са достъпни с максимум един navigation action.
+
+> **Бележки.** Workspace-ът живее в собствен `ClubShell` (`src/app/layout/ClubShell/`),
+> отделен от `AppShell` — двете IA са различни и смесването им е причината staff
+> бутоните да стоят по marketplace страниците. За разлика от player shell-а, активният
+> destination се извежда от URL-а, а не от per-page `active` prop. Desktop-ът е
+> постоянен sidebar (≥900 px); под 900 px пада до същия `.tabbar` с Schedule,
+> Bookings, Courts и More, а „More“ (`/club/settings`) води до Overview, Team и
+> изхода към player app-а. Достъпът е зад нов `RequireStaff` guard; routes-ите са
+> `/club`, `/club/schedule`, `/club/bookings`, `/club/courts`, `/club/team`,
+> `/club/settings` (§4).
+>
+> `StaffBar`, `CourtStaffBar` и `StaffSettings` са премахнати. Всичките им действия
+> вече са в workspace-а — `CourtsManager` покрива edit/prices/block/delete/new court,
+> `EmployeesModal` е `/club/team`, `EditClubModal` и `OpeningHoursEditor` са в
+> `/club/settings`. Player `/settings` вече е само player tab-ът плюс една връзка към
+> workspace-а; account menu-то печели „Клубен workspace“ (само при `isStaff`) и обратен
+> вход към player app-а, така че преминаването е в двете посоки с едно действие.
+>
+> *Club switcher-ът остава отворен.* Няма endpoint „клубове, които управлявам“ —
+> `User` носи само `is_staff`/`is_superuser`, а `useClubsQuery` връща всички клубове,
+> така че switcher в header-а би показал чужди клубове. Логиката е капсулирана в
+> `useStaffClub()` (`src/features/staff/model/`): избраният клуб се пази в
+> `store.staffClub`, при един клуб се избира автоматично, при няколко `ClubGate`
+> иска избор. Когато backend-ът добави membership, се сменя само този hook.
+>
+> Schedule и Bookings са съзнателни placeholders — операционният график и управлението
+> на резервации са Phase 7 (§14); тук се добавя само IA-та, за да е пълна навигацията.
 
 ---
 
@@ -528,9 +596,14 @@ MatchPoint трябва да комбинира:
 
 ### Separation
 
-- [ ] Премахни `StaffBar` и `CourtStaffBar` от player-facing pages.
-- [ ] Премести staff tools в `club-management` feature/workspace.
-- [ ] Използвай съществуващите queries, mutations и modals като начална business logic база.
+- [x] Премахни `StaffBar` и `CourtStaffBar` от player-facing pages.
+- [x] Премести staff tools в `club-management` feature/workspace.
+- [x] Използвай съществуващите queries, mutations и modals като начална business logic база.
+
+> **Бележка.** Свършено заедно с §7 (club workspace shell) — виж бележките там.
+> Преместването е на ниво pages: tools-ите вече се използват само от `/club/*`.
+> Самата директория още се казва `src/features/staff/` — преименуването на
+> `club-management` остава за момента, в който Schedule и Bookings се добавят тук.
 
 ### Dashboard
 
@@ -616,7 +689,7 @@ MatchPoint трябва да комбинира:
 - [ ] Keyboard navigation за tabs, date strip, slots и menus.
 - [ ] Slot states с text/ARIA, не само color.
 - [ ] Accessible names за всички icon-only actions.
-- [ ] Form errors да бъдат свързани с полетата.
+- [x] Form errors да бъдат свързани с полетата (`Field` управлява `aria-describedby`/`aria-invalid`).
 - [x] Toast/status updates чрез подходящ live region.
 - [ ] WCAG AA contrast.
 - [x] `prefers-reduced-motion`.

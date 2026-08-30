@@ -1,0 +1,16 @@
+/*
+ * The clear button sits inside the control, so it drops below the shared 44px
+ * touch target on purpose — the input it clears is itself a 54px target, and a
+ * full-size button would not fit. It stays keyboard-reachable and labelled.
+ */
+.clear {
+  min-width: 34px;
+  min-height: 34px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.clear svg {
+  width: 15px;
+  height: 15px;
+}

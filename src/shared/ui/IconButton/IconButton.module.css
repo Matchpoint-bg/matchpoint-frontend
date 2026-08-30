@@ -1,0 +1,11 @@
+/* Square icon-only variant of the global `.btn` — never below the 44px touch target. */
+.iconButton {
+  min-width: 46px;
+  padding: 0;
+}
+
+.iconButton.sm {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}

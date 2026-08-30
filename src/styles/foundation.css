@@ -1,9 +1,9 @@
 :root {
   color-scheme: light;
-  --brand: #b7e85a;
-  --brand-rgb: 183 232 90;
-  --brand-strong: #9fd63c;
-  --brand-soft: #edf8d6;
+  --brand: #7bc133;
+  --brand-rgb: 123 193 51;
+  --brand-strong: #6aa72b;
+  --brand-soft: #dff6c8;
   --brand-ink: #18230f;
   --brand-text: #4b6f00;
   --canvas: #f4f5ef;
@@ -22,9 +22,9 @@
   --danger-bg: #fbe9e6;
   --clay: #ad5a35;
   --ball: var(--brand);
-  --ball-2: #c9ef7e;
-  --leaf: #ccefa0;
-  --mist: #dbefbd;
+  --ball-2: #92d250;
+  --leaf: #acdf77;
+  --mist: #c3e69e;
   --pale: var(--brand-soft);
   --court: #111a15;
   --court-2: #18251e;
@@ -93,16 +93,63 @@
   --body: 'Inter', system-ui, sans-serif;
   --mono: 'Space Mono', ui-monospace, monospace;
   --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* Content that always sits on a permanently dark surface (hero, court,
+     toast, dark shell) — these do not flip with the theme. */
+  --on-dark: #ffffff;
+  --on-dark-muted: rgba(255, 255, 255, 0.8);
+  --on-dark-faint: rgba(255, 255, 255, 0.6);
+  --on-dark-border: rgba(255, 255, 255, 0.18);
+  /* Text on a brand-filled surface. */
+  --on-brand: #12240a;
+
+  /* Surface chips. Each pair is defined once per theme, so a chip's colours
+     never live in two stylesheets. */
+  --chip-bg: var(--pale);
+  --chip-text: var(--ink-2);
+  --chip-clay-bg: #f6e7dd;
+  --chip-clay-text: #9a4a24;
+  --chip-grass-bg: #e4f4d3;
+  --chip-grass-text: #487a1c;
+  --chip-hard-bg: #e2eefb;
+  --chip-hard-text: #2b6099;
+  --chip-lit-bg: #fef3c7;
+  --chip-lit-text: #92700a;
+  --chip-indoor-bg: var(--court);
+  --chip-indoor-text: var(--leaf);
+
+  /* Availability slot states. */
+  --slot-bg: var(--pale);
+  --slot-text: var(--ink);
+  --slot-price: var(--muted);
+  --slot-selected-text: var(--ink);
+  --slot-selected-price: var(--court-2);
+  --slot-booked-bg: var(--court);
+  --slot-booked-border: var(--court);
+  --slot-booked-text: var(--on-dark);
+  --slot-booked-price: var(--leaf);
+  --slot-blocked-border: #e0e5da;
+  --slot-blocked-bg: repeating-linear-gradient(45deg, #eef1ea, #eef1ea 5px, #e3e7dd 5px, #e3e7dd 10px);
+  --slot-blocked-text: #9aa693;
+  --legend-blocked-bg: repeating-linear-gradient(45deg, #eef1ea, #eef1ea 4px, #e3e7dd 4px, #e3e7dd 8px);
+  --legend-free-bg: var(--pale);
+  --legend-booked-bg: var(--court);
+
+  /* Loading shimmer. */
+  --skeleton-bg: linear-gradient(90deg, #eef2e8 25%, #f6f9f1 50%, #eef2e8 75%);
+
+  /* Toast success fill — darker than --success, which is tuned for text. */
+  --toast-ok-bg: #2f6b12;
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --brand: #bde968;
-  --brand-rgb: 189 233 104;
-  --brand-strong: #ccef87;
+  --brand: #7bc133;
+  --brand-rgb: 123 193 51;
+  --brand-strong: #92d250;
   --brand-soft: #23331f;
   --brand-ink: #111a15;
-  --brand-text: #c6ee76;
+  --brand-text: #acdf77;
   --canvas: #0d120f;
   --surface: #141c17;
   --surface-subtle: #101713;
@@ -133,6 +180,34 @@
   --pale: var(--brand-soft);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.65);
+
+  --chip-bg: var(--court-3);
+  --chip-text: var(--ink-2);
+  --chip-clay-bg: #3a2317;
+  --chip-clay-text: #e0a583;
+  --chip-grass-bg: #22350f;
+  --chip-grass-text: #a9d97a;
+  --chip-hard-bg: #14263a;
+  --chip-hard-text: #8fc0ef;
+  --chip-lit-bg: #3a3110;
+  --chip-lit-text: #e9cd6a;
+  --chip-indoor-bg: var(--ball);
+  --chip-indoor-text: var(--court);
+
+  --slot-bg: var(--court-3);
+  --slot-text: var(--ink);
+  --slot-selected-text: var(--court);
+  --slot-selected-price: var(--court-2);
+  --slot-booked-bg: #050903;
+  --slot-booked-border: #050903;
+  --slot-blocked-border: #22301a;
+  --slot-blocked-bg: repeating-linear-gradient(45deg, #1a2412, #1a2412 5px, #131c0d 5px, #131c0d 10px);
+  --slot-blocked-text: #5f6f4d;
+  --legend-blocked-bg: var(--slot-blocked-bg);
+  --legend-free-bg: var(--court-3);
+  --legend-booked-bg: #000;
+
+  --skeleton-bg: linear-gradient(90deg, #182210 25%, #22301a 50%, #182210 75%);
 }
 
 * {

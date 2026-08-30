@@ -8,7 +8,6 @@ import {
   useClubQuery,
 } from '../../features/clubs';
 import { CourtCard } from '../../features/courts';
-import { StaffBar } from '../../features/staff';
 import { useI18n } from '../../i18n';
 import { BackLink } from '../../shared/ui/BackLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -62,8 +61,6 @@ export function ClubDetailsPage() {
           {clubQuery.data.description && (
             <p className={styles.description}>{clubQuery.data.description}</p>
           )}
-
-          <StaffBar club={clubQuery.data} onChanged={reload} />
 
           <SectionHeader
             eyebrow={t('courts_eyebrow')}

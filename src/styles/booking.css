@@ -79,7 +79,7 @@
 .daybtn.active {
   border-color: var(--court);
   background: var(--court);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .daybtn.active small {
@@ -106,7 +106,7 @@
 }
 
 .lg-free {
-  background: var(--pale);
+  background: var(--legend-free-bg);
 }
 
 .lg-sel {
@@ -114,11 +114,11 @@
 }
 
 .lg-book {
-  background: var(--court);
+  background: var(--legend-booked-bg);
 }
 
 .lg-un {
-  background: repeating-linear-gradient(45deg, #eef1ea, #eef1ea 4px, #e3e7dd 4px, #e3e7dd 8px);
+  background: var(--legend-blocked-bg);
 }
 
 .slotgrid {
@@ -132,7 +132,7 @@
   padding: 11px 8px 10px;
   border: 1px solid var(--line-2);
   border-radius: 12px;
-  background: var(--pale);
+  background: var(--slot-bg);
   font-family: var(--mono);
   text-align: center;
   cursor: pointer;
@@ -144,7 +144,7 @@
 }
 
 .slot__t {
-  color: var(--ink);
+  color: var(--slot-text);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0;
@@ -152,7 +152,7 @@
 
 .slot__p {
   margin-top: 3px;
-  color: var(--muted);
+  color: var(--slot-price);
   font-size: 11px;
 }
 
@@ -165,35 +165,39 @@
   background: var(--ball);
 }
 
+.slot.is-sel .slot__t {
+  color: var(--slot-selected-text);
+}
+
 .slot.is-sel .slot__p {
-  color: var(--court-2);
+  color: var(--slot-selected-price);
 }
 
 .slot.is-booked {
-  border-color: var(--court);
-  background: var(--court);
+  border-color: var(--slot-booked-border);
+  background: var(--slot-booked-bg);
   cursor: not-allowed;
 }
 
 .slot.is-booked .slot__t {
-  color: #fff;
+  color: var(--slot-booked-text);
   text-decoration: line-through;
   text-decoration-color: var(--ball);
 }
 
 .slot.is-booked .slot__p {
-  color: var(--leaf);
+  color: var(--slot-booked-price);
 }
 
 .slot.is-un {
-  border-color: #e0e5da;
-  background: repeating-linear-gradient(45deg, #eef1ea, #eef1ea 5px, #e3e7dd 5px, #e3e7dd 10px);
+  border-color: var(--slot-blocked-border);
+  background: var(--slot-blocked-bg);
   cursor: not-allowed;
 }
 
 .slot.is-un .slot__t,
 .slot.is-un .slot__p {
-  color: #9aa693;
+  color: var(--slot-blocked-text);
 }
 
 .book-summary {
@@ -210,7 +214,7 @@
   border-radius: var(--r);
   background: var(--court);
   box-shadow: var(--shadow-lg);
-  color: #fff;
+  color: var(--on-dark);
   gap: 14px;
 }
 

@@ -1,0 +1,1 @@
+export { ForClubsPage } from './ForClubsPage';

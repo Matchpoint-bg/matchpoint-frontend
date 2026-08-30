@@ -30,7 +30,7 @@
 
 .skel {
   border-radius: 10px;
-  background: linear-gradient(90deg, #eef2e8 25%, #f6f9f1 50%, #eef2e8 75%);
+  background: var(--skeleton-bg);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
@@ -42,7 +42,7 @@
   padding: 14px 16px;
   border-radius: var(--r);
   background: var(--court);
-  color: #fff;
+  color: var(--on-dark);
   gap: 12px;
 }
 
@@ -171,7 +171,7 @@
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--on-dark);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   content: '';
   transition: 0.2s;

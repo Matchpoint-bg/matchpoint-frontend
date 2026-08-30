@@ -1,6 +1,15 @@
 import type { FormEvent } from 'react';
 import { useI18n } from '../../../../i18n';
-import { Icon } from '../../../../shared/ui/Icon';
+import {
+  Button,
+  ChipRow,
+  DateField,
+  Field,
+  FilterChip,
+  Icon,
+  Select,
+  TimeField,
+} from '../../../../shared/ui';
 import {
   SEARCH_CITIES,
   SEARCH_SPORTS,
@@ -69,98 +78,81 @@ export function PlayerSearchForm({
       )}
 
       <div className={styles.fields}>
-        <label className={styles.field}>
-          <span className={styles.label}>{t('search_city')}</span>
-          <span className={styles.control}>
-            <Icon name="pin" />
-            <select
+        <Field label={t('search_city')} error={fieldError('city')}>
+          {(control) => (
+            <Select
+              {...control}
+              icon="pin"
               value={draft.city}
               onChange={(event) => onFieldChange('city', event.target.value)}
-              aria-invalid={Boolean(errors.city)}
-              aria-describedby={errors.city ? 'search-city-error' : undefined}
             >
               {SEARCH_CITIES.map((city) => (
-                <option key={city} value={city}>{t('sofia')}</option>
+                <option key={city} value={city}>
+                  {t('sofia')}
+                </option>
               ))}
-            </select>
-          </span>
-          {fieldError('city') && <small id="search-city-error">{fieldError('city')}</small>}
-        </label>
+            </Select>
+          )}
+        </Field>
 
-        <label className={styles.field}>
-          <span className={styles.label}>{t('sport')}</span>
-          <span className={styles.control}>
-            <Icon name="ball" />
-            <select
+        <Field label={t('sport')} error={fieldError('sport')}>
+          {(control) => (
+            <Select
+              {...control}
+              icon="ball"
               value={draft.sport}
               onChange={(event) => onFieldChange('sport', event.target.value)}
-              aria-invalid={Boolean(errors.sport)}
-              aria-describedby={errors.sport ? 'search-sport-error' : undefined}
             >
               {SEARCH_SPORTS.map((sport) => (
-                <option key={sport} value={sport}>{t('tennis')}</option>
+                <option key={sport} value={sport}>
+                  {t('tennis')}
+                </option>
               ))}
-            </select>
-          </span>
-          {fieldError('sport') && <small id="search-sport-error">{fieldError('sport')}</small>}
-        </label>
+            </Select>
+          )}
+        </Field>
 
-        <label className={styles.field}>
-          <span className={styles.label}>{t('search_date')}</span>
-          <span className={styles.control}>
-            <Icon name="calendar" />
-            <input
-              type="date"
+        <Field label={t('search_date')} required error={fieldError('date')}>
+          {(control) => (
+            <DateField
+              {...control}
               min={todayValue()}
               value={draft.date}
               onChange={(event) => onFieldChange('date', event.target.value)}
-              aria-invalid={Boolean(errors.date)}
-              aria-describedby={errors.date ? 'search-date-error' : undefined}
-              required
             />
-          </span>
-          {fieldError('date') && <small id="search-date-error">{fieldError('date')}</small>}
-        </label>
+          )}
+        </Field>
 
-        <label className={styles.field}>
-          <span className={styles.label}>
-            {t('search_time')} <em>{t('search_optional')}</em>
-          </span>
-          <span className={styles.control}>
-            <Icon name="clock" />
-            <input
-              type="time"
-              step="1800"
+        <Field label={t('search_time')} note={t('search_optional')} error={fieldError('time')}>
+          {(control) => (
+            <TimeField
+              {...control}
               value={draft.time}
               onChange={(event) => onFieldChange('time', event.target.value)}
-              aria-invalid={Boolean(errors.time)}
-              aria-describedby={errors.time ? 'search-time-error' : undefined}
             />
-          </span>
-          {fieldError('time') && <small id="search-time-error">{fieldError('time')}</small>}
-        </label>
+          )}
+        </Field>
       </div>
 
       <div className={styles.formFooter}>
-        <div className={styles.quickDates} aria-label={t('search_quick_dates')}>
+        <div className={styles.quickDates} role="group" aria-label={t('search_quick_dates')}>
           <span>{t('search_quick_dates')}</span>
-          {quickDates.map((option) => (
-            <button
-              key={option.label}
-              className={draft.date === option.value ? styles.quickDateActive : undefined}
-              type="button"
-              aria-pressed={draft.date === option.value}
-              onClick={() => onFieldChange('date', option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
+          <ChipRow>
+            {quickDates.map((option) => (
+              <FilterChip
+                key={option.label}
+                selected={draft.date === option.value}
+                onClick={() => onFieldChange('date', option.value)}
+              >
+                {option.label}
+              </FilterChip>
+            ))}
+          </ChipRow>
         </div>
 
-        <button className={styles.submit} type="submit">
-          <span>{t('search_show_clubs')}</span>
-          <span aria-hidden="true">→</span>
-        </button>
+        <Button type="submit" block icon="arrowRight" iconPosition="end" className={styles.submit}>
+          {t('search_show_clubs')}
+        </Button>
       </div>
     </form>
   );

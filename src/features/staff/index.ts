@@ -1,8 +1,6 @@
-export { CourtStaffBar } from './ui/CourtStaffBar';
+export { useStaffClub } from './model/useStaffClub';
 export { CourtsManager } from './ui/CourtsManager';
 export { OpeningHoursEditor } from './ui/OpeningHoursEditor';
-export { StaffBar } from './ui/StaffBar';
-export { StaffSettings } from './ui/StaffSettings';
 export { CourtFormModal } from './ui/modals/CourtFormModal';
 export { DeleteCourtModal } from './ui/modals/DeleteCourtModal';
 export { EditClubModal } from './ui/modals/EditClubModal';

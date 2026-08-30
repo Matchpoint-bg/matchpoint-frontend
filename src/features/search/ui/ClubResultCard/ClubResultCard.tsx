@@ -1,7 +1,6 @@
 import { useI18n } from '../../../../i18n';
-import { Icon } from '../../../../shared/ui/Icon';
+import { Icon, SurfaceBadge } from '../../../../shared/ui';
 import type { Club, ClubCourtSummary } from '../../../clubs';
-import { SurfaceChip } from '../../../courts/ui/SurfaceChip';
 import styles from './ClubResultCard.module.css';
 
 interface ClubResultCardProps {
@@ -60,7 +59,7 @@ export function ClubResultCard({ club, courts, index, onView }: ClubResultCardPr
               </span>
             )}
             {courts.surfaces.slice(0, 3).map((surface) => (
-              <SurfaceChip key={surface} surface={surface} />
+              <SurfaceBadge key={surface} surface={surface} />
             ))}
             {courts.indoorCount > 0 && (
               <span className={styles.indoorTag}>
