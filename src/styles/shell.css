@@ -182,7 +182,7 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  color: var(--on-dark);
   cursor: pointer;
   transition: border-color var(--duration-fast, 160ms) ease,
     background-color var(--duration-fast, 160ms) ease,
@@ -202,51 +202,17 @@
   letter-spacing: 0.035em;
 }
 
-.topbar .theme-toggle,
-.topbar .lang-toggle,
-.shell-icon-button {
-  display: inline-grid;
-  flex: none;
-  min-width: 44px;
-  height: 44px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: color-mix(in srgb, var(--card-2) 82%, transparent);
-  color: var(--ink-2);
-  cursor: pointer;
-  text-decoration: none;
-  transition: border-color var(--duration-fast, 160ms) ease,
-    background-color var(--duration-fast, 160ms) ease,
-    color var(--duration-fast, 160ms) ease,
-    transform var(--duration-fast, 160ms) ease;
-}
-
-.topbar .lang-toggle {
-  padding: 0 9px;
-  color: var(--muted);
-}
-
-.shell-icon-button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.shell-icon-button.active {
-  border-color: color-mix(in srgb, var(--ball) 54%, var(--line));
-  background: color-mix(in srgb, var(--ball) 13%, var(--card));
-  color: var(--ink);
-}
-
 .account-link {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
   padding: 3px 8px 3px 4px;
+  /* Now a menu trigger button, so button chrome has to be reset. */
   border: 1px solid transparent;
   border-radius: 13px;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
   color: var(--ink);
   text-decoration: none;
   transition: border-color var(--duration-fast, 160ms) ease,
@@ -413,9 +379,6 @@
   }
 
   .nav-desktop a:hover,
-  .topbar .theme-toggle:hover,
-  .topbar .lang-toggle:hover,
-  .shell-icon-button:hover,
   .account-link:hover {
     border-color: var(--line-2);
     background: var(--card-2);
@@ -425,8 +388,7 @@
   .brand:hover .brand__mark,
   .account-link:hover,
   .theme-toggle:hover,
-  .lang-toggle:hover,
-  .shell-icon-button:hover {
+  .lang-toggle:hover {
     transform: translateY(-1px);
   }
 

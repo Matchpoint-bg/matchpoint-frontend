@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 import { useI18n } from '../../../i18n';
 import { Icon } from '../../../shared/ui/Icon';
-import { ThemeLanguageControls } from '../ThemeLanguageControls';
+import { AccountMenu } from './AccountMenu';
 import { DesktopNavigation, MobileNavigation } from './AppNavigation';
 import type { AppTab, NavigationItem } from './navigation.types';
 
@@ -14,7 +14,7 @@ interface AppShellProps {
 
 export function AppShell({ children, active }: AppShellProps) {
   const { t } = useI18n();
-  const { authed, user } = useAuth();
+  const { authed } = useAuth();
   const primaryItems: NavigationItem[] = [
     {
       to: '/players',
@@ -22,6 +22,13 @@ export function AppShell({ children, active }: AppShellProps) {
       desktopLabel: t('nav_clubs'),
       mobileLabel: t('tab_book'),
       tab: 'clubs',
+    },
+    {
+      to: '/for-clubs',
+      icon: 'users',
+      desktopLabel: t('nav_for_clubs'),
+      mobileLabel: t('nav_for_clubs'),
+      tab: 'for-clubs',
     },
     ...(authed
       ? ([
@@ -36,8 +43,10 @@ export function AppShell({ children, active }: AppShellProps) {
       : []),
   ];
 
+  // Mobile keeps player primary destinations only; "For clubs" is B2B and
+  // stays a desktop-header/landing-page entry point.
   const mobileItems: NavigationItem[] = [
-    ...primaryItems,
+    ...primaryItems.filter((item) => item.tab !== 'for-clubs'),
     ...(authed
       ? ([
           {
@@ -57,9 +66,6 @@ export function AppShell({ children, active }: AppShellProps) {
           },
         ] satisfies NavigationItem[])),
   ];
-
-  const initials = ((user?.first_name || user?.email || '?')[0] || '?').toUpperCase();
-  const accountName = user?.first_name || t('nav_profile');
 
   return (
     <div className="app">
@@ -83,33 +89,9 @@ export function AppShell({ children, active }: AppShellProps) {
           <DesktopNavigation items={primaryItems} active={active} />
 
           <div className="topbar__actions">
-            <ThemeLanguageControls />
-
             <div className="topbar__user">
               {authed ? (
-                <>
-                  <Link
-                    className={`shell-icon-button${active === 'settings' ? ' active' : ''}`}
-                    to="/settings"
-                    aria-label={t('nav_settings')}
-                    aria-current={active === 'settings' ? 'page' : undefined}
-                  >
-                    <Icon name="gear" />
-                  </Link>
-                  <Link
-                    className={`account-link${active === 'profile' ? ' active' : ''}`}
-                    to="/profile"
-                    aria-label={t('nav_profile')}
-                    aria-current={active === 'profile' ? 'page' : undefined}
-                    title={user?.email || t('nav_profile')}
-                  >
-                    <span className="avatar" aria-hidden="true">{initials}</span>
-                    <span className="account-link__copy">
-                      <strong>{accountName}</strong>
-                      <span>{t('nav_profile')}</span>
-                    </span>
-                  </Link>
-                </>
+                <AccountMenu active={active} />
               ) : (
                 <Link className="topbar__signin btn btn--primary btn--sm" to="/login">
                   {t('sign_in')}

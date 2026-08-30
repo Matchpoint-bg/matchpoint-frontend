@@ -1,0 +1,27 @@
+.benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+
+.contact {
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+.contact:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.contactTitle {
+  margin: 0 0 var(--space-2);
+  font-family: var(--display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-display);
+}
+
+.contact p {
+  max-width: 46ch;
+  margin: 0 auto var(--space-4);
+}

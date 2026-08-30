@@ -12,7 +12,7 @@
   overflow: hidden;
   justify-content: space-between;
   padding: clamp(28px, 6vw, 64px);
-  color: #fff;
+  color: var(--on-dark);
   flex-direction: column;
 }
 
@@ -119,46 +119,7 @@
   color: var(--ink);
 }
 
-.field {
-  margin-bottom: 14px;
-}
-
-.field label {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--ink-2);
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
-  border: 1px solid var(--line-2);
-  border-radius: 12px;
-  background: var(--card);
-  color: var(--ink);
-  font-family: inherit;
-  font-size: 15px;
-  transition: border-color var(--duration-fast), box-shadow var(--duration-fast), background var(--duration-fast);
-}
-
-.field input:focus-visible,
-.field select:focus-visible,
-.field textarea:focus-visible {
-  border-color: var(--focus);
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-
-.field .row2 {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: 1fr 1fr;
-}
+/* `.field` now lives in forms.css, shared with the <Field> primitive. */
 
 .divider {
   display: flex;

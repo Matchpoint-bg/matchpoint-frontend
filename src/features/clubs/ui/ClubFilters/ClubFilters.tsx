@@ -1,4 +1,5 @@
 import { useI18n } from '../../../../i18n';
+import { ChipRow, Field, FilterChip, SearchInput } from '../../../../shared/ui';
 import styles from './ClubFilters.module.css';
 
 interface ClubFiltersProps {
@@ -20,38 +21,34 @@ export function ClubFilters({
 
   return (
     <div className="clubfilters">
-      <div className={`field ${styles.field}`}>
-        <label htmlFor="club-search">{t('search_clubs')}</label>
-        <input
-          id="club-search"
-          type="search"
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder={t('search_clubs_placeholder')}
-          autoComplete="off"
-        />
-      </div>
+      <Field label={t('search_clubs')} htmlFor="club-search" className={styles.field}>
+        {(control) => (
+          <SearchInput
+            {...control}
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            onClear={() => onQueryChange('')}
+            clearLabel={t('clear_search')}
+            placeholder={t('search_clubs_placeholder')}
+          />
+        )}
+      </Field>
 
       {surfaces.length > 0 && (
-        <div className="chiprow" role="group" aria-label={t('surface')}>
-          <button
-            className={`chip chip--btn${surface === null ? ' chip--on' : ''}`}
-            aria-pressed={surface === null}
-            onClick={() => onSurfaceChange(null)}
-          >
+        <ChipRow role="group" aria-label={t('surface')}>
+          <FilterChip selected={surface === null} onClick={() => onSurfaceChange(null)}>
             {t('all_surfaces')}
-          </button>
+          </FilterChip>
           {surfaces.map((option) => (
-            <button
+            <FilterChip
               key={option}
-              className={`chip chip--btn${surface === option ? ' chip--on' : ''}`}
-              aria-pressed={surface === option}
+              selected={surface === option}
               onClick={() => onSurfaceChange(surface === option ? null : option)}
             >
               {option}
-            </button>
+            </FilterChip>
           ))}
-        </div>
+        </ChipRow>
       )}
     </div>
   );

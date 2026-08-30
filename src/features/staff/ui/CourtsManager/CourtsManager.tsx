@@ -1,7 +1,7 @@
 import { useModal } from '../../../../shared/ui/Modal';
 import { useI18n } from '../../../../i18n';
 import { useClubCourtsQuery } from '../../../clubs';
-import { SurfaceChip } from '../../../courts';
+import { SurfaceBadge } from '../../../../shared/ui';
 import { EmptyState } from '../../../../shared/ui/EmptyState';
 import { ErrorState } from '../../../../shared/ui/ErrorState';
 import { Icon } from '../../../../shared/ui/Icon';
@@ -38,7 +38,7 @@ export function CourtsManager({ clubId }: { clubId: number }) {
           <div className="court-row__main">
             <b>{court.name}</b>
             <div className={`chiprow ${styles.chips}`}>
-              <SurfaceChip surface={court.surface_type} />
+              <SurfaceBadge surface={court.surface_type} />
               <span className={`chip ${court.is_indoor ? 'chip--indoor' : 'chip--ghost'}`}>
                 <Icon name="indoor" />
                 {court.is_indoor ? t('indoor') : t('outdoor')}

@@ -1,0 +1,169 @@
+/*
+ * Club operator workspace shell (ToDoRedesign §7).
+ *
+ * Desktop is a persistent sidebar — operators live in this app all day and need
+ * every destination in one click. Below 900px it collapses to the same
+ * `.tabbar` the player shell uses (Schedule / Bookings / Courts / More), which
+ * is why there are no bottom-bar rules here.
+ */
+
+.club-shell {
+  display: flex;
+  min-height: 100dvh;
+}
+
+.club-side {
+  position: sticky;
+  top: 0;
+  display: none;
+  width: 252px;
+  height: 100dvh;
+  flex: none;
+  flex-direction: column;
+  padding: 18px 14px calc(18px + var(--safe-b));
+  border-right: 1px solid color-mix(in srgb, var(--line) 86%, transparent);
+  background: var(--card);
+  gap: 14px;
+}
+
+.club-side__brand {
+  padding: 0 6px;
+}
+
+.club-side__club {
+  display: flex;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card-2);
+  flex-direction: column;
+  gap: 2px;
+}
+
+.club-side__club-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.club-side__club-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.club-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.club-nav a,
+.club-side__exit {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 11px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color var(--duration-fast, 160ms) ease,
+    color var(--duration-fast, 160ms) ease;
+  gap: 10px;
+}
+
+.club-nav a svg,
+.club-side__exit svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* Bulgarian labels run long; wrap rather than overflow the 252px rail. */
+.club-nav a span,
+.club-side__exit span {
+  min-width: 0;
+}
+
+.club-nav a.active {
+  background: color-mix(in srgb, var(--ball) 13%, transparent);
+  color: var(--ink);
+}
+
+.club-side__exit {
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding-top: 14px;
+  margin-top: auto;
+}
+
+.club-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.club-topbar__in {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  align-items: center;
+  padding: 9px clamp(16px, 3.5vw, 28px);
+  gap: 12px;
+}
+
+.club-topbar__title {
+  overflow: hidden;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.club-main__body {
+  flex: 1;
+  width: 100%;
+  max-width: 980px;
+  padding: clamp(16px, 3.5vw, 32px);
+  padding-bottom: calc(94px + var(--safe-b));
+}
+
+@media (hover: hover) {
+  .club-nav a:hover,
+  .club-side__exit:hover {
+    background: var(--card-2);
+    color: var(--ink);
+  }
+}
+
+@media (min-width: 900px) {
+  .club-side {
+    display: flex;
+  }
+
+  /* The sidebar carries the brand on desktop. */
+  .club-topbar__brand {
+    display: none;
+  }
+
+  .club-topbar__in {
+    min-height: 72px;
+  }
+
+  .club-main__body {
+    padding-bottom: 48px;
+  }
+}

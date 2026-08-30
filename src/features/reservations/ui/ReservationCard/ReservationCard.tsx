@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useI18n } from '../../../../i18n';
 import { fmt } from '../../../../shared/lib/format';
-import { Icon } from '../../../../shared/ui/Icon';
+import { BookingStatus, DateTime, Icon, IconButton, Price } from '../../../../shared/ui';
 import type { Reservation } from '../../model/reservation.types';
 import styles from './ReservationCard.module.css';
 
@@ -47,40 +47,36 @@ export function ReservationCard({
           <div className={styles.details}>
             <span>
               <Icon name="clock" />
-              {fmt.time(reservation.start_datetime)}-{fmt.time(reservation.end_datetime)} ·{' '}
+              <DateTime value={reservation.start_datetime} end={reservation.end_datetime} /> ·{' '}
               {duration}
               {t('min')}
             </span>
             {reservation.reservation_amt ? (
               <span>
                 <Icon name="tag" />
-                <span className="price-tag">{fmt.money(reservation.reservation_amt)}</span>
+                <Price value={reservation.reservation_amt} />
               </span>
             ) : null}
           </div>
         </div>
         <div className={styles.actions}>
-          <span className={`${styles.status} ${upcoming ? styles.upcoming : styles.past}`}>
-            {upcoming ? t('upcoming') : t('played')}
-          </span>
+          <BookingStatus status={upcoming ? 'confirmed' : 'completed'} />
           {upcoming && (
             <>
-              <button
-                className="btn btn--outline btn--sm"
-                aria-label={t('reschedule')}
-                title={t('reschedule')}
+              <IconButton
+                icon="clock"
+                label={t('reschedule')}
+                variant="outline"
+                size="sm"
                 onClick={() => onReschedule(reservation)}
-              >
-                <Icon name="clock" />
-              </button>
-              <button
-                className="btn btn--danger btn--sm"
-                aria-label={t('cancel')}
-                title={t('cancel')}
+              />
+              <IconButton
+                icon="trash"
+                label={t('cancel')}
+                variant="danger"
+                size="sm"
                 onClick={() => onCancel(reservation)}
-              >
-                <Icon name="trash" />
-              </button>
+              />
             </>
           )}
         </div>

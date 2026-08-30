@@ -1,34 +1,31 @@
 import { useI18n } from '../../../../i18n';
-import { Icon } from '../../../../shared/ui/Icon';
+import { Card, Chip, ChipRow, Icon, SurfaceBadge } from '../../../../shared/ui';
 import type { Court } from '../../model/court.types';
-import { SurfaceChip } from '../SurfaceChip';
 import styles from './CourtCard.module.css';
 
 export function CourtCard({ court, onClick }: { court: Court; onClick: () => void }) {
   const { t } = useI18n();
 
   return (
-    <button className={`card card--link ${styles.card}`} onClick={onClick}>
+    <Card as="button" interactive onClick={onClick} className={styles.card}>
       <div className="card--pad">
         <h3 className={styles.title}>{court.name}</h3>
-        <div className={`chiprow ${styles.chips}`}>
-          <SurfaceChip surface={court.surface_type} />
-          <span className={`chip ${court.is_indoor ? 'chip--indoor' : 'chip--ghost'}`}>
-            <Icon name="indoor" />
+        <ChipRow className={styles.chips}>
+          <SurfaceBadge surface={court.surface_type} />
+          <Chip variant={court.is_indoor ? 'indoor' : 'ghost'} icon="indoor">
             {court.is_indoor ? t('indoor') : t('outdoor')}
-          </span>
+          </Chip>
           {court.is_lit && (
-            <span className="chip chip--lit">
-              <Icon name="bulb" />
+            <Chip variant="lit" icon="bulb">
               {t('floodlit')}
-            </span>
+            </Chip>
           )}
-        </div>
+        </ChipRow>
         <div className={styles.availability}>
           <Icon name="calendar" />
           {t('see_availability')}
         </div>
       </div>
-    </button>
+    </Card>
   );
 }

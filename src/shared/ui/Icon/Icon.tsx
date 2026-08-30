@@ -34,6 +34,9 @@ const PATHS = {
   seam: { viewBox: '0 0 400 120', inner: <><path d="M-20 60 C 80 -30, 120 150, 200 60 S 320 -30, 420 60" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="6"/></> },
   sun: { viewBox: '0 0 24 24', inner: <><circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></> },
   moon: { viewBox: '0 0 24 24', inner: <><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/></> },
+  search: { viewBox: '0 0 24 24', inner: <><circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2"/><path d="M15.8 15.8L20 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></> },
+  arrowRight: { viewBox: '0 0 24 24', inner: <><path d="M4 12h15m0 0l-5.5-5.5M19 12l-5.5 5.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></> },
+  chevronDown: { viewBox: '0 0 24 24', inner: <><path d="M6 9.5l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></> },
 } as const;
 
 export type IconName = keyof typeof PATHS;

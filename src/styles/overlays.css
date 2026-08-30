@@ -99,7 +99,7 @@
   border-radius: 12px;
   background: var(--court);
   box-shadow: var(--shadow-lg);
-  color: #fff;
+  color: var(--on-dark);
   font-size: 14px;
   font-weight: 500;
   animation: pop 0.22s ease;
@@ -112,7 +112,7 @@
 }
 
 .toast.ok {
-  background: #2f6b12;
+  background: var(--toast-ok-bg);
 }
 
 .toast svg {
@@ -146,5 +146,62 @@
 @media (min-width: 820px) {
   .toasts {
     bottom: 24px;
+  }
+}
+
+/* ---- Sheet --------------------------------------------------------------
+ * Builds on `.modal-bg`/`.modal`: a bottom sheet on mobile, then either a
+ * centred dialog (`bottom`) or a docked right-hand panel (`side`) on desktop.
+ */
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Pinned action row. Clears the home indicator on iOS. */
+.sheet__foot {
+  position: sticky;
+  bottom: 0;
+  padding: 12px 20px calc(16px + var(--safe-b));
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+@media (min-width: 640px) {
+  /* Dock the side variant to the trailing edge, full height. */
+  .sheet-bg--side {
+    align-items: stretch;
+    justify-content: flex-end;
+    padding: 0;
+  }
+
+  .sheet--side {
+    max-width: 420px;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+    transform: translateX(24px);
+  }
+
+  .sheet-bg--side.open .sheet--side {
+    transform: none;
+  }
+
+  .sheet--side .sheet__foot {
+    padding-bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet--side {
+    transform: none;
   }
 }
