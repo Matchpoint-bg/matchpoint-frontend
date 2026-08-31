@@ -4,75 +4,66 @@ import { fmt } from '../../../../shared/lib/format';
 import { EmptyState } from '../../../../shared/ui/EmptyState';
 import { ErrorState } from '../../../../shared/ui/ErrorState';
 import { Skeleton } from '../../../../shared/ui/Skeleton';
-
-function classify(slot: Slot): 'open' | 'booked' | 'closed' {
-  const booked = slot._booked !== undefined ? slot._booked : !slot.available;
-  if (booked) return 'booked';
-  return slot.available ? 'open' : 'closed';
-}
+import { isSelectable, slotReasonKey, slotStatus } from '../../model/slotStatus';
 
 interface SlotGridProps {
   slots: Slot[];
-  selected: number[];
-  loading: boolean;
-  error: string | null;
+  /** Predicate rather than an index list, so one selection can span courts. */
+  isSelected: (index: number) => boolean;
+  loading?: boolean;
+  error?: string | null;
   onToggle: (index: number) => void;
-  onRetry: () => void;
+  onRetry?: () => void;
 }
 
-export function SlotGrid({
-  slots,
-  selected,
-  loading,
-  error,
-  onToggle,
-  onRetry,
-}: SlotGridProps) {
+/**
+ * One court's 30-minute slots for a day. Each slot carries its time and price,
+ * and a `data-status` the stylesheet paints from (ToDoRedesign §9) — unusable
+ * slots stay visible with a reason rather than disappearing.
+ */
+export function SlotGrid({ slots, isSelected, loading, error, onToggle, onRetry }: SlotGridProps) {
   const { t } = useI18n();
-  return (
-    <>
+  const now = new Date();
+
+  if (loading) {
+    return (
       <div className="slotgrid">
-        {loading && <Skeleton height={58} count={10} />}
-        {!loading &&
-          !error &&
-          slots.map((slot, index) => {
-            const kind = classify(slot);
-            const isSelected = selected.includes(index);
-            const className =
-              kind === 'booked'
-                ? 'is-booked'
-                : kind === 'closed'
-                  ? 'is-un'
-                  : isSelected
-                    ? 'is-sel'
-                    : '';
-            return (
-              <button
-                key={slot.start}
-                className={`slot ${className}`}
-                disabled={kind !== 'open'}
-                onClick={() => onToggle(index)}
-              >
-                <div className="slot__t">{slot._t || fmt.time(slot.start)}</div>
-                <div className="slot__p">
-                  {kind === 'booked'
-                    ? t('booked')
-                    : kind === 'closed'
-                      ? '—'
-                      : fmt.money(slot.price)}
-                </div>
-              </button>
-            );
-          })}
+        <Skeleton height={58} count={10} />
       </div>
-      {!loading && error && <ErrorState msg={error} onRetry={onRetry} />}
-      {!loading && !error && slots.length === 0 && (
-        <EmptyState
-          title={t('club_closed_title')}
-          desc={t('club_closed_desc')}
-          icon="clock"
-        />
-      )}
-    </>
+    );
+  }
+  if (error) return <ErrorState msg={error} onRetry={onRetry ?? (() => {})} />;
+  if (slots.length === 0) {
+    return <EmptyState title={t('club_closed_title')} desc={t('club_closed_desc')} icon="clock" />;
+  }
+
+  return (
+    <div className="slotgrid">
+      {slots.map((slot, index) => {
+        const status = slotStatus(slot, now);
+        const selectable = isSelectable(status);
+        const selected = selectable && isSelected(index);
+        const reasonKey = slotReasonKey(status);
+        const reason = reasonKey ? t(reasonKey) : null;
+        const time = slot._t || fmt.time(slot.start);
+        return (
+          <button
+            key={slot.start}
+            type="button"
+            className="slot"
+            data-status={status}
+            data-selected={selected ? 'true' : undefined}
+            disabled={!selectable}
+            title={reason ?? undefined}
+            aria-pressed={selectable ? selected : undefined}
+            aria-label={reason ? `${time} — ${reason}` : `${time} · ${fmt.money(slot.price)}`}
+            onClick={() => onToggle(index)}
+          >
+            <span className="slot__t">{time}</span>
+            <span className="slot__p">{selectable ? fmt.money(slot.price) : (reason ?? '—')}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }

@@ -128,12 +128,18 @@ export function demoAvailability(courtId: number, date: string): Slot[] {
       const isBooked = booked.has(label);
       const peak = hour >= 18 && hour <= 21;
       const price = (peak ? 11 : court.is_indoor ? 9 : 7) + (court.surface_type === 'Grass' ? 3 : 0);
+      const roll = seeded(`${courtId}|${date}|${label}`);
+      const free = roll > 0.34 && !isBooked;
+      // A thin slice of free slots sits in someone else's checkout, so the demo
+      // can show the `held` state alongside the rest.
+      const held = free && roll > 0.34 && roll < 0.39;
 
       slots.push({
         start: start.toISOString(),
         end: end.toISOString(),
-        available: seeded(`${courtId}|${date}|${label}`) > 0.34 && !isBooked,
+        available: free && !held,
         price,
+        ...(held ? { status: 'held' as const } : {}),
         _booked: isBooked,
         _t: label,
       });

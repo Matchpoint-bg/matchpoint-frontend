@@ -12,8 +12,9 @@ export {
   useUpdateClubMutation,
 } from './model/club.queries';
 export type { Club, Employee, OpeningHour, Weekday } from './model/club.types';
-export { useClubFilters } from './model/useClubFilters';
+export { summariseCourts, useClubFilters } from './model/useClubFilters';
 export type { ClubCourtSummary, ClubFilterCriteria } from './model/useClubFilters';
+export { ClubFacilities } from './ui/ClubFacilities';
 export { ClubFilters } from './ui/ClubFilters';
 export { ClubHero } from './ui/ClubHero';
 export { OpeningHoursCard } from './ui/OpeningHoursCard';

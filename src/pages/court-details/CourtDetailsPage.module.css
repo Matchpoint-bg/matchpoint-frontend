@@ -5,3 +5,14 @@
 .availabilityHeading {
   margin-top: 6px;
 }
+
+/* Clears the fixed mobile booking bar; the desktop bar sits inline. */
+.barSpacer {
+  height: 124px;
+}
+
+@media (min-width: 900px) {
+  .barSpacer {
+    height: 0;
+  }
+}
