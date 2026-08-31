@@ -1,6 +1,7 @@
 import { useId, useMemo } from 'react';
 import { useI18n } from '../../../../i18n';
 import { fmt } from '../../../../shared/lib/format';
+import { DateField } from '../../../../shared/ui/Input';
 
 const DAYS_AHEAD = 14;
 
@@ -38,14 +39,11 @@ export function AvailabilityDatePicker({ date, onChange }: { date: string; onCha
       </div>
       <div className="datepick">
         <label htmlFor={inputId}>{t('search_date')}</label>
-        <input
+        <DateField
           id={inputId}
-          type="date"
           min={fmt.isoDate(new Date())}
           value={date}
-          onChange={(event) => {
-            if (event.target.value) onChange(event.target.value);
-          }}
+          onValueChange={onChange}
         />
       </div>
     </div>

@@ -1,0 +1,40 @@
+.root { position: relative; display: block; width: 100%; }
+.trigger {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) 18px; align-items: center;
+  width: 100%; min-height: 54px; padding: 0 14px; gap: 10px;
+  border: var(--border-width) solid var(--line-2); border-radius: var(--radius-md);
+  background: var(--card-2); color: var(--ink); font: inherit; font-size: var(--text-sm);
+  font-weight: var(--weight-semibold); text-align: left; cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out);
+}
+.trigger > svg { width: 18px; height: 18px; color: var(--muted); transition: transform var(--duration-fast) var(--ease-out); }
+.trigger:hover:not(:disabled) { border-color: color-mix(in srgb, var(--ball) 58%, var(--line-2)); background: var(--card); }
+.trigger:focus-visible, .trigger[aria-expanded='true'] { border-color: var(--focus); outline: 3px solid var(--focus); outline-offset: 2px; background: var(--card); }
+.trigger[aria-invalid='true'] { border-color: var(--danger); }
+.trigger:disabled { color: var(--faint); cursor: not-allowed; }
+.placeholder { color: var(--faint); }
+.chevronOpen { transform: rotate(180deg); }
+.popover {
+  position: fixed; z-index: 1000; display: block; padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--ball) 24%, var(--line)); border-radius: 20px;
+  background: var(--card); box-shadow: 0 24px 70px rgb(11 27 17 / 22%), 0 4px 14px rgb(11 27 17 / 10%);
+  animation: calendar-in 160ms var(--ease-out);
+}
+.popover :global(.rdp-root) {
+  --rdp-accent-color: var(--brand); --rdp-accent-background-color: var(--brand-soft);
+  --rdp-day-height: 40px; --rdp-day-width: 40px; --rdp-day_button-height: 36px; --rdp-day_button-width: 36px;
+  --rdp-today-color: var(--brand-text); color: var(--ink); font-size: 13px;
+}
+.popover :global(.rdp-month_caption) { align-items: center; font-size: 15px; font-weight: 800; text-transform: capitalize; }
+.popover :global(.rdp-weekday) { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.popover :global(.rdp-day_button) { font-weight: 650; transition: background 120ms ease, transform 120ms ease; }
+.popover :global(.rdp-day_button:hover:not(:disabled)) { background: var(--brand-soft); transform: scale(1.06); }
+.popover :global(.rdp-selected .rdp-day_button) { border-color: var(--brand); background: var(--brand); color: var(--ink); box-shadow: 0 5px 14px color-mix(in srgb, var(--brand) 38%, transparent); }
+.popover :global(.rdp-today:not(.rdp-selected) .rdp-day_button) { border-color: var(--ball); color: var(--brand-text); }
+.popover :global(.rdp-outside) { color: var(--faint); }
+.popover :global(.rdp-disabled) { text-decoration: line-through; }
+.popover :global(.rdp-button_previous), .popover :global(.rdp-button_next) { border-radius: 10px; background: var(--card-2); }
+.popover :global(.rdp-button_previous:hover), .popover :global(.rdp-button_next:hover) { background: var(--brand-soft); }
+@keyframes calendar-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (max-width: 480px) { .popover { max-width: calc(100vw - 24px); overflow-x: auto; } }
+@media (prefers-reduced-motion: reduce) { .popover { animation: none; } }

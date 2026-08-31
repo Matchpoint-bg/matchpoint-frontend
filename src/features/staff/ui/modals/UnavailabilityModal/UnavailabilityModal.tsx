@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../../../../../i18n';
 import { fmt } from '../../../../../shared/lib/format';
 import { Icon } from '../../../../../shared/ui/Icon';
+import { DateField } from '../../../../../shared/ui/Input';
 import { useToast } from '../../../../../shared/ui/Toast';
 import { useAddUnavailabilityMutation } from '../../../../courts';
 import { useStaffAction } from '../../../model/useStaffAction';
@@ -56,12 +57,12 @@ export function UnavailabilityModal({ courtId, onDone }: UnavailabilityModalProp
       <div className="field">
         <div className="row2">
           <div>
-            <label>{t('start_date')}</label>
-            <input
-              type="date"
+            <label htmlFor="unavailability-start-date">{t('start_date')}</label>
+            <DateField
+              id="unavailability-start-date"
               min={today}
               value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
+              onValueChange={setStartDate}
             />
           </div>
           <div>
@@ -78,12 +79,12 @@ export function UnavailabilityModal({ courtId, onDone }: UnavailabilityModalProp
       <div className="field">
         <div className="row2">
           <div>
-            <label>{t('end_date')}</label>
-            <input
-              type="date"
+            <label htmlFor="unavailability-end-date">{t('end_date')}</label>
+            <DateField
+              id="unavailability-end-date"
               min={startDate}
               value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
+              onValueChange={setEndDate}
             />
           </div>
           <div>

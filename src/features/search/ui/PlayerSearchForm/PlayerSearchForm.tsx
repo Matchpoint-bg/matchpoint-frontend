@@ -103,7 +103,7 @@ export function PlayerSearchForm({
               {...control}
               min={todayValue()}
               value={draft.date}
-              onChange={(event) => onFieldChange('date', event.target.value)}
+              onValueChange={(value) => onFieldChange('date', value)}
             />
           )}
         </Field>

@@ -122,9 +122,7 @@ export function ClubAvailability({ club, date, onDateChange, onReview }: ClubAva
               {...control}
               min={fmt.isoDate(new Date())}
               value={date}
-              onChange={(event) => {
-                if (event.target.value) onDateChange(event.target.value);
-              }}
+              onValueChange={onDateChange}
             />
           )}
         </Field>

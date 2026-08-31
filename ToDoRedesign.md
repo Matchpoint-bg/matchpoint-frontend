@@ -231,6 +231,7 @@ MatchPoint трябва да комбинира:
 - [x] `Button`: primary, secondary, outline, ghost, dark, danger, google, loading, block, sm. Плюс `LinkButton`.
 - [x] `IconButton` с задължителен accessible label.
 - [x] `Input`, `SearchInput`, `Select`, `DateField`, `TimeField`, `Textarea`.
+  - [x] Native date inputs са заменени с общ popover календар върху `@daypicker/react` (BG/EN locale, min/max дати и responsive theme).
 - [x] `Field`, hint, error message и required state.
 - [x] `Chip` и `FilterChip` (toggle с `aria-pressed`).
 - [x] `StatusBadge`, `SurfaceBadge`. Плюс базовия `Badge` и `BookingStatus`.
