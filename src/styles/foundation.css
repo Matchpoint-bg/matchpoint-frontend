@@ -131,6 +131,12 @@
   --slot-blocked-border: #e0e5da;
   --slot-blocked-bg: repeating-linear-gradient(45deg, #eef1ea, #eef1ea 5px, #e3e7dd 5px, #e3e7dd 10px);
   --slot-blocked-text: #9aa693;
+  --slot-held-border: #e6d7a8;
+  --slot-held-bg: #fbf3dc;
+  --slot-held-text: #8a7530;
+  --slot-past-border: #e6e8e3;
+  --slot-past-bg: transparent;
+  --slot-past-text: #b3bcaa;
   --legend-blocked-bg: repeating-linear-gradient(45deg, #eef1ea, #eef1ea 4px, #e3e7dd 4px, #e3e7dd 8px);
   --legend-free-bg: var(--pale);
   --legend-booked-bg: var(--court);
@@ -203,6 +209,12 @@
   --slot-blocked-border: #22301a;
   --slot-blocked-bg: repeating-linear-gradient(45deg, #1a2412, #1a2412 5px, #131c0d 5px, #131c0d 10px);
   --slot-blocked-text: #5f6f4d;
+  --slot-held-border: #4a3f18;
+  --slot-held-bg: #2a2411;
+  --slot-held-text: #b9a45e;
+  --slot-past-border: #1d2616;
+  --slot-past-bg: transparent;
+  --slot-past-text: #4d5a41;
   --legend-blocked-bg: var(--slot-blocked-bg);
   --legend-free-bg: var(--court-3);
   --legend-booked-bg: #000;
@@ -303,6 +315,20 @@ a {
 
 .skip-link:focus {
   transform: translateY(0);
+}
+
+/* Content for screen readers only — live regions, and labels a sighted user
+ * already reads from the layout. */
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

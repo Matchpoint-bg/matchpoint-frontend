@@ -1,3 +1,10 @@
 .eyebrow {
   color: var(--leaf);
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  gap: 8px;
+}

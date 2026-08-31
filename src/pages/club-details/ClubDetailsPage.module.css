@@ -2,9 +2,58 @@
   margin-top: 6px;
 }
 
+.about {
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.aboutTitle {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+}
+
 .description {
   max-width: 60ch;
-  margin: 0 0 8px;
+  margin: 0;
   color: var(--ink-2);
   font-size: 15px;
+}
+
+.courts {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .availability {
+    display: grid;
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .availability[data-has-selection] {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+
+  .summary {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+/*
+ * The mobile summary is a fixed bar, so the page has to end far enough above it
+ * that the CTA never covers the last content (§9). Nothing to reserve on
+ * desktop, where the summary sits in its own column.
+ */
+.barSpacer {
+  height: 124px;
+}
+
+@media (min-width: 900px) {
+  .barSpacer {
+    height: 0;
+  }
 }

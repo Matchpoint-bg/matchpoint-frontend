@@ -1,6 +1,13 @@
 export { useSlotSelection } from './model/useSlotSelection';
+export { useClubAvailability } from './model/useClubAvailability';
+export type { CourtAvailability } from './model/useClubAvailability';
+export { useBookSlots } from './model/useBookSlots';
+export { isSelectable, slotReasonKey, slotStatus } from './model/slotStatus';
 export { AvailabilityDatePicker } from './ui/AvailabilityDatePicker';
+export { AvailabilityFilters } from './ui/AvailabilityFilters';
+export type { CoverFilter } from './ui/AvailabilityFilters';
 export { AvailabilityLegend } from './ui/AvailabilityLegend';
 export { BookingSummary } from './ui/BookingSummary';
+export { CourtAvailabilityCard } from './ui/CourtAvailabilityCard';
 export { RescheduleNotice } from './ui/RescheduleNotice';
 export { SlotGrid } from './ui/SlotGrid';

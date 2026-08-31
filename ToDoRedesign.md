@@ -396,33 +396,33 @@ MatchPoint трябва да комбинира:
 
 ### Club profile
 
-- [ ] Compact club identity: име, квартал/адрес, trust facts.
-- [ ] Gallery с оптимизирани изображения и fallback.
-- [ ] Facilities, surfaces, indoor/outdoor и осветление.
-- [ ] Map/directions action.
-- [ ] Phone и website actions.
-- [ ] Opening hours и description под основния booking module.
-- [ ] Дефинирай sticky anchor/CTA поведение при дълга страница.
+- [x] Compact club identity: име, квартал/адрес, trust facts.
+- [ ] Gallery с оптимизирани изображения и fallback. _(blocked: `Club` няма image полета)_
+- [x] Facilities, surfaces, indoor/outdoor и осветление.
+- [ ] Map/directions action. _(blocked: `Club` няма lat/lng)_
+- [x] Phone и website actions.
+- [x] Opening hours и description под основния booking module.
+- [x] Дефинирай sticky anchor/CTA поведение при дълга страница.
 
 ### Availability module
 
-- [ ] Премести основния booking избор на club page.
-- [ ] Запази избраната search дата при отваряне на клуба.
-- [ ] Date strip с днес + следващи дни и достъпен full date picker.
-- [ ] Surface и indoor/outdoor filters само когато имат смисъл.
-- [ ] Групирай available times по court row/card.
-- [ ] Покажи time и price върху selectable slot.
-- [ ] Различавай `available`, `selected`, `booked`, `held`, `closed` и `past`.
-- [ ] Disabled slot да има разбираема причина, когато е полезно.
-- [ ] Позволи избор на валидна продължителност чрез последователни slots.
-- [ ] Предотврати non-contiguous selection или го коригирай автоматично.
-- [ ] Sticky booking summary след избор.
-- [ ] Mobile summary като bottom sheet/bar; desktop summary като sticky side card.
-- [ ] Отделната court detail страница да отпадне от primary player flow.
+- [x] Премести основния booking избор на club page.
+- [x] Запази избраната search дата при отваряне на клуба.
+- [x] Date strip с днес + следващи дни и достъпен full date picker.
+- [x] Surface и indoor/outdoor filters само когато имат смисъл.
+- [x] Групирай available times по court row/card.
+- [x] Покажи time и price върху selectable slot.
+- [x] Различавай `available`, `selected`, `booked`, `held`, `closed` и `past`.
+- [x] Disabled slot да има разбираема причина, когато е полезно.
+- [x] Позволи избор на валидна продължителност чрез последователни slots.
+- [x] Предотврати non-contiguous selection или го коригирай автоматично.
+- [x] Sticky booking summary след избор.
+- [x] Mobile summary като bottom sheet/bar; desktop summary като sticky side card.
+- [x] Отделната court detail страница да отпадне от primary player flow.
 
 ### Backend/data dependency
 
-- [ ] Availability response да има explicit status, не само `available: boolean`.
+- [ ] Availability response да има explicit status, не само `available: boolean`. _(frontend derives it in `slotStatus()`; `Slot.status` се чете, когато backend го изпрати)_
 - [ ] Потвърди timezone contract между frontend и backend.
 - [ ] Добави minimum/allowed booking duration, ако варира по клуб.
 - [ ] Добави cancellation policy към club или booking quote.

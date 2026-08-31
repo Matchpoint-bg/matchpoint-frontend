@@ -1,52 +1,85 @@
 import type { Slot } from '../../../courts';
 import { useI18n } from '../../../../i18n';
 import { fmt } from '../../../../shared/lib/format';
-import { Icon } from '../../../../shared/ui/Icon';
+import { Button } from '../../../../shared/ui';
 import styles from './BookingSummary.module.css';
 
 interface BookingSummaryProps {
+  courtName?: string;
   first: Slot;
   last: Slot;
-  count: number;
+  minutes: number;
   total: number;
-  contiguous: boolean;
   authenticated: boolean;
   rescheduling: boolean;
   pending: boolean;
   onSubmit: () => void;
+  onClear?: () => void;
 }
 
-export function BookingSummary(props: BookingSummaryProps) {
+/**
+ * What the player has picked, and the way out of the page.
+ *
+ * One component, two shells (ToDoRedesign §9): a bottom bar pinned above the
+ * mobile tab bar, and a sticky side card from the desktop breakpoint up. It is
+ * deliberately not a `Sheet` — a modal would trap focus and stop the player
+ * from adjusting the very selection it is summarising.
+ *
+ * Selection is always contiguous by construction (`useSlotSelection` corrects
+ * gaps), so there is no invalid state to warn about here.
+ */
+export function BookingSummary({
+  courtName,
+  first,
+  last,
+  minutes,
+  total,
+  authenticated,
+  rescheduling,
+  pending,
+  onSubmit,
+  onClear,
+}: BookingSummaryProps) {
   const { t } = useI18n();
+  const range = `${first._t || fmt.time(first.start)} – ${fmt.time(last.end)}`;
+
   return (
-    <div className="book-summary">
+    <aside className={`book-summary ${styles.root}`} aria-label={t('your_selection')}>
       <div className="book-summary__in">
         <div className="book-summary__info">
-          <b>
-            {props.first._t || fmt.time(props.first.start)} - {fmt.time(props.last.end)}
-          </b>
+          <b>{range}</b>
           <small>
-            {props.count}
-            {t('min30')}
-            {props.contiguous ? '' : t('consecutive_hint')}
+            {courtName ? `${courtName} · ` : ''}
+            {minutes} {t('minutes_short')}
           </small>
         </div>
-        <div className={`price-tag ${styles.price}`}>{fmt.money(props.total)}</div>
-        <button
-          className="btn btn--primary"
-          disabled={!props.contiguous || props.pending}
-          onClick={props.onSubmit}
-        >
-          <Icon name={props.authenticated ? 'check' : 'user'} />
-          {!props.authenticated
-            ? t('sign_in')
-            : props.pending
-              ? t('booking')
-              : props.rescheduling
-                ? t('confirm_reschedule')
-                : t('book')}
-        </button>
+        <div className={`price-tag ${styles.price}`}>{fmt.money(total)}</div>
+        <div className={styles.actions}>
+          {onClear && (
+            <Button variant="ghost" size="sm" onClick={onClear}>
+              {t('clear_selection')}
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            icon={authenticated ? 'check' : 'user'}
+            disabled={pending}
+            onClick={onSubmit}
+          >
+            {!authenticated
+              ? t('sign_in')
+              : pending
+                ? t('booking')
+                : rescheduling
+                  ? t('confirm_reschedule')
+                  : t('book')}
+          </Button>
+        </div>
       </div>
-    </div>
+      {/* Announced on change so the selection is not feedback by colour alone. */}
+      <p className="sr-only" role="status" aria-live="polite">
+        {range} · {fmt.money(total)}
+      </p>
+    </aside>
   );
 }

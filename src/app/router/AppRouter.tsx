@@ -38,6 +38,7 @@ export function AppRouter() {
           <Route path="/players" element={<ClubsPage />} />
           <Route path="/clubs" element={<LegacyClubsRedirect />} />
           <Route path="/clubs/:id" element={<ClubDetailsPage />} />
+          {/* Out of the primary player flow since §9 — reschedule only, retires in Phase 4. */}
           <Route path="/courts/:id" element={<CourtDetailsPage />} />
           <Route path="/for-clubs" element={<ForClubsPage />} />
           <Route path="/reservations" element={<RequireAuth><ReservationsPage /></RequireAuth>} />

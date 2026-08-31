@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { DEMO } from '../../../demo/demoData';
+import type { Court } from '../../courts/model/court.types';
 import type { Club } from './club.types';
 
 export interface ClubCourtSummary {
@@ -8,6 +9,22 @@ export interface ClubCourtSummary {
   sports: string[];
   indoorCount: number;
   outdoorCount: number;
+}
+
+/**
+ * Rolls a court list into the facts a club is described by — court count,
+ * surfaces, sports, and the indoor/outdoor split. Search results derive this
+ * from demo data; the club page derives it from `useClubCourtsQuery`, so it
+ * works outside demo mode too.
+ */
+export function summariseCourts(courts: Court[]): ClubCourtSummary {
+  return {
+    count: courts.length,
+    surfaces: [...new Set(courts.map((court) => court.surface_type))],
+    sports: [...new Set(courts.map((court) => court.sport_type))],
+    indoorCount: courts.filter((court) => court.is_indoor).length,
+    outdoorCount: courts.filter((court) => !court.is_indoor).length,
+  };
 }
 
 export interface ClubFilterCriteria {
@@ -38,14 +55,10 @@ export function useClubFilters(
     if (!demo) return summaries;
 
     clubs.forEach((club) => {
-      const courts = DEMO.courts.filter((court) => court.club_id === club.id);
-      summaries.set(club.id, {
-        count: courts.length,
-        surfaces: [...new Set(courts.map((court) => court.surface_type))],
-        sports: [...new Set(courts.map((court) => court.sport_type))],
-        indoorCount: courts.filter((court) => court.is_indoor).length,
-        outdoorCount: courts.filter((court) => !court.is_indoor).length,
-      });
+      summaries.set(
+        club.id,
+        summariseCourts(DEMO.courts.filter((court) => court.club_id === club.id)),
+      );
     });
     return summaries;
   }, [clubs, demo]);
