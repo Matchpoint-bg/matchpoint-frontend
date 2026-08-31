@@ -94,7 +94,8 @@ Overview
 
 | Route | Предназначение | Access |
 |---|---|---|
-| `/players` | Search landing и results state | Public |
+| `/players` | Search landing | Public |
+| `/search` | Search form и club results state | Public |
 | `/players?city=sofia&sport=tennis&date=YYYY-MM-DD&time=HH:mm` | Споделяемо търсене | Public |
 | `/clubs/:id` | Club profile и основен availability екран | Public |
 | `/book/:courtId/review` | Преглед на избрания slot | Public; confirm изисква auth |
@@ -369,6 +370,9 @@ MatchPoint трябва да комбинира:
 ### Results
 
 - [x] Резултатите се показват само след валидно search действие.
+- [x] Резултатите са отделени от landing page в самостоятелен `/search` route с search панел отгоре.
+- [x] Филтърът за настилка е част от общия search bar и URL state на landing/results страниците.
+- [x] Club results са компактни хоризонтални редове с изображение вляво и ясно CTA „Резервирай“ вдясно; отделният results summary е премахнат.
 - [x] Добави results summary: град, дата, optional time и брой резултати.
 - [ ] Добави mobile filter/sort sheet.
 - [x] Club result card: image, име, локация, surfaces, indoor/outdoor, price from.

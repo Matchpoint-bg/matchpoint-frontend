@@ -2,6 +2,7 @@ export interface SearchCriteria {
   city: string;
   sport: string;
   date: string;
+  surface?: string;
   time?: string;
 }
 
@@ -9,6 +10,7 @@ export interface SearchDraft {
   city: string;
   sport: string;
   date: string;
+  surface: string;
   time: string;
 }
 

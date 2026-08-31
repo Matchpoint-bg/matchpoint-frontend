@@ -13,7 +13,7 @@ import {
   ClubTeamPage,
 } from '../../pages/club';
 import { ClubDetailsPage } from '../../pages/club-details';
-import { ClubsPage } from '../../pages/clubs';
+import { ClubResultsPage, ClubsPage } from '../../pages/clubs';
 import { CourtDetailsPage } from '../../pages/court-details';
 import { ForClubsPage } from '../../pages/for-clubs';
 import { ForgotPasswordPage } from '../../pages/forgot-password';
@@ -39,6 +39,7 @@ export function AppRouter() {
           <Route path="/forgot-password" element={<RequireAnon><ForgotPasswordPage /></RequireAnon>} />
           <Route path="/reset-password/:uid/:token" element={<RequireAnon><ResetPasswordPage /></RequireAnon>} />
           <Route path="/players" element={<ClubsPage />} />
+          <Route path="/search" element={<ClubResultsPage />} />
           <Route path="/clubs" element={<LegacyClubsRedirect />} />
           <Route path="/clubs/:id" element={<ClubDetailsPage />} />
           <Route path="/book/:courtId/review" element={<BookingReviewPage />} />

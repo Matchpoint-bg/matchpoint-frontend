@@ -10,6 +10,7 @@ import {
 import {
   SEARCH_CITIES,
   SEARCH_SPORTS,
+  SEARCH_SURFACES,
   todayValue,
 } from '../../model/searchParams';
 import type { SearchDraft, SearchErrors, SearchField } from '../../model/search.types';
@@ -105,6 +106,20 @@ export function PlayerSearchForm({
               value={draft.date}
               onValueChange={(value) => onFieldChange('date', value)}
             />
+          )}
+        </Field>
+
+        <Field label={t('choose_surface')} error={fieldError('surface')}>
+          {(control) => (
+            <Select
+              {...control}
+              icon="court"
+              value={draft.surface}
+              onChange={(event) => onFieldChange('surface', event.target.value)}
+            >
+              <option value="">{t('all_surfaces')}</option>
+              {SEARCH_SURFACES.map((surface) => <option key={surface} value={surface}>{surface}</option>)}
+            </Select>
           )}
         </Field>
       </div>

@@ -123,6 +123,25 @@
   padding-top: clamp(34px, 6vw, 60px);
 }
 
+.searchPage {
+  padding-top: clamp(8px, 2vw, 22px);
+}
+
+.searchPanel {
+  padding: 1px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 20%, var(--card)), var(--card));
+  box-shadow: 0 18px 48px -34px rgba(6, 18, 9, 0.5);
+}
+
+.searchPanel :global(form) {
+  margin-top: 0;
+}
+
+.searchResults {
+  padding-top: clamp(30px, 5vw, 48px);
+}
+
 .resultsHeader {
   display: flex;
   align-items: flex-end;
@@ -263,6 +282,10 @@
 
   .resultGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .searchResults .resultGrid {
+    grid-template-columns: 1fr;
   }
 
   .fullState {

@@ -83,7 +83,7 @@ export function ClubResultCard({ club, courts, index, onView }: ClubResultCardPr
             )}
           </span>
           <button type="button" onClick={onView}>
-            {t('search_view_times')}
+            {t('tab_book')}
             <span aria-hidden="true">→</span>
           </button>
         </div>

@@ -9,8 +9,9 @@ export const DEFAULT_CITY = 'sofia';
 export const DEFAULT_SPORT = 'tennis';
 export const SEARCH_CITIES = [DEFAULT_CITY] as const;
 export const SEARCH_SPORTS = [DEFAULT_SPORT] as const;
+export const SEARCH_SURFACES = ['Clay', 'Grass', 'Hard'] as const;
 
-const SEARCH_KEYS = ['city', 'sport', 'date', 'time'] as const;
+const SEARCH_KEYS = ['city', 'sport', 'date', 'surface', 'time'] as const;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):(?:00|30)$/;
 
@@ -71,6 +72,10 @@ export function validateSearchDraft(draft: SearchDraft): SearchErrors {
   else if (!isRealDate(draft.date)) errors.date = 'invalid';
   else if (draft.date < todayValue()) errors.date = 'past';
 
+  if (draft.surface && !SEARCH_SURFACES.includes(draft.surface as (typeof SEARCH_SURFACES)[number])) {
+    errors.surface = 'unsupported';
+  }
+
   if (draft.time && !TIME_PATTERN.test(draft.time)) errors.time = 'invalid';
 
   return errors;
@@ -84,6 +89,7 @@ export function parseSearchParams(params: URLSearchParams): SearchUrlState {
     city: params.get('city')?.trim().toLowerCase() ?? '',
     sport: params.get('sport')?.trim().toLowerCase() ?? '',
     date: params.get('date')?.trim() ?? '',
+    surface: params.get('surface')?.trim() ?? '',
     time: params.get('time')?.trim() ?? '',
   };
   const errors = validateSearchDraft(draft);
@@ -97,6 +103,7 @@ export function parseSearchParams(params: URLSearchParams): SearchUrlState {
       city: draft.city,
       sport: draft.sport,
       date: draft.date,
+      ...(draft.surface ? { surface: draft.surface } : {}),
       ...(draft.time ? { time: draft.time } : {}),
     },
     errors: {},
@@ -108,6 +115,7 @@ export function draftFromSearchParams(params: URLSearchParams): SearchDraft {
     city: params.get('city')?.trim().toLowerCase() ?? DEFAULT_CITY,
     sport: params.get('sport')?.trim().toLowerCase() ?? DEFAULT_SPORT,
     date: params.get('date')?.trim() ?? todayValue(),
+    surface: params.get('surface')?.trim() ?? '',
     time: params.get('time')?.trim() ?? '',
   };
 
@@ -119,6 +127,9 @@ export function draftFromSearchParams(params: URLSearchParams): SearchDraft {
       ? raw.sport
       : DEFAULT_SPORT,
     date: isRealDate(raw.date) && raw.date >= todayValue() ? raw.date : todayValue(),
+    surface: !raw.surface || SEARCH_SURFACES.includes(raw.surface as (typeof SEARCH_SURFACES)[number])
+      ? raw.surface
+      : '',
     time: !raw.time || TIME_PATTERN.test(raw.time) ? raw.time : '',
   };
 }
@@ -129,6 +140,7 @@ export function searchCriteriaParams(criteria: SearchCriteria): URLSearchParams 
     sport: criteria.sport,
     date: criteria.date,
   });
+  if (criteria.surface) params.set('surface', criteria.surface);
   if (criteria.time) params.set('time', criteria.time);
   return params;
 }

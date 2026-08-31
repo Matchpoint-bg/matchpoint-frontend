@@ -3,6 +3,7 @@ export {
   DEFAULT_SPORT,
   SEARCH_CITIES,
   SEARCH_SPORTS,
+  SEARCH_SURFACES,
   draftFromSearchParams,
   parseSearchParams,
   searchCriteriaParams,
