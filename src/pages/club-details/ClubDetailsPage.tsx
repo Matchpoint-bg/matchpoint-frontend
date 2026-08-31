@@ -28,7 +28,7 @@ export function ClubDetailsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const search = searchParams.toString();
-  const playersUrl = search ? `/players?${search}` : '/players';
+  const clubListUrl = search ? `/search?${search}` : '/players';
   const clubQuery = useClubQuery(clubId);
   const courtsQuery = useClubCourtsQuery(clubId);
   const hoursQuery = useClubOpeningHoursQuery(clubId);
@@ -61,7 +61,7 @@ export function ClubDetailsPage() {
 
   return (
     <AppShell active="clubs">
-      <BackLink label={t('all_clubs')} onClick={() => navigate(playersUrl)} />
+      <BackLink label={t('all_clubs')} onClick={() => navigate(clubListUrl)} />
 
       {loading && <Spinner />}
       {!loading && error && <ErrorState msg={error.message} onRetry={reload} />}

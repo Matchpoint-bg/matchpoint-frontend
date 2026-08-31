@@ -288,6 +288,7 @@ export const en = {
   search_times_inside: "Open the club to choose a court and time",
   search_price_from: "From",
   search_view_times: "See available times",
+  search_view_details: "View details",
   search_clubs: "Search clubs",
   search_clubs_placeholder: "Club name, city or address…",
   all_surfaces: "All surfaces",

@@ -290,6 +290,7 @@ export const bg: Record<TranslationKey, string> = {
   search_times_inside: "Отвори клуба, за да избереш корт и час",
   search_price_from: "От",
   search_view_times: "Виж свободни часове",
+  search_view_details: "Виж детайли",
   search_clubs: "Търси клубове",
   search_clubs_placeholder: "Име на клуб, град или адрес…",
   all_surfaces: "Всички настилки",
