@@ -209,6 +209,15 @@ export const en = {
   fc_contact_title: "Interested?",
   fc_contact_desc: "Write to us with your club name and city and we will get in touch.",
   fc_contact_cta: "Email us",
+  fc_form_eyebrow: "Partner with MatchPoint",
+  fc_form_title: "Bring your club online.",
+  fc_form_desc: "Tell us a little about your club and our team will contact you with the next steps.",
+  fc_form_heading: "Send an inquiry",
+  fc_club_name: "Club name",
+  fc_contact_person: "Contact person",
+  fc_message: "Message",
+  fc_form_submit: "Get in touch",
+  fc_form_success: "Thanks! Your inquiry was saved in the demo.",
 
   // Not found
   notfound_eyebrow: "Lost the ball",

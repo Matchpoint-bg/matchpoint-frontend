@@ -211,6 +211,15 @@ export const bg: Record<TranslationKey, string> = {
   fc_contact_title: "Интересно ли ти звучи?",
   fc_contact_desc: "Пиши ни с името и града на клуба и ще се свържем с теб.",
   fc_contact_cta: "Пиши ни",
+  fc_form_eyebrow: "Партньорство с MatchPoint",
+  fc_form_title: "Качи клуба си онлайн.",
+  fc_form_desc: "Разкажи ни накратко за клуба и екипът ни ще се свърже с теб за следващите стъпки.",
+  fc_form_heading: "Изпрати запитване",
+  fc_club_name: "Име на клуба",
+  fc_contact_person: "Лице за контакт",
+  fc_message: "Съобщение",
+  fc_form_submit: "Свържи се с нас",
+  fc_form_success: "Благодарим! Запитването е запазено в демо режима.",
 
   // Not found
   notfound_eyebrow: "Топката излезе",

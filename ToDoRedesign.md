@@ -578,14 +578,14 @@ MatchPoint трябва да комбинира:
 
 ### Lead form
 
-- [ ] Club name.
+- [x] Club name.
 - [ ] City.
-- [ ] Contact person.
-- [ ] Email.
-- [ ] Phone.
+- [x] Contact person.
+- [x] Email.
+- [x] Phone.
 - [ ] Number of courts.
 - [ ] Website/social — optional.
-- [ ] Message — optional.
+- [x] Message — optional.
 - [ ] Consent/privacy copy, ако е необходимо.
 - [ ] Inline validation и server errors.
 - [ ] Prevent duplicate submissions.
