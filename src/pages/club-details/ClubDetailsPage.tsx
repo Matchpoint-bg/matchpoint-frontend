@@ -12,7 +12,7 @@ import { bookingIntentStore, bookingIntentUrl, ClubAvailability } from '../../fe
 import type { BookingIntent } from '../../features/booking';
 import { useI18n } from '../../i18n';
 import { fmt } from '../../shared/lib/format';
-import { Chip, ChipRow, SurfaceBadge } from '../../shared/ui';
+import { Button, Chip, ChipRow, SurfaceBadge } from '../../shared/ui';
 import { Tabs } from '../../shared/ui/Tabs';
 import { BackLink } from '../../shared/ui/BackLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -41,7 +41,7 @@ export function ClubDetailsPage() {
       ? requested
       : today;
   });
-  const [activeTab, setActiveTab] = useState<'booking' | 'info'>('booking');
+  const [activeTab, setActiveTab] = useState<'booking' | 'info'>('info');
 
   const reload = () => {
     void Promise.all([clubQuery.refetch(), courtsQuery.refetch(), hoursQuery.refetch()]);
@@ -57,6 +57,11 @@ export function ClubDetailsPage() {
   const review = (intent: BookingIntent) => {
     bookingIntentStore.save(intent);
     navigate(bookingIntentUrl(intent));
+  };
+
+  const openBooking = () => {
+    setActiveTab('booking');
+    requestAnimationFrame(() => document.getElementById('club-booking-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
 
   return (
@@ -84,8 +89,8 @@ export function ClubDetailsPage() {
 
           <Tabs
             items={[
-              { value: 'booking', label: t('club_tab_booking') },
               { value: 'info', label: t('club_tab_info') },
+              { value: 'booking', label: t('club_tab_booking') },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -93,20 +98,6 @@ export function ClubDetailsPage() {
             getPanelId={(value) => `club-${value}-panel`}
             className={styles.tabs}
           />
-
-          <div
-            id="club-booking-panel"
-            role="tabpanel"
-            aria-label={t('club_tab_booking')}
-            hidden={activeTab !== 'booking'}
-          >
-            <ClubAvailability
-              club={clubQuery.data}
-              date={date}
-              onDateChange={changeDate}
-              onReview={review}
-            />
-          </div>
 
           <div
             id="club-info-panel"
@@ -117,37 +108,59 @@ export function ClubDetailsPage() {
             <section className={styles.details} aria-labelledby="club-details-title">
               <div className={styles.about}>
                 <span className="eyebrow">{t('club_details')}</span>
-                <h2 id="club-details-title">{clubQuery.data.name}</h2>
+                <h2 id="club-details-title">{t('club_about_title')}</h2>
                 {clubQuery.data.description && <p>{clubQuery.data.description}</p>}
 
-                {(courtsQuery.data ?? []).length > 0 && (
-                  <ChipRow className={styles.facts}>
-                    {[...new Set((courtsQuery.data ?? []).map((court) => court.surface_type))].map((surface) => (
-                      <SurfaceBadge key={surface} surface={surface} />
-                    ))}
-                    {(courtsQuery.data ?? []).some((court) => court.is_indoor) && (
-                      <Chip icon="indoor" variant="indoor">{t('indoor')}</Chip>
-                    )}
-                    {(courtsQuery.data ?? []).some((court) => !court.is_indoor) && (
-                      <Chip icon="court" variant="ghost">{t('outdoor')}</Chip>
-                    )}
-                    {(courtsQuery.data ?? []).some((court) => court.is_lit) && (
-                      <Chip icon="bulb" variant="lit">{t('floodlit')}</Chip>
-                    )}
-                  </ChipRow>
-                )}
+                <Button icon="calendar" iconPosition="start" onClick={openBooking} className={styles.bookButton}>
+                  {t('club_book_court')}
+                </Button>
 
-                {(clubQuery.data.facilities?.length ?? 0) > 0 && (
-                  <div className={styles.facilities}>
-                    <h3>{t('club_facilities')}</h3>
+                {((courtsQuery.data ?? []).length > 0 || (clubQuery.data.facilities?.length ?? 0) > 0) && (
+                  <div className={styles.amenities}>
+                    <h3>{t('club_features')}</h3>
+                    {(courtsQuery.data ?? []).length > 0 && (
+                      <ChipRow className={styles.facts}>
+                        {[...new Set((courtsQuery.data ?? []).map((court) => court.surface_type))].map((surface) => (
+                          <SurfaceBadge key={surface} surface={surface} />
+                        ))}
+                        {(courtsQuery.data ?? []).some((court) => court.is_indoor) && <Chip icon="indoor" variant="indoor">{t('indoor')}</Chip>}
+                        {(courtsQuery.data ?? []).some((court) => !court.is_indoor) && <Chip icon="court" variant="ghost">{t('outdoor')}</Chip>}
+                        {(courtsQuery.data ?? []).some((court) => court.is_lit) && <Chip icon="bulb" variant="lit">{t('floodlit')}</Chip>}
+                      </ChipRow>
+                    )}
+                    {(clubQuery.data.facilities?.length ?? 0) > 0 && (
                     <ul>
-                      {clubQuery.data.facilities?.map((facility) => <li key={facility}>{facility}</li>)}
+                      {clubQuery.data.facilities?.map((facility) => (
+                        <li key={facility}><Icon name="check" />{facility}</li>
+                      ))}
                     </ul>
+                    )}
                   </div>
                 )}
               </div>
-              <OpeningHoursCard hours={hoursQuery.data ?? []} />
+
+              <div className={styles.infoGrid}>
+                <OpeningHoursCard hours={hoursQuery.data ?? []} />
+
+                <div className={styles.galleryCard}>
+                  {(clubQuery.data.gallery_urls?.[0] || clubQuery.data.thumbnail_url) ? (
+                    <img src={clubQuery.data.gallery_urls?.[0] || clubQuery.data.thumbnail_url} alt={clubQuery.data.name} />
+                  ) : (
+                    <span><Icon name="court" />{t('club_gallery_fallback')}</span>
+                  )}
+                </div>
+
+              </div>
             </section>
+          </div>
+
+          <div
+            id="club-booking-panel"
+            role="tabpanel"
+            aria-label={t('club_tab_booking')}
+            hidden={activeTab !== 'booking'}
+          >
+            <ClubAvailability club={clubQuery.data} date={date} onDateChange={changeDate} onReview={review} />
           </div>
         </>
       )}

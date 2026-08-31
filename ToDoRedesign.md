@@ -407,6 +407,7 @@ MatchPoint трябва да комбинира:
 - [x] Map/directions action.
 - [x] Phone и website actions.
 - [x] Opening hours и description под основния booking module.
+- [x] Club information е първи tab: описание и booking CTA, следвани от работно време, gallery placeholder и контакти; booking изборът е във втори tab.
 - [x] Дефинирай sticky anchor/CTA поведение при дълга страница.
 
 ### Availability module

@@ -5,9 +5,6 @@ import styles from './ClubHero.module.css';
 
 export function ClubHero({ club }: { club: Club }) {
   const { t } = useI18n();
-  const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    club.address || `${club.name}, ${club.city || ''}`,
-  )}`;
 
   return (
     <div className={`detail-hero ${styles.hero}`}>
@@ -22,21 +19,6 @@ export function ClubHero({ club }: { club: Club }) {
             {club.address || club.city || t('sofia')}
           </span>
           {club.neighbourhood && <span>{club.neighbourhood}</span>}
-        </div>
-        <div className={styles.actions}>
-          <a className="btn btn--primary btn--sm" href={directions} target="_blank" rel="noreferrer">
-            <Icon name="pin" />{t('club_directions')}
-          </a>
-          {club.phone && (
-            <a className="btn btn--ghost btn--sm" href={`tel:${club.phone}`}>
-              <Icon name="phone" />{t('phone')}
-            </a>
-          )}
-          {club.website && (
-            <a className="btn btn--ghost btn--sm" href={club.website} target="_blank" rel="noreferrer">
-              <Icon name="arrowRight" />{t('club_website')}
-            </a>
-          )}
         </div>
       </div>
       <div className={styles.visual}>
