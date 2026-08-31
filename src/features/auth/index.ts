@@ -3,6 +3,7 @@ export { authApi } from './api/auth.api';
 export { useAuthFlow } from './model/useAuthFlow';
 export type { AuthMode } from './model/useAuthFlow';
 export { AuthForm } from './ui/AuthForm';
+export { AuthModal, BookingAuthModal } from './ui/BookingAuthModal';
 export { AuthLayout } from './ui/AuthLayout';
 export { AuthModeTabs } from './ui/AuthModeTabs';
 export { DemoAuthNotice } from './ui/DemoAuthNotice';

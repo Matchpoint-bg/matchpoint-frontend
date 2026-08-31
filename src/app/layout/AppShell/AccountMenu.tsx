@@ -1,4 +1,5 @@
 import { useAuth } from '../../../features/auth';
+import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import {
   Menu,
@@ -36,6 +37,7 @@ export function AccountMenu({ active, context = 'player' }: AccountMenuProps) {
   const { theme, setTheme } = useTheme();
   const { user, logout, isStaff } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const initials = ((user?.first_name || user?.email || '?')[0] || '?').toUpperCase();
   const accountName = user?.first_name || t('nav_profile');
@@ -117,6 +119,7 @@ export function AccountMenu({ active, context = 'player' }: AccountMenuProps) {
         onClick={() => {
           logout();
           toast(t('signed_out'));
+          navigate('/players', { replace: true });
         }}
       >
         {t('sign_out')}

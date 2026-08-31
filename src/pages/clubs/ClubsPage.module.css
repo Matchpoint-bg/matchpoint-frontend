@@ -239,11 +239,17 @@
   }
 
   .resultGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .fullState {
     grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 959px) {
+  .resultGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

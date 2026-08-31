@@ -408,7 +408,7 @@ MatchPoint трябва да комбинира:
 
 - [x] Премести основния booking избор на club page.
 - [x] Запази избраната search дата при отваряне на клуба.
-- [x] Date strip с днес + следващи дни и достъпен full date picker.
+- [x] ~~Date strip с днес + следващи дни~~ и достъпен full date picker. Date strip-ът е премахнат по продуктово решение.
 - [x] Surface и indoor/outdoor filters само когато имат смисъл.
 - [x] Групирай available times по court row/card.
 - [x] Покажи time и price върху selectable slot.
@@ -469,7 +469,7 @@ MatchPoint трябва да комбинира:
 - [x] След success върни към същия booking intent, не само към pathname.
 - [x] Запази Google auth behavior.
 - [ ] Проектирай error, expired session и duplicate-email states.
-- [ ] Не показвай auth като generic standalone marketing screen при booking detour.
+- [x] Не показвай auth като generic standalone marketing screen при booking detour.
 
 ### Acceptance criteria
 

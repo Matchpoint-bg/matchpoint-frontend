@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useI18n } from '../../../../i18n';
 import { fmt } from '../../../../shared/lib/format';
-import { Button, Chip, ChipRow, EmptyState, ErrorState, Icon, Skeleton, SurfaceBadge } from '../../../../shared/ui';
+import { Button, DateField, EmptyState, ErrorState, Field, Icon, Select, Skeleton, SurfaceBadge } from '../../../../shared/ui';
 import type { Club } from '../../../clubs';
 import type { CourtAvailability } from '../../model/availability.types';
 import type { BookingIntent } from '../../model/bookingIntent.types';
 import { useClubAvailabilityQuery } from '../../model/availability.queries';
 import { useClubSlotSelection } from '../../model/useClubSlotSelection';
-import { AvailabilityDatePicker } from '../AvailabilityDatePicker';
 import { AvailabilityLegend } from '../AvailabilityLegend';
 import { SlotGrid } from '../SlotGrid';
 import styles from './ClubAvailability.module.css';
@@ -81,48 +80,55 @@ export function ClubAvailability({ club, date, onDateChange, onReview }: ClubAva
         {query.data && <span className={styles.timezone}>{query.data.timezone}</span>}
       </div>
 
-      <AvailabilityDatePicker date={date} onChange={onDateChange} />
+      <div className={styles.controls}>
+        <Field label={t('choose_surface')}>
+          {(control) => (
+            <Select
+              {...control}
+              icon="court"
+              value={surface}
+              onChange={(event) => {
+                setSurface(event.target.value);
+                selection.clear();
+              }}
+            >
+              <option value="all">{t('all_surfaces')}</option>
+              {surfaces.map((item) => <option key={item} value={item}>{item}</option>)}
+            </Select>
+          )}
+        </Field>
 
-      {rows.length > 1 && (
-        <div className={styles.filters}>
-          {surfaces.length > 1 && (
-            <ChipRow role="group" aria-label={t('surface')}>
-              <Chip selected={surface === 'all'} onClick={() => setSurface('all')}>
-                {t('filter_all_courts')}
-              </Chip>
-              {surfaces.map((item) => (
-                <Chip
-                  key={item}
-                  selected={surface === item}
-                  onClick={() => setSurface(item)}
-                >
-                  {item}
-                </Chip>
-              ))}
-            </ChipRow>
+        <Field label={t('court_type')}>
+          {(control) => (
+            <Select
+              {...control}
+              icon="indoor"
+              value={environment}
+              onChange={(event) => {
+                setEnvironment(event.target.value as EnvironmentFilter);
+                selection.clear();
+              }}
+            >
+              <option value="all">{t('filter_all_courts')}</option>
+              <option value="indoor">{t('filter_indoor')}</option>
+              <option value="outdoor">{t('filter_outdoor')}</option>
+            </Select>
           )}
-          {rows.some((row) => row.court.is_indoor) && rows.some((row) => !row.court.is_indoor) && (
-            <ChipRow role="group" aria-label={t('indoor')}>
-              <Chip selected={environment === 'all'} onClick={() => setEnvironment('all')}>
-                {t('filter_all_courts')}
-              </Chip>
-              <Chip
-                icon="indoor"
-                selected={environment === 'indoor'}
-                onClick={() => setEnvironment('indoor')}
-              >
-                {t('filter_indoor')}
-              </Chip>
-              <Chip
-                selected={environment === 'outdoor'}
-                onClick={() => setEnvironment('outdoor')}
-              >
-                {t('filter_outdoor')}
-              </Chip>
-            </ChipRow>
+        </Field>
+
+        <Field label={t('search_date')} required>
+          {(control) => (
+            <DateField
+              {...control}
+              min={fmt.isoDate(new Date())}
+              value={date}
+              onChange={(event) => {
+                if (event.target.value) onDateChange(event.target.value);
+              }}
+            />
           )}
-        </div>
-      )}
+        </Field>
+      </div>
 
       <AvailabilityLegend />
 

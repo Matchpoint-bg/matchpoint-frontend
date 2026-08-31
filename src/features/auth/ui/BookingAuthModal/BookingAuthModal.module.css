@@ -1,0 +1,26 @@
+.content {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.intro {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+.content :global(.authtabs) {
+  margin: 0;
+}
+
+.content :global(form) {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.terms {
+  margin: 0;
+  color: var(--faint);
+  font-size: var(--text-xs);
+  text-align: center;
+}

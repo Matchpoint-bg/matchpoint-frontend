@@ -16,7 +16,7 @@
 
 .visual {
   position: relative;
-  min-height: 150px;
+  min-height: 132px;
   overflow: hidden;
   background:
     radial-gradient(circle at 82% 22%, rgba(172, 223, 119, 0.28), transparent 24%),
@@ -142,7 +142,7 @@
 .body {
   display: flex;
   min-width: 0;
-  padding: 18px;
+  padding: 16px;
   flex-direction: column;
 }
 
@@ -210,7 +210,7 @@
 .description {
   display: -webkit-box;
   overflow: hidden;
-  margin: 14px 0 0;
+  margin: 11px 0 0;
   color: var(--muted);
   font-size: 12.5px;
   line-height: 1.55;
@@ -222,7 +222,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  margin-top: 14px;
+  margin-top: 11px;
   gap: 6px;
 }
 
@@ -265,7 +265,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding-top: 17px;
+  padding-top: 14px;
   gap: 12px;
 }
 
@@ -334,21 +334,22 @@
   }
 }
 
-@media (min-width: 680px) {
-  .card {
-    grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.28fr);
-  }
-
-  .visual {
-    min-height: 280px;
-  }
-
-  .body {
-    padding: 22px;
-  }
-
+@media (min-width: 960px) {
   .heading h3 {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  .footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .availabilityHint {
+    max-width: none;
+  }
+
+  .footer button {
+    width: 100%;
   }
 }
 

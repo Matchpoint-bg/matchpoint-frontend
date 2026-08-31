@@ -13,6 +13,7 @@ import type { BookingIntent } from '../../features/booking';
 import { useI18n } from '../../i18n';
 import { fmt } from '../../shared/lib/format';
 import { Chip, ChipRow, SurfaceBadge } from '../../shared/ui';
+import { Tabs } from '../../shared/ui/Tabs';
 import { BackLink } from '../../shared/ui/BackLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorState } from '../../shared/ui/ErrorState';
@@ -40,6 +41,7 @@ export function ClubDetailsPage() {
       ? requested
       : today;
   });
+  const [activeTab, setActiveTab] = useState<'booking' | 'info'>('booking');
 
   const reload = () => {
     void Promise.all([clubQuery.refetch(), courtsQuery.refetch(), hoursQuery.refetch()]);
@@ -80,47 +82,73 @@ export function ClubDetailsPage() {
         <>
           <ClubHero club={clubQuery.data} />
 
-          <ClubAvailability
-            club={clubQuery.data}
-            date={date}
-            onDateChange={changeDate}
-            onReview={review}
+          <Tabs
+            items={[
+              { value: 'booking', label: t('club_tab_booking') },
+              { value: 'info', label: t('club_tab_info') },
+            ]}
+            value={activeTab}
+            onChange={setActiveTab}
+            label={t('club_tabs_label')}
+            getPanelId={(value) => `club-${value}-panel`}
+            className={styles.tabs}
           />
 
-          <section className={styles.details} aria-labelledby="club-details-title">
-            <div className={styles.about}>
-              <span className="eyebrow">{t('club_details')}</span>
-              <h2 id="club-details-title">{clubQuery.data.name}</h2>
-              {clubQuery.data.description && <p>{clubQuery.data.description}</p>}
+          <div
+            id="club-booking-panel"
+            role="tabpanel"
+            aria-label={t('club_tab_booking')}
+            hidden={activeTab !== 'booking'}
+          >
+            <ClubAvailability
+              club={clubQuery.data}
+              date={date}
+              onDateChange={changeDate}
+              onReview={review}
+            />
+          </div>
 
-              {(courtsQuery.data ?? []).length > 0 && (
-                <ChipRow className={styles.facts}>
-                  {[...new Set((courtsQuery.data ?? []).map((court) => court.surface_type))].map((surface) => (
-                    <SurfaceBadge key={surface} surface={surface} />
-                  ))}
-                  {(courtsQuery.data ?? []).some((court) => court.is_indoor) && (
-                    <Chip icon="indoor" variant="indoor">{t('indoor')}</Chip>
-                  )}
-                  {(courtsQuery.data ?? []).some((court) => !court.is_indoor) && (
-                    <Chip icon="court" variant="ghost">{t('outdoor')}</Chip>
-                  )}
-                  {(courtsQuery.data ?? []).some((court) => court.is_lit) && (
-                    <Chip icon="bulb" variant="lit">{t('floodlit')}</Chip>
-                  )}
-                </ChipRow>
-              )}
+          <div
+            id="club-info-panel"
+            role="tabpanel"
+            aria-label={t('club_tab_info')}
+            hidden={activeTab !== 'info'}
+          >
+            <section className={styles.details} aria-labelledby="club-details-title">
+              <div className={styles.about}>
+                <span className="eyebrow">{t('club_details')}</span>
+                <h2 id="club-details-title">{clubQuery.data.name}</h2>
+                {clubQuery.data.description && <p>{clubQuery.data.description}</p>}
 
-              {(clubQuery.data.facilities?.length ?? 0) > 0 && (
-                <div className={styles.facilities}>
-                  <h3>{t('club_facilities')}</h3>
-                  <ul>
-                    {clubQuery.data.facilities?.map((facility) => <li key={facility}>{facility}</li>)}
-                  </ul>
-                </div>
-              )}
-            </div>
-            <OpeningHoursCard hours={hoursQuery.data ?? []} />
-          </section>
+                {(courtsQuery.data ?? []).length > 0 && (
+                  <ChipRow className={styles.facts}>
+                    {[...new Set((courtsQuery.data ?? []).map((court) => court.surface_type))].map((surface) => (
+                      <SurfaceBadge key={surface} surface={surface} />
+                    ))}
+                    {(courtsQuery.data ?? []).some((court) => court.is_indoor) && (
+                      <Chip icon="indoor" variant="indoor">{t('indoor')}</Chip>
+                    )}
+                    {(courtsQuery.data ?? []).some((court) => !court.is_indoor) && (
+                      <Chip icon="court" variant="ghost">{t('outdoor')}</Chip>
+                    )}
+                    {(courtsQuery.data ?? []).some((court) => court.is_lit) && (
+                      <Chip icon="bulb" variant="lit">{t('floodlit')}</Chip>
+                    )}
+                  </ChipRow>
+                )}
+
+                {(clubQuery.data.facilities?.length ?? 0) > 0 && (
+                  <div className={styles.facilities}>
+                    <h3>{t('club_facilities')}</h3>
+                    <ul>
+                      {clubQuery.data.facilities?.map((facility) => <li key={facility}>{facility}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <OpeningHoursCard hours={hoursQuery.data ?? []} />
+            </section>
+          </div>
         </>
       )}
     </AppShell>

@@ -8,4 +8,5 @@ export interface NavigationItem {
   desktopLabel: string;
   mobileLabel: string;
   tab?: AppTab;
+  onClick?: () => void;
 }

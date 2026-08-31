@@ -114,17 +114,15 @@ export function ClubsPage() {
           {!clubsQuery.isPending && !clubsQuery.error && clubs.length > 0 && (
             <div className={styles.refine}>
               <ClubFilters
-                query={filters.query}
                 surface={filters.surface}
                 surfaces={filters.surfaceOptions}
-                onQueryChange={filters.setQuery}
                 onSurfaceChange={filters.setSurface}
               />
             </div>
           )}
 
           <div className={styles.resultGrid}>
-            {clubsQuery.isPending && <Skeleton height={280} count={2} />}
+            {clubsQuery.isPending && <Skeleton height={390} count={3} />}
 
             {!clubsQuery.isPending && clubsQuery.error && (
               <div className={styles.fullState}>

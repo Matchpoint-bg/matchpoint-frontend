@@ -1,16 +1,17 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
-import { useAuth } from '../../features/auth';
+import { BookingAuthModal, useAuth } from '../../features/auth';
 import { BookingIntentCard, useBookingIntentValidation } from '../../features/booking';
 import { useI18n } from '../../i18n';
 import { BackLink, Button, EmptyState, ErrorState, Icon, Spinner } from '../../shared/ui';
+import { useModal } from '../../shared/ui/Modal';
 import styles from './BookingReviewPage.module.css';
 
 export function BookingReviewPage() {
   const courtId = Number(useParams().courtId);
   const navigate = useNavigate();
-  const location = useLocation();
   const { authed } = useAuth();
+  const { openModal, closeModal } = useModal();
   const { t } = useI18n();
   const { intent, query, valid } = useBookingIntentValidation(courtId);
   const clubUrl = intent ? `/clubs/${intent.clubId}?date=${intent.date}` : '/players';
@@ -18,7 +19,15 @@ export function BookingReviewPage() {
 
   const proceed = () => {
     if (!authed) {
-      navigate('/login', { state: { from: location } });
+      openModal(
+        t('account_needed_title'),
+        <BookingAuthModal
+          onSuccess={() => {
+            closeModal();
+            navigate(`/book/${courtId}/checkout`);
+          }}
+        />,
+      );
       return;
     }
     navigate(`/book/${courtId}/checkout`);
