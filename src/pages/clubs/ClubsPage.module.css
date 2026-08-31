@@ -41,6 +41,7 @@
   position: absolute;
   z-index: -1;
   inset: 0;
+  border-radius: inherit;
   opacity: 0.2;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
@@ -221,21 +222,43 @@
 
 @media (min-width: 960px) {
   .hero {
-    padding-top: 46px;
-    padding-bottom: 32px;
+    overflow: visible;
+    min-height: 470px;
+    margin-bottom: 76px;
+    padding: 54px 54px 120px;
   }
 
   .heroCopy,
   .hero h1 {
-    max-width: 900px;
+    max-width: 690px;
   }
 
   .heroCopy > p {
-    max-width: 720px;
+    max-width: 560px;
   }
 
   .hero :global(form) {
-    margin-top: 30px;
+    position: absolute;
+    right: 32px;
+    bottom: -58px;
+    left: 32px;
+    width: auto;
+    margin: 0;
+  }
+
+  /* Keep the dark artwork inside the rounded hero while the search panel
+     itself is deliberately allowed to bridge into the light content area. */
+  .hero::before {
+    top: 8px;
+    right: 8px;
+    width: 300px;
+    height: 300px;
+  }
+
+  .hero::after {
+    right: 0;
+    transform: skewX(-12deg);
+    transform-origin: right top;
   }
 
   .resultGrid {

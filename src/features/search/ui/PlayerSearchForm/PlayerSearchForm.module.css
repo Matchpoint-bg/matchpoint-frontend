@@ -77,12 +77,48 @@
 }
 
 @media (min-width: 940px) {
+  .form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px;
+    align-items: end;
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px -24px rgba(6, 18, 9, 0.42);
+    gap: 16px;
+  }
+
+  .formHeading {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .urlNotice {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+  }
+
   .fields {
     grid-template-columns: 1.1fr 1fr 1.15fr;
   }
 
+  .fields :global(.field) {
+    margin-bottom: 0;
+  }
+
+  .formFooter {
+    margin: 0;
+  }
+
   .submit {
-    width: 190px;
+    width: 100%;
   }
 }
 
