@@ -60,7 +60,6 @@ export function ClubsPage() {
       sport: criteria.sport,
       date: criteria.date,
     });
-    if (criteria.time) params.set('time', criteria.time);
     navigate(`/clubs/${clubId}?${params.toString()}`);
   };
 
@@ -110,9 +109,6 @@ export function ClubsPage() {
             <span><Icon name="pin" />{t('sofia')}</span>
             <span><Icon name="ball" />{t('tennis')}</span>
             <span><Icon name="calendar" />{formattedDate}</span>
-            {criteria.time && (
-              <span><Icon name="clock" />{t('search_from_time')} {criteria.time}</span>
-            )}
           </div>
 
           {!clubsQuery.isPending && !clubsQuery.error && clubs.length > 0 && (

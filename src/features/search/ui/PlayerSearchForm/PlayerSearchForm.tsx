@@ -2,20 +2,15 @@ import type { FormEvent } from 'react';
 import { useI18n } from '../../../../i18n';
 import {
   Button,
-  ChipRow,
   DateField,
   Field,
-  FilterChip,
   Icon,
   Select,
-  TimeField,
 } from '../../../../shared/ui';
 import {
   SEARCH_CITIES,
   SEARCH_SPORTS,
   todayValue,
-  tomorrowValue,
-  weekendValue,
 } from '../../model/searchParams';
 import type { SearchDraft, SearchErrors, SearchField } from '../../model/search.types';
 import styles from './PlayerSearchForm.module.css';
@@ -51,20 +46,10 @@ export function PlayerSearchForm({
     return t('search_required');
   };
 
-  const quickDates = [
-    { label: t('search_today'), value: todayValue() },
-    { label: t('search_tomorrow'), value: tomorrowValue() },
-    { label: t('search_weekend'), value: weekendValue() },
-  ];
-
   return (
     <form className={styles.form} onSubmit={submit} noValidate>
       <div className={styles.formHeading}>
-        <div>
-          <span className={styles.formEyebrow}>{t('search_form_eyebrow')}</span>
-          <h2>{t('search_form_title')}</h2>
-        </div>
-        <span className={styles.step}>{t('search_step_one')}</span>
+        <h2>{t('search_form_title')}</h2>
       </div>
 
       {invalidUrl && (
@@ -122,34 +107,9 @@ export function PlayerSearchForm({
             />
           )}
         </Field>
-
-        <Field label={t('search_time')} note={t('search_optional')} error={fieldError('time')}>
-          {(control) => (
-            <TimeField
-              {...control}
-              value={draft.time}
-              onChange={(event) => onFieldChange('time', event.target.value)}
-            />
-          )}
-        </Field>
       </div>
 
       <div className={styles.formFooter}>
-        <div className={styles.quickDates} role="group" aria-label={t('search_quick_dates')}>
-          <span>{t('search_quick_dates')}</span>
-          <ChipRow>
-            {quickDates.map((option) => (
-              <FilterChip
-                key={option.label}
-                selected={draft.date === option.value}
-                onClick={() => onFieldChange('date', option.value)}
-              >
-                {option.label}
-              </FilterChip>
-            ))}
-          </ChipRow>
-        </div>
-
         <Button type="submit" block icon="arrowRight" iconPosition="end" className={styles.submit}>
           {t('search_show_clubs')}
         </Button>

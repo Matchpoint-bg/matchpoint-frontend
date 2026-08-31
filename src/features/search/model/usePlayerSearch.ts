@@ -39,7 +39,6 @@ export function usePlayerSearch() {
         city: draft.city,
         sport: draft.sport,
         date: draft.date,
-        ...(draft.time ? { time: draft.time } : {}),
       }),
     );
     return true;

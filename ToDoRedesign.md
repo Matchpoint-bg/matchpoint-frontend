@@ -352,7 +352,7 @@ MatchPoint трябва да комбинира:
 - [x] Създай `SearchCriteria` model: city, sport, date, optional time.
 - [x] Синхронизирай search state с URL query parameters.
 - [x] Не позволявай минали дати.
-- [x] Добави quick dates: Днес, Утре, Уикенда.
+- [x] ~~Добави quick dates: Днес, Утре, Уикенда.~~ Премахнато от search form по продуктово решение.
 - [x] Дефинирай поведение при липсваща дата.
 - [x] Дефинирай validation и invalid URL recovery.
 
