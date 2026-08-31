@@ -14,31 +14,52 @@ export const DEMO: {
       id: 1,
       name: 'Lozenets Tennis Club',
       city: 'Sofia',
+      neighbourhood: 'Lozenets',
       address: 'bul. Cherni Vrah 45, Lozenets',
       description: 'Six courts tucked below Vitosha — clay in summer, two covered hard courts year-round.',
       website: 'https://example.com',
       phone: '+35929001122',
       email: 'hello@lozenets.tennis',
+      facilities: ['Changing rooms', 'Equipment rental', 'Parking'],
+      cancellation_policy: 'Free cancellation up to 12 hours before the booking.',
+      payment_methods: ['pay_on_site'],
+      latitude: 42.6727,
+      longitude: 23.3186,
+      starting_price: 14,
     },
     {
       id: 2,
       name: 'Serdika Sports Park',
       city: 'Sofia',
+      neighbourhood: 'Serdika',
       address: 'ul. Iliyensko Shose 12, Serdika',
       description: "The city's biggest complex. Floodlit hard courts open till midnight.",
       website: 'https://example.com',
       phone: '+35929887766',
       email: 'book@serdika.park',
+      facilities: ['Changing rooms', 'Showers', 'Parking', 'Cafe'],
+      cancellation_policy: 'Free cancellation up to 24 hours before the booking.',
+      payment_methods: ['pay_on_site'],
+      latitude: 42.7234,
+      longitude: 23.3151,
+      starting_price: 14,
     },
     {
       id: 3,
       name: 'Vitosha Grass Courts',
       city: 'Sofia',
+      neighbourhood: 'Dragalevtsi',
       address: 'Dragalevtsi, foot of Vitosha',
       description: 'A rare set of grass courts. Short season, long waitlist.',
       website: 'https://example.com',
       phone: '+35929334455',
       email: 'grass@vitosha.bg',
+      facilities: ['Changing rooms', 'Equipment rental'],
+      cancellation_policy: 'Free cancellation up to 24 hours before the booking.',
+      payment_methods: ['pay_on_site'],
+      latitude: 42.6376,
+      longitude: 23.3077,
+      starting_price: 20,
     },
   ],
   courts: [
@@ -110,8 +131,10 @@ export function demoAvailability(courtId: number, date: string): Slot[] {
   const hours = (DEMO.openingHours[club.id] || []).find((row) => row[0] === weekday);
   if (!hours) return [];
 
-  const openHour = Number(hours[1].split(':')[0]);
-  const closeHour = Number(hours[2].split(':')[0]);
+  const [openHour, openMinute] = hours[1].split(':').map(Number);
+  const [closeHour, closeMinute] = hours[2].split(':').map(Number);
+  const openAt = (openHour ?? 0) * 60 + (openMinute ?? 0);
+  const closeAt = (closeHour ?? 0) * 60 + (closeMinute ?? 0);
   const booked = new Set(
     demoReservations()
       .filter((reservation) => reservation.court === courtId && reservation.date === date)
@@ -119,25 +142,36 @@ export function demoAvailability(courtId: number, date: string): Slot[] {
   );
 
   const slots: Slot[] = [];
-  for (let hour = openHour; hour < closeHour; hour++) {
-    for (const minute of [0, 30]) {
-      const start = new Date(selectedDate);
-      start.setHours(hour, minute, 0, 0);
-      const end = new Date(start.getTime() + 30 * 60_000);
-      const label = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-      const isBooked = booked.has(label);
-      const peak = hour >= 18 && hour <= 21;
-      const price = (peak ? 11 : court.is_indoor ? 9 : 7) + (court.surface_type === 'Grass' ? 3 : 0);
+  for (let minuteOfDay = openAt; minuteOfDay < closeAt; minuteOfDay += 30) {
+    const hour = Math.floor(minuteOfDay / 60);
+    const minute = minuteOfDay % 60;
+    const start = new Date(selectedDate);
+    start.setHours(hour, minute, 0, 0);
+    const end = new Date(start.getTime() + 30 * 60_000);
+    const label = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    const isBooked = booked.has(label);
+    const peak = hour >= 18 && hour <= 21;
+    const price = (peak ? 11 : court.is_indoor ? 9 : 7) + (court.surface_type === 'Grass' ? 3 : 0);
 
-      slots.push({
-        start: start.toISOString(),
-        end: end.toISOString(),
-        available: seeded(`${courtId}|${date}|${label}`) > 0.34 && !isBooked,
-        price,
-        _booked: isBooked,
-        _t: label,
-      });
-    }
+    slots.push({
+      start: start.toISOString(),
+      end: end.toISOString(),
+      available:
+        end.getTime() > Date.now() && seeded(`${courtId}|${date}|${label}`) > 0.34 && !isBooked,
+      status:
+        end.getTime() <= Date.now()
+          ? 'past'
+          : isBooked
+            ? 'booked'
+            : seeded(`${courtId}|${date}|${label}`) > 0.34
+              ? 'available'
+              : 'closed',
+      price,
+      currency: 'BGN',
+      unavailable_reason: isBooked ? 'Already booked' : undefined,
+      _booked: isBooked,
+      _t: label,
+    });
   }
   return slots;
 }

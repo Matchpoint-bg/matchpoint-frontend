@@ -2,9 +2,68 @@
   margin-top: 6px;
 }
 
-.description {
-  max-width: 60ch;
-  margin: 0 0 8px;
+.details {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+  align-items: start;
+  margin-top: var(--space-12);
+  gap: var(--space-5);
+}
+
+.about {
+  padding: clamp(20px, 4vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.about h2 {
+  margin: 5px 0 10px;
+  font-family: var(--display);
+  font-size: var(--text-2xl);
+}
+
+.about > p {
+  max-width: 65ch;
   color: var(--ink-2);
-  font-size: 15px;
+}
+
+.facts {
+  margin-top: var(--space-4);
+}
+
+.facilities {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.facilities h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-base);
+}
+
+.facilities ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: var(--space-2);
+}
+
+.facilities li::before {
+  margin-right: 8px;
+  color: var(--success);
+  content: '✓';
+}
+
+@media (max-width: 760px) {
+  .details {
+    grid-template-columns: 1fr;
+  }
+
+  .facilities ul {
+    grid-template-columns: 1fr;
+  }
 }

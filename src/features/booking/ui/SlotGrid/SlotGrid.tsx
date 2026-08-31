@@ -5,10 +5,11 @@ import { EmptyState } from '../../../../shared/ui/EmptyState';
 import { ErrorState } from '../../../../shared/ui/ErrorState';
 import { Skeleton } from '../../../../shared/ui/Skeleton';
 
-function classify(slot: Slot): 'open' | 'booked' | 'closed' {
+function classify(slot: Slot): 'available' | 'booked' | 'held' | 'closed' | 'past' {
+  if (slot.status) return slot.status;
   const booked = slot._booked !== undefined ? slot._booked : !slot.available;
   if (booked) return 'booked';
-  return slot.available ? 'open' : 'closed';
+  return slot.available ? 'available' : 'closed';
 }
 
 interface SlotGridProps {
@@ -41,7 +42,7 @@ export function SlotGrid({
             const className =
               kind === 'booked'
                 ? 'is-booked'
-                : kind === 'closed'
+                : kind !== 'available'
                   ? 'is-un'
                   : isSelected
                     ? 'is-sel'
@@ -50,13 +51,26 @@ export function SlotGrid({
               <button
                 key={slot.start}
                 className={`slot ${className}`}
-                disabled={kind !== 'open'}
+                disabled={kind !== 'available'}
                 onClick={() => onToggle(index)}
+                aria-pressed={kind === 'available' ? isSelected : undefined}
+                aria-label={`${slot._t || fmt.time(slot.start)}, ${
+                  isSelected
+                    ? t('selected')
+                    : kind === 'available'
+                      ? fmt.money(slot.price)
+                      : t(kind === 'past' ? 'past_slot' : kind === 'held' ? 'held_slot' : kind === 'booked' ? 'booked' : 'closed_legend')
+                }`}
+                title={slot.unavailable_reason}
               >
                 <div className="slot__t">{slot._t || fmt.time(slot.start)}</div>
                 <div className="slot__p">
                   {kind === 'booked'
                     ? t('booked')
+                    : kind === 'held'
+                      ? t('held_slot')
+                      : kind === 'past'
+                        ? t('past_slot')
                     : kind === 'closed'
                       ? '—'
                       : fmt.money(slot.price)}

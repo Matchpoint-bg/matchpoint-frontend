@@ -1,6 +1,9 @@
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from '../../shared/ui/ErrorBoundary';
 import { AuthPage } from '../../pages/auth';
+import { BookingCheckoutPage } from '../../pages/booking-checkout';
+import { BookingConfirmationPage } from '../../pages/booking-confirmation';
+import { BookingReviewPage } from '../../pages/booking-review';
 import {
   ClubBookingsPage,
   ClubCourtsPage,
@@ -38,6 +41,9 @@ export function AppRouter() {
           <Route path="/players" element={<ClubsPage />} />
           <Route path="/clubs" element={<LegacyClubsRedirect />} />
           <Route path="/clubs/:id" element={<ClubDetailsPage />} />
+          <Route path="/book/:courtId/review" element={<BookingReviewPage />} />
+          <Route path="/book/:courtId/checkout" element={<RequireAuth><BookingCheckoutPage /></RequireAuth>} />
+          <Route path="/booking/confirmation/:id" element={<RequireAuth><BookingConfirmationPage /></RequireAuth>} />
           <Route path="/courts/:id" element={<CourtDetailsPage />} />
           <Route path="/for-clubs" element={<ForClubsPage />} />
           <Route path="/reservations" element={<RequireAuth><ReservationsPage /></RequireAuth>} />

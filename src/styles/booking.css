@@ -43,6 +43,13 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.availability-dates {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
 .daybtn {
   display: flex;
   flex: none;
@@ -237,5 +244,17 @@
 @media (min-width: 820px) {
   .book-summary {
     bottom: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .availability-dates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .availability-dates .datepick {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: var(--r-sm);
   }
 }

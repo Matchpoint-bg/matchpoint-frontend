@@ -1,0 +1,61 @@
+.header {
+  max-width: 700px;
+  margin: var(--space-4) 0 var(--space-6);
+}
+
+.header h1 {
+  margin: 5px 0 8px;
+  font-family: var(--display);
+  font-size: var(--text-2xl);
+}
+
+.header p {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 0.35fr);
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.actionCard {
+  position: sticky;
+  top: 92px;
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.accountNote {
+  display: flex;
+  margin-bottom: var(--space-5);
+  gap: var(--space-3);
+}
+
+.accountNote > svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--brand-text);
+}
+
+.accountNote p {
+  margin: 5px 0 0;
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .actionCard {
+    position: static;
+  }
+}

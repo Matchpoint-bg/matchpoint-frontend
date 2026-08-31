@@ -1,4 +1,5 @@
 import { useI18n } from '../../../../i18n';
+import { fmt } from '../../../../shared/lib/format';
 import { Icon, SurfaceBadge } from '../../../../shared/ui';
 import type { Club, ClubCourtSummary } from '../../../clubs';
 import styles from './ClubResultCard.module.css';
@@ -18,6 +19,9 @@ export function ClubResultCard({ club, courts, index, onView }: ClubResultCardPr
   return (
     <article className={styles.card}>
       <div className={styles.visual} aria-hidden="true">
+        {club.thumbnail_url && (
+          <img src={club.thumbnail_url} alt="" width="720" height="480" loading="lazy" />
+        )}
         <span className={styles.number}>{shortIndex}</span>
         <span className={styles.city}>{club.city || t('sofia')}</span>
         <div className={styles.courtLines}>
@@ -72,8 +76,11 @@ export function ClubResultCard({ club, courts, index, onView }: ClubResultCardPr
 
         <div className={styles.footer}>
           <span className={styles.availabilityHint}>
-            <Icon name="clock" />
-            {t('search_times_inside')}
+            {club.starting_price ? (
+              <><Icon name="tag" />{t('search_price_from')} {fmt.money(club.starting_price)}</>
+            ) : (
+              <><Icon name="clock" />{t('search_times_inside')}</>
+            )}
           </span>
           <button type="button" onClick={onView}>
             {t('search_view_times')}

@@ -24,6 +24,20 @@
   color: #fff;
 }
 
+.visual img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.visual:has(img)::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 12, 3, 0.08), rgba(5, 12, 3, 0.58));
+  content: '';
+}
+
 .visual::before {
   position: absolute;
   inset: 14px;

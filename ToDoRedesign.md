@@ -370,7 +370,7 @@ MatchPoint трябва да комбинира:
 - [x] Резултатите се показват само след валидно search действие.
 - [x] Добави results summary: град, дата, optional time и брой резултати.
 - [ ] Добави mobile filter/sort sheet.
-- [ ] Club result card: image, име, локация, surfaces, indoor/outdoor, price from.
+- [x] Club result card: image, име, локация, surfaces, indoor/outdoor, price from.
 - [ ] Когато API позволява: покажи 2–4 най-близки свободни часа.
 - [x] CTA: „Виж свободни часове“.
 - [ ] Проектирай loading, no clubs, no availability, error и retry states.
@@ -387,7 +387,7 @@ MatchPoint трябва да комбинира:
 
 - [x] Search може да се сподели чрез URL.
 - [ ] Browser back възстановява резултатите и scroll позицията.
-- [ ] Потребителят достига club availability с максимум две primary действия.
+- [x] Потребителят достига club availability с максимум две primary действия.
 - [x] Search работи еднакво добре с touch, mouse и keyboard.
 
 ---
@@ -396,29 +396,29 @@ MatchPoint трябва да комбинира:
 
 ### Club profile
 
-- [ ] Compact club identity: име, квартал/адрес, trust facts.
+- [x] Compact club identity: име, квартал/адрес, trust facts.
 - [ ] Gallery с оптимизирани изображения и fallback.
-- [ ] Facilities, surfaces, indoor/outdoor и осветление.
-- [ ] Map/directions action.
-- [ ] Phone и website actions.
-- [ ] Opening hours и description под основния booking module.
-- [ ] Дефинирай sticky anchor/CTA поведение при дълга страница.
+- [x] Facilities, surfaces, indoor/outdoor и осветление.
+- [x] Map/directions action.
+- [x] Phone и website actions.
+- [x] Opening hours и description под основния booking module.
+- [x] Дефинирай sticky anchor/CTA поведение при дълга страница.
 
 ### Availability module
 
-- [ ] Премести основния booking избор на club page.
-- [ ] Запази избраната search дата при отваряне на клуба.
-- [ ] Date strip с днес + следващи дни и достъпен full date picker.
-- [ ] Surface и indoor/outdoor filters само когато имат смисъл.
-- [ ] Групирай available times по court row/card.
-- [ ] Покажи time и price върху selectable slot.
-- [ ] Различавай `available`, `selected`, `booked`, `held`, `closed` и `past`.
-- [ ] Disabled slot да има разбираема причина, когато е полезно.
-- [ ] Позволи избор на валидна продължителност чрез последователни slots.
-- [ ] Предотврати non-contiguous selection или го коригирай автоматично.
-- [ ] Sticky booking summary след избор.
+- [x] Премести основния booking избор на club page.
+- [x] Запази избраната search дата при отваряне на клуба.
+- [x] Date strip с днес + следващи дни и достъпен full date picker.
+- [x] Surface и indoor/outdoor filters само когато имат смисъл.
+- [x] Групирай available times по court row/card.
+- [x] Покажи time и price върху selectable slot.
+- [x] Различавай `available`, `selected`, `booked`, `held`, `closed` и `past`.
+- [x] Disabled slot да има разбираема причина, когато е полезно.
+- [x] Позволи избор на валидна продължителност чрез последователни slots.
+- [x] Предотврати non-contiguous selection или го коригирай автоматично.
+- [x] Sticky booking summary след избор.
 - [ ] Mobile summary като bottom sheet/bar; desktop summary като sticky side card.
-- [ ] Отделната court detail страница да отпадне от primary player flow.
+- [x] Отделната court detail страница да отпадне от primary player flow.
 
 ### Backend/data dependency
 
@@ -429,11 +429,17 @@ MatchPoint трябва да комбинира:
 
 ### Acceptance criteria
 
-- [ ] На mobile дата, court, свободен час и цена се разбират без horizontal spreadsheet.
-- [ ] Past slots не могат да се избират.
-- [ ] Смяната на дата изчиства невалидна selection.
-- [ ] Изборът на slot дава незабавна и достъпна обратна връзка.
-- [ ] Primary CTA остава видим, без да покрива последния content.
+- [x] На mobile дата, court, свободен час и цена се разбират без horizontal spreadsheet.
+- [x] Past slots не могат да се избират.
+- [x] Смяната на дата изчиства невалидна selection.
+- [x] Изборът на slot дава незабавна и достъпна обратна връзка.
+- [x] Primary CTA остава видим, без да покрива последния content.
+
+> **Имплементация с mock data.** `availabilityApi.club()` е единствената граница към
+> данните: в demo mode агрегира fixture-ите, а при backend връзка очаква една заявка към
+> `/api/clubs/:id/availability/?date=...`. UI не прави N заявки по кортове. Contract-ът
+> включва timezone, slot duration и explicit status. Реалните backend точки в §15 остават
+> немаркирани, докато serializer-ът и timezone договорът не бъдат потвърдени.
 
 ---
 
@@ -441,36 +447,36 @@ MatchPoint трябва да комбинира:
 
 ### Booking intent
 
-- [ ] Създай canonical `BookingIntent` model.
-- [ ] Съхранявай clubId, courtId, date, start, end/duration и quoted price.
-- [ ] Направи intent възстановим след login, refresh и accidental navigation.
-- [ ] Използвай URL + `sessionStorage` или друг ясно документиран strategy.
-- [ ] Валидирай intent отново преди confirm.
-- [ ] Дефинирай поведение при вече зает или променен slot.
+- [x] Създай canonical `BookingIntent` model.
+- [x] Съхранявай clubId, courtId, date, start, end/duration и quoted price.
+- [x] Направи intent възстановим след login, refresh и accidental navigation.
+- [x] Използвай URL + `sessionStorage` или друг ясно документиран strategy.
+- [x] Валидирай intent отново преди confirm.
+- [x] Дефинирай поведение при вече зает или променен slot.
 
 ### Booking review
 
-- [ ] Покажи club, address, court, surface, date, time, duration и price.
-- [ ] Покажи cancellation policy.
-- [ ] Покажи payment method: „Плащане на място“ или online payment.
-- [ ] Позволи edit на дата/час без загуба на контекст.
-- [ ] Използвай CTA „Продължи“, преди auth/checkout.
+- [x] Покажи club, address, court, surface, date, time, duration и price.
+- [x] Покажи cancellation policy.
+- [x] Покажи payment method: „Плащане на място“ или online payment.
+- [x] Позволи edit на дата/час без загуба на контекст.
+- [x] Използвай CTA „Продължи“, преди auth/checkout.
 
 ### Authentication
 
-- [ ] Запази login/register tabs.
-- [ ] Обясни защо се изисква account в booking контекст.
-- [ ] След success върни към същия booking intent, не само към pathname.
-- [ ] Запази Google auth behavior.
+- [x] Запази login/register tabs.
+- [x] Обясни защо се изисква account в booking контекст.
+- [x] След success върни към същия booking intent, не само към pathname.
+- [x] Запази Google auth behavior.
 - [ ] Проектирай error, expired session и duplicate-email states.
 - [ ] Не показвай auth като generic standalone marketing screen при booking detour.
 
 ### Acceptance criteria
 
-- [ ] Signed-out user може да избере slot, да се логне и да продължи без повторен избор.
-- [ ] Refresh на review page не създава резервация и не губи intent.
-- [ ] Back не води до неочакван duplicate submit.
-- [ ] Цената и правилата са видими преди commitment.
+- [x] Signed-out user може да избере slot, да се логне и да продължи без повторен избор.
+- [x] Refresh на review page не създава резервация и не губи intent.
+- [x] Back не води до неочакван duplicate submit.
+- [x] Цената и правилата са видими преди commitment.
 
 ---
 
@@ -479,8 +485,8 @@ MatchPoint трябва да комбинира:
 ### Business decision gate
 
 - [ ] Потвърди дали MVP е reservation-only или включва online payment.
-- [ ] Ако е reservation-only, използвай точен текст „Плащане на място“.
-- [ ] Не създавай визуален fake checkout без реален payment contract.
+- [x] Ако е reservation-only, използвай точен текст „Плащане на място“.
+- [x] Не създавай визуален fake checkout без реален payment contract.
 
 ### Temporary hold
 
@@ -492,10 +498,10 @@ MatchPoint трябва да комбинира:
 
 ### Confirmation action
 
-- [ ] Disable double submit.
-- [ ] Покажи clear pending state.
-- [ ] Обработи network timeout, conflict и server validation.
-- [ ] Не показвай success преди backend confirmation.
+- [x] Disable double submit.
+- [x] Покажи clear pending state.
+- [ ] Обработи network timeout, conflict и server validation. (Conflict/server validation са покрити; липсва explicit timeout policy.)
+- [x] Не показвай success преди backend confirmation.
 
 ### Online payment — само ако е в scope
 
@@ -506,21 +512,21 @@ MatchPoint трябва да комбинира:
 
 ### Booking confirmation page
 
-- [ ] Ясен success header.
-- [ ] Booking number и status.
-- [ ] Club, address, court, date, time, duration и price.
-- [ ] Payment status/method.
-- [ ] „Добави в календара“.
-- [ ] „Маршрут“.
-- [ ] „Моите резервации“.
+- [x] Ясен success header.
+- [x] Booking number и status.
+- [x] Club, address, court, date, time, duration и price.
+- [x] Payment status/method.
+- [x] „Добави в календара“.
+- [x] „Маршрут“.
+- [x] „Моите резервации“.
 - [ ] Cancellation policy и support contact.
 
 ### Acceptance criteria
 
-- [ ] Повторен tap/click не създава duplicate booking.
-- [ ] Confirmation URL може да бъде refresh-нат безопасно.
-- [ ] Booking result не разчита само на toast.
-- [ ] При conflict user получава път обратно към актуална availability.
+- [x] Повторен tap/click не създава duplicate booking.
+- [x] Confirmation URL може да бъде refresh-нат безопасно.
+- [x] Booking result не разчита само на toast.
+- [x] При conflict user получава път обратно към актуална availability.
 
 ---
 
@@ -539,11 +545,11 @@ MatchPoint трябва да комбинира:
 
 ### Account
 
-- [ ] Обедини profile actions в ясен Account overview.
-- [ ] Edit profile и change password.
-- [ ] Language, theme, notifications и install app в Settings.
-- [ ] Logout да бъде отделен destructive action с предвидимо поведение.
-- [ ] Developer/demo controls да не се появяват в production UX.
+- [x] Обедини profile actions в ясен Account overview.
+- [x] Edit profile и change password.
+- [x] Language, theme, notifications и install app в Settings.
+- [x] Logout да бъде отделен destructive action с предвидимо поведение.
+- [x] Developer/demo controls да не се появяват в production UX.
 
 ### Acceptance criteria
 
@@ -623,17 +629,17 @@ MatchPoint трябва да комбинира:
 
 ### Management
 
-- [ ] Club details editor.
-- [ ] Opening hours editor с end-after-start validation.
-- [ ] Court create/edit/delete.
-- [ ] Price editor без `NaN` submissions.
-- [ ] Block time form с timezone/date validation.
-- [ ] Employees/team view.
-- [ ] Ясни destructive confirmations.
+- [x] Club details editor.
+- [x] Opening hours editor с end-after-start validation.
+- [x] Court create/edit/delete.
+- [x] Price editor без `NaN` submissions.
+- [ ] Block time form с timezone/date validation. (Date/range validation е готова; timezone contract-ът остава backend зависимост.)
+- [x] Employees/team view.
+- [x] Ясни destructive confirmations.
 
 ### Acceptance criteria
 
-- [ ] Staff задачите не зависят от посещаване на публична club page.
+- [x] Staff задачите не зависят от посещаване на публична club page.
 - [ ] Schedule е използваем на телефон от рецепция/корт.
 - [ ] Permissions продължават да се enforce-ват от backend-а.
 
@@ -820,46 +826,46 @@ Analytics не трябва да включва чувствителни persona
 
 ### Milestone 1 — Foundations
 
-- [ ] Design tokens и shared primitives.
-- [ ] Player shell и navigation.
-- [ ] Accessibility foundations.
-- [ ] Component showcase.
+- [x] Design tokens и shared primitives.
+- [x] Player shell и navigation.
+- [x] Accessibility foundations.
+- [x] Component showcase.
 
 ### Milestone 2 — Discovery
 
-- [ ] Search landing.
-- [ ] URL search state.
-- [ ] Club results.
+- [x] Search landing.
+- [x] URL search state.
+- [x] Club results.
 - [ ] Results filters и states.
 
 ### Milestone 3 — Availability
 
-- [ ] New club details layout.
-- [ ] Court-grouped availability.
-- [ ] Slot selection.
+- [x] New club details layout.
+- [x] Court-grouped availability.
+- [x] Slot selection.
 - [ ] Responsive booking summary.
 
 ### Milestone 4 — Booking
 
-- [ ] Booking intent persistence.
-- [ ] Review.
-- [ ] Auth return flow.
+- [x] Booking intent persistence.
+- [x] Review.
+- [x] Auth return flow.
 - [ ] Hold/confirm.
-- [ ] Confirmation page.
+- [x] Confirmation page.
 
 ### Milestone 5 — Account
 
 - [ ] My bookings.
 - [ ] Booking details.
 - [ ] Cancel/reschedule.
-- [ ] Account/settings.
+- [x] Account/settings.
 
 ### Milestone 6 — Clubs
 
 - [ ] For Clubs landing.
 - [ ] Lead form/success.
-- [ ] Separate club workspace.
-- [ ] Migrate existing staff tools.
+- [x] Separate club workspace.
+- [x] Migrate existing staff tools.
 
 ### Milestone 7 — Hardening
 

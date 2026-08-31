@@ -1,0 +1,1 @@
+export { BookingIntentCard } from './BookingIntentCard';

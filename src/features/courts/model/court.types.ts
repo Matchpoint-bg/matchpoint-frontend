@@ -23,7 +23,11 @@ export interface Slot {
   start: string;
   end: string;
   available: boolean;
+  /** Preferred API contract. `available` remains while the backend migrates. */
+  status?: 'available' | 'booked' | 'held' | 'closed' | 'past';
   price: number;
+  currency?: 'BGN' | string;
+  unavailable_reason?: string;
   _booked?: boolean;
   _t?: string;
 }

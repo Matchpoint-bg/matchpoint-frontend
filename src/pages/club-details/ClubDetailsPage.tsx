@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import {
@@ -7,13 +8,15 @@ import {
   useClubOpeningHoursQuery,
   useClubQuery,
 } from '../../features/clubs';
-import { CourtCard } from '../../features/courts';
+import { bookingIntentStore, bookingIntentUrl, ClubAvailability } from '../../features/booking';
+import type { BookingIntent } from '../../features/booking';
 import { useI18n } from '../../i18n';
+import { fmt } from '../../shared/lib/format';
+import { Chip, ChipRow, SurfaceBadge } from '../../shared/ui';
 import { BackLink } from '../../shared/ui/BackLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorState } from '../../shared/ui/ErrorState';
 import { Icon } from '../../shared/ui/Icon';
-import { SectionHeader } from '../../shared/ui/SectionHeader';
 import { Spinner } from '../../shared/ui/Spinner';
 import styles from './ClubDetailsPage.module.css';
 
@@ -28,11 +31,30 @@ export function ClubDetailsPage() {
   const clubQuery = useClubQuery(clubId);
   const courtsQuery = useClubCourtsQuery(clubId);
   const hoursQuery = useClubOpeningHoursQuery(clubId);
-  const loading = clubQuery.isPending || courtsQuery.isPending;
-  const error = clubQuery.error ?? courtsQuery.error;
+  const loading = clubQuery.isPending;
+  const error = clubQuery.error;
+  const [date, setDate] = useState(() => {
+    const requested = searchParams.get('date');
+    const today = fmt.isoDate(new Date());
+    return requested && /^\d{4}-\d{2}-\d{2}$/.test(requested) && requested >= today
+      ? requested
+      : today;
+  });
 
   const reload = () => {
     void Promise.all([clubQuery.refetch(), courtsQuery.refetch(), hoursQuery.refetch()]);
+  };
+
+  const changeDate = (nextDate: string) => {
+    setDate(nextDate);
+    const next = new URLSearchParams(searchParams);
+    next.set('date', nextDate);
+    navigate({ search: next.toString() }, { replace: true });
+  };
+
+  const review = (intent: BookingIntent) => {
+    bookingIntentStore.save(intent);
+    navigate(bookingIntentUrl(intent));
   };
 
   return (
@@ -58,30 +80,47 @@ export function ClubDetailsPage() {
         <>
           <ClubHero club={clubQuery.data} />
 
-          {clubQuery.data.description && (
-            <p className={styles.description}>{clubQuery.data.description}</p>
-          )}
-
-          <SectionHeader
-            eyebrow={t('courts_eyebrow')}
-            title={t('courts_h2')}
-            sub={t('courts_sub')}
+          <ClubAvailability
+            club={clubQuery.data}
+            date={date}
+            onDateChange={changeDate}
+            onReview={review}
           />
 
-          <div className="grid grid--cards">
-            {(courtsQuery.data ?? []).length === 0 && (
-              <EmptyState title={t('no_courts_title')} desc={t('no_courts_desc')} icon="court" />
-            )}
-            {(courtsQuery.data ?? []).map((court) => (
-              <CourtCard
-                key={court.id}
-                court={court}
-                onClick={() => navigate(`/courts/${court.id}${search ? `?${search}` : ''}`)}
-              />
-            ))}
-          </div>
+          <section className={styles.details} aria-labelledby="club-details-title">
+            <div className={styles.about}>
+              <span className="eyebrow">{t('club_details')}</span>
+              <h2 id="club-details-title">{clubQuery.data.name}</h2>
+              {clubQuery.data.description && <p>{clubQuery.data.description}</p>}
 
-          <OpeningHoursCard hours={hoursQuery.data ?? []} />
+              {(courtsQuery.data ?? []).length > 0 && (
+                <ChipRow className={styles.facts}>
+                  {[...new Set((courtsQuery.data ?? []).map((court) => court.surface_type))].map((surface) => (
+                    <SurfaceBadge key={surface} surface={surface} />
+                  ))}
+                  {(courtsQuery.data ?? []).some((court) => court.is_indoor) && (
+                    <Chip icon="indoor" variant="indoor">{t('indoor')}</Chip>
+                  )}
+                  {(courtsQuery.data ?? []).some((court) => !court.is_indoor) && (
+                    <Chip icon="court" variant="ghost">{t('outdoor')}</Chip>
+                  )}
+                  {(courtsQuery.data ?? []).some((court) => court.is_lit) && (
+                    <Chip icon="bulb" variant="lit">{t('floodlit')}</Chip>
+                  )}
+                </ChipRow>
+              )}
+
+              {(clubQuery.data.facilities?.length ?? 0) > 0 && (
+                <div className={styles.facilities}>
+                  <h3>{t('club_facilities')}</h3>
+                  <ul>
+                    {clubQuery.data.facilities?.map((facility) => <li key={facility}>{facility}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <OpeningHoursCard hours={hoursQuery.data ?? []} />
+          </section>
         </>
       )}
     </AppShell>

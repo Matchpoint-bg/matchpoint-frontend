@@ -30,6 +30,15 @@ export const reservationsApi = {
       const reservations = demoReservations();
       const start = new Date(body.start_datetime);
       const end = new Date(body.end_datetime);
+      const conflicts = reservations.some(
+        (reservation) =>
+          reservation.court === Number(body.court) &&
+          new Date(reservation.start) < end &&
+          new Date(reservation.end) > start,
+      );
+      if (conflicts) {
+        throw new Error('This time was booked moments ago. Please choose another slot.');
+      }
       const slots: string[] = [];
       for (let time = new Date(start); time < end; time = new Date(time.getTime() + 30 * 60_000)) {
         slots.push(

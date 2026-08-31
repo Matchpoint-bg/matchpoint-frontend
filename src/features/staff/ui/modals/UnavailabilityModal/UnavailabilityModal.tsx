@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../../../../../i18n';
 import { fmt } from '../../../../../shared/lib/format';
 import { Icon } from '../../../../../shared/ui/Icon';
+import { useToast } from '../../../../../shared/ui/Toast';
 import { useAddUnavailabilityMutation } from '../../../../courts';
 import { useStaffAction } from '../../../model/useStaffAction';
 import styles from '../StaffModal.module.css';
@@ -15,11 +16,39 @@ export function UnavailabilityModal({ courtId, onDone }: UnavailabilityModalProp
   const { t } = useI18n();
   const mutation = useAddUnavailabilityMutation(courtId);
   const { run } = useStaffAction(onDone);
+  const { toast } = useToast();
   const today = fmt.isoDate(new Date());
   const [startDate, setStartDate] = useState(today);
   const [startTime, setStartTime] = useState('09:00');
   const [endDate, setEndDate] = useState(today);
   const [endTime, setEndTime] = useState('11:00');
+
+  const submit = () => {
+    const start = new Date(`${startDate}T${startTime}:00`);
+    const end = new Date(`${endDate}T${endTime}:00`);
+    if (
+      !startDate ||
+      !startTime ||
+      !endDate ||
+      !endTime ||
+      Number.isNaN(start.getTime()) ||
+      Number.isNaN(end.getTime()) ||
+      end <= start
+    ) {
+      toast(t('block_invalid_range'), 'err');
+      return;
+    }
+    void run(
+      () =>
+        mutation.mutateAsync({
+          // Local wall-clock values intentionally match the current backend
+          // contract. The API timezone decision remains tracked in §15.
+          start_datetime: `${startDate}T${startTime}:00`,
+          end_datetime: `${endDate}T${endTime}:00`,
+        }),
+      t('time_blocked'),
+    );
+  };
 
   return (
     <div>
@@ -30,6 +59,7 @@ export function UnavailabilityModal({ courtId, onDone }: UnavailabilityModalProp
             <label>{t('start_date')}</label>
             <input
               type="date"
+              min={today}
               value={startDate}
               onChange={(event) => setStartDate(event.target.value)}
             />
@@ -51,6 +81,7 @@ export function UnavailabilityModal({ courtId, onDone }: UnavailabilityModalProp
             <label>{t('end_date')}</label>
             <input
               type="date"
+              min={startDate}
               value={endDate}
               onChange={(event) => setEndDate(event.target.value)}
             />
@@ -69,16 +100,7 @@ export function UnavailabilityModal({ courtId, onDone }: UnavailabilityModalProp
       <button
         className="btn btn--primary btn--block"
         disabled={mutation.isPending}
-        onClick={() =>
-          void run(
-            () =>
-              mutation.mutateAsync({
-                start_datetime: `${startDate}T${startTime}:00`,
-                end_datetime: `${endDate}T${endTime}:00`,
-              }),
-            t('time_blocked'),
-          )
-        }
+        onClick={submit}
       >
         <Icon name="ban" />
         {t('block_this_time')}

@@ -3,6 +3,7 @@ import { API_WEEKDAYS, useI18n } from '../../../../../i18n';
 import { ErrorState } from '../../../../../shared/ui/ErrorState';
 import { Icon } from '../../../../../shared/ui/Icon';
 import { Spinner } from '../../../../../shared/ui/Spinner';
+import { useToast } from '../../../../../shared/ui/Toast';
 import { useCourtPricesQuery, useSetCourtPricesMutation } from '../../../../courts';
 import type { Price } from '../../../../courts';
 import { useStaffAction } from '../../../model/useStaffAction';
@@ -20,6 +21,7 @@ export function PricesModal({ courtId }: { courtId: number }) {
   const pricesQuery = useCourtPricesQuery(courtId);
   const savePrices = useSetCourtPricesMutation(courtId);
   const { run } = useStaffAction();
+  const { toast } = useToast();
   const [rows, setRows] = useState<Price[] | null>(null);
 
   if (pricesQuery.isPending) return <Spinner />;
@@ -40,7 +42,19 @@ export function PricesModal({ courtId }: { courtId: number }) {
       ),
     );
 
-  const submit = () =>
+  const submit = () => {
+    const invalid = current.some(
+      (price) =>
+        !Number.isFinite(price.price_per_30_minutes) ||
+        price.price_per_30_minutes <= 0 ||
+        !price.time_start ||
+        !price.time_end ||
+        price.time_end <= price.time_start,
+    );
+    if (invalid) {
+      toast(t('price_invalid'), 'err');
+      return;
+    }
     run(
       () =>
         savePrices.mutateAsync(
@@ -52,6 +66,7 @@ export function PricesModal({ courtId }: { courtId: number }) {
         ),
       t('prices_saved'),
     );
+  };
 
   return (
     <div>
@@ -98,6 +113,8 @@ export function PricesModal({ courtId }: { courtId: number }) {
             <input
               type="number"
               step={0.5}
+              min={0.5}
+              required
               value={price.price_per_30_minutes}
               onChange={(event) =>
                 update(index, { price_per_30_minutes: Number(event.target.value) })
@@ -123,7 +140,7 @@ export function PricesModal({ courtId }: { courtId: number }) {
       <button
         className={`btn btn--primary btn--block ${styles.save}`}
         disabled={savePrices.isPending}
-        onClick={() => void submit()}
+        onClick={submit}
       >
         <Icon name="check" />
         {t('save_prices')}
