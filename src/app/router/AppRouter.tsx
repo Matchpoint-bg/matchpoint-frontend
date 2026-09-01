@@ -1,6 +1,7 @@
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from '../../shared/ui/ErrorBoundary';
 import { AuthPage } from '../../pages/auth';
+import { BookingReviewPage } from '../../pages/booking-review';
 import {
   ClubBookingsPage,
   ClubCourtsPage,
@@ -36,6 +37,8 @@ export function AppRouter() {
           <Route path="/forgot-password" element={<RequireAnon><ForgotPasswordPage /></RequireAnon>} />
           <Route path="/reset-password/:uid/:token" element={<RequireAnon><ResetPasswordPage /></RequireAnon>} />
           <Route path="/players" element={<ClubsPage />} />
+          {/* Booking review (§10). Public: the intent survives the auth detour. */}
+          <Route path="/book" element={<BookingReviewPage />} />
           <Route path="/clubs" element={<LegacyClubsRedirect />} />
           <Route path="/clubs/:id" element={<ClubDetailsPage />} />
           {/* Out of the primary player flow since §9 — reschedule only, retires in Phase 4. */}

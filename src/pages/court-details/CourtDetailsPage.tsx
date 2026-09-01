@@ -125,7 +125,7 @@ export function CourtDetailsPage() {
               minutes={selection.minutes}
               total={selection.total}
               authenticated={authed}
-              rescheduling={rescheduling}
+              action={rescheduling ? 'reschedule' : 'book'}
               pending={pending}
               onClear={selection.clear}
               onSubmit={() =>

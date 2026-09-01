@@ -13,6 +13,8 @@ interface AuthValue {
   authed: boolean;
   user: User | null;
   isStaff: boolean;
+  /** Set when the API rejected our tokens mid-session, so login can say why. */
+  sessionExpired: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   updateProfile: (payload: UpdateUserPayload) => Promise<void>;
@@ -28,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authed, setAuthed] = useState(() => Boolean(store.access));
   const [user, setUser] = useState<User | null>(() => store.user);
   const [booting, setBooting] = useState(() => Boolean(store.access));
+  const [sessionExpired, setSessionExpired] = useState(false);
   const adoptedLang = useRef(false);
 
   const adoptServerLang = useCallback(
@@ -81,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.clear();
       setAuthed(false);
       setUser(null);
+      setSessionExpired(true);
     });
     return () => setSessionExpiredHandler(null);
   }, [queryClient]);
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       await authApi.login(email, password);
       queryClient.clear();
+      setSessionExpired(false);
       sync();
     },
     [queryClient, sync],
@@ -98,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (payload: RegisterPayload) => {
       await authApi.register(payload);
       queryClient.clear();
+      setSessionExpired(false);
       sync();
     },
     [queryClient, sync],
@@ -110,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     store.clearTokens();
     queryClient.clear();
+    setSessionExpired(false);
     sync();
   }, [queryClient, sync]);
 
@@ -119,8 +126,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const contextValue = useMemo<AuthValue>(
-    () => ({ booting, authed, user, isStaff, login, register, updateProfile, logout }),
-    [booting, authed, user, isStaff, login, register, updateProfile, logout],
+    () => ({
+      booting,
+      authed,
+      user,
+      isStaff,
+      sessionExpired,
+      login,
+      register,
+      updateProfile,
+      logout,
+    }),
+    [booting, authed, user, isStaff, sessionExpired, login, register, updateProfile, logout],
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

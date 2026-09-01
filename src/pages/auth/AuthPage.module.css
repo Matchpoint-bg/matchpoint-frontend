@@ -6,3 +6,15 @@
 .terms {
   text-align: center;
 }
+
+/* Failures stay on screen next to the form; the toast alone is easy to miss
+ * and gone by the time the field is corrected (§10). */
+.error {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 13.5px;
+}

@@ -441,36 +441,36 @@ MatchPoint трябва да комбинира:
 
 ### Booking intent
 
-- [ ] Създай canonical `BookingIntent` model.
-- [ ] Съхранявай clubId, courtId, date, start, end/duration и quoted price.
-- [ ] Направи intent възстановим след login, refresh и accidental navigation.
-- [ ] Използвай URL + `sessionStorage` или друг ясно документиран strategy.
-- [ ] Валидирай intent отново преди confirm.
-- [ ] Дефинирай поведение при вече зает или променен slot.
+- [x] Създай canonical `BookingIntent` model.
+- [x] Съхранявай clubId, courtId, date, start, end/duration и quoted price.
+- [x] Направи intent възстановим след login, refresh и accidental navigation.
+- [x] Използвай URL + `sessionStorage` или друг ясно документиран strategy.
+- [x] Валидирай intent отново преди confirm.
+- [x] Дефинирай поведение при вече зает или променен slot.
 
 ### Booking review
 
-- [ ] Покажи club, address, court, surface, date, time, duration и price.
-- [ ] Покажи cancellation policy.
-- [ ] Покажи payment method: „Плащане на място“ или online payment.
-- [ ] Позволи edit на дата/час без загуба на контекст.
-- [ ] Използвай CTA „Продължи“, преди auth/checkout.
+- [x] Покажи club, address, court, surface, date, time, duration и price.
+- [x] Покажи cancellation policy. _(platform default; club-specific остава backend dependency от §9)_
+- [x] Покажи payment method: „Плащане на място“ или online payment.
+- [x] Позволи edit на дата/час без загуба на контекст.
+- [x] Използвай CTA „Продължи“, преди auth/checkout.
 
 ### Authentication
 
-- [ ] Запази login/register tabs.
-- [ ] Обясни защо се изисква account в booking контекст.
-- [ ] След success върни към същия booking intent, не само към pathname.
-- [ ] Запази Google auth behavior.
-- [ ] Проектирай error, expired session и duplicate-email states.
-- [ ] Не показвай auth като generic standalone marketing screen при booking detour.
+- [x] Запази login/register tabs.
+- [x] Обясни защо се изисква account в booking контекст.
+- [x] След success върни към същия booking intent, не само към pathname.
+- [x] Запази Google auth behavior.
+- [x] Проектирай error, expired session и duplicate-email states.
+- [x] Не показвай auth като generic standalone marketing screen при booking detour.
 
 ### Acceptance criteria
 
-- [ ] Signed-out user може да избере slot, да се логне и да продължи без повторен избор.
-- [ ] Refresh на review page не създава резервация и не губи intent.
-- [ ] Back не води до неочакван duplicate submit.
-- [ ] Цената и правилата са видими преди commitment.
+- [x] Signed-out user може да избере slot, да се логне и да продължи без повторен избор.
+- [x] Refresh на review page не създава резервация и не губи intent.
+- [x] Back не води до неочакван duplicate submit.
+- [x] Цената и правилата са видими преди commitment.
 
 ---
 

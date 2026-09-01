@@ -1,0 +1,116 @@
+.card {
+  padding: 18px;
+}
+
+.clubName {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.address {
+  margin: 2px 0 12px;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.rows {
+  margin: 16px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.rows > div {
+  display: grid;
+  align-items: baseline;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+.rows dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.rows dd {
+  margin: 0;
+  font-size: 15px;
+}
+
+.rows dd small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+@media (min-width: 620px) {
+  .rows > div {
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+  }
+}
+
+.total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.total b {
+  font-family: var(--display);
+  font-size: 22px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  gap: 10px;
+}
+
+.note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/*
+ * A changed or lost slot is the one thing that must be read before the CTA, so
+ * it sits above the card. Blocking problems take the warning colour; a reprice
+ * is only a notice.
+ */
+.problem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.problem[data-blocking] {
+  border-color: var(--danger);
+}
+
+.problem b {
+  font-family: var(--display);
+  font-size: 15px;
+}
+
+.problem p {
+  margin: 2px 0 0;
+  color: var(--ink-2);
+  font-size: 13.5px;
+}
+
+.problem :last-child:not(p):not(b) {
+  margin-left: auto;
+}

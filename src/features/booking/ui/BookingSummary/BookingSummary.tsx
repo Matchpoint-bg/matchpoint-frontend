@@ -4,6 +4,12 @@ import { fmt } from '../../../../shared/lib/format';
 import { Button } from '../../../../shared/ui';
 import styles from './BookingSummary.module.css';
 
+/**
+ * What the CTA commits to: `continue` hands off to the review page, `book` and
+ * `reschedule` write to the API directly.
+ */
+export type BookingAction = 'continue' | 'book' | 'reschedule';
+
 interface BookingSummaryProps {
   courtName?: string;
   first: Slot;
@@ -11,7 +17,7 @@ interface BookingSummaryProps {
   minutes: number;
   total: number;
   authenticated: boolean;
-  rescheduling: boolean;
+  action: BookingAction;
   pending: boolean;
   onSubmit: () => void;
   onClear?: () => void;
@@ -35,7 +41,7 @@ export function BookingSummary({
   minutes,
   total,
   authenticated,
-  rescheduling,
+  action,
   pending,
   onSubmit,
   onClear,
@@ -62,17 +68,19 @@ export function BookingSummary({
           )}
           <Button
             variant="primary"
-            icon={authenticated ? 'check' : 'user'}
+            icon={action === 'continue' ? 'ticket' : authenticated ? 'check' : 'user'}
             disabled={pending}
             onClick={onSubmit}
           >
-            {!authenticated
-              ? t('sign_in')
-              : pending
-                ? t('booking')
-                : rescheduling
-                  ? t('confirm_reschedule')
-                  : t('book')}
+            {action === 'continue'
+              ? t('continue_cta')
+              : !authenticated
+                ? t('sign_in')
+                : pending
+                  ? t('booking')
+                  : action === 'reschedule'
+                    ? t('confirm_reschedule')
+                    : t('book')}
           </Button>
         </div>
       </div>

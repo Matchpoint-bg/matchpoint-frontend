@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import { useToast } from '../../../shared/ui/Toast';
+import { intentPath, recallIntent } from '../../booking/model/bookingIntent';
 import { useSettings } from '../../preferences/model/SettingsProvider';
 import { authApi } from '../api/auth.api';
 import { useAuth } from './AuthProvider';
@@ -11,6 +12,20 @@ export type AuthMode = 'login' | 'register';
 
 interface AuthLocationState {
   from?: { pathname?: string; search?: string; hash?: string };
+  /** Why the visitor was sent here — `booking` reframes the page (§10). */
+  reason?: 'booking' | 'expired';
+}
+
+/**
+ * Maps a server message onto something a person can act on. The API phrases a
+ * taken address differently per version, so we match on the shape rather than
+ * the exact sentence, and fall back to the raw message instead of swallowing it.
+ */
+function authErrorKey(message: string, mode: AuthMode): 'email_taken' | null {
+  const lower = message.toLowerCase();
+  if (mode !== 'register') return null;
+  const taken = lower.includes('exist') || lower.includes('already') || lower.includes('вече');
+  return lower.includes('email') || lower.includes('имейл') ? (taken ? 'email_taken' : null) : null;
 }
 
 export function useAuthFlow() {
@@ -22,20 +37,30 @@ export function useAuthFlow() {
   const location = useLocation();
   const [mode, setMode] = useState<AuthMode>('login');
   const [busy, setBusy] = useState(false);
-  const from = (location.state as AuthLocationState | null)?.from;
+  const [error, setError] = useState<string | null>(null);
+  const state = location.state as AuthLocationState | null;
+  const from = state?.from;
+  // A remembered intent only matters when the router state was lost — an
+  // external identity provider reloading the app is the case it covers.
+  const recalled = from?.pathname ? null : recallIntent();
   const destination = from?.pathname
     ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
-    : '/players';
+    : recalled
+      ? intentPath(recalled)
+      : '/players';
+  const bookingContext = from?.pathname === '/book' || state?.reason === 'booking' || Boolean(recalled);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
+    setError(null);
     const fields = Object.fromEntries(new FormData(event.currentTarget).entries()) as Record<
       string,
       string
     >;
 
     if (mode === 'register' && (fields.password ?? '') !== (fields.password_confirm ?? '')) {
+      setError(t('password_mismatch'));
       toast(t('password_mismatch'), 'err');
       setBusy(false);
       return;
@@ -55,8 +80,12 @@ export function useAuthFlow() {
       }
       toast(t('signed_in'), 'ok');
       navigate(destination, { replace: true });
-    } catch (error) {
-      toast(error instanceof Error ? error.message : t('signin_fail'), 'err');
+    } catch (caught) {
+      const raw = caught instanceof Error ? caught.message : t('signin_fail');
+      const key = authErrorKey(raw, mode);
+      const message = key ? t(key) : raw;
+      setError(message);
+      toast(message, 'err');
     } finally {
       setBusy(false);
     }
@@ -74,15 +103,21 @@ export function useAuthFlow() {
       toast(t('signed_in'), 'ok');
       navigate(destination, { replace: true });
     } catch {
+      setError(t('signin_fail'));
       toast(t('signin_fail'), 'err');
     }
   }
 
   return {
     mode,
-    setMode,
+    setMode: (next: AuthMode) => {
+      setError(null);
+      setMode(next);
+    },
     busy,
     demo,
+    error,
+    bookingContext,
     submit,
     continueWithGoogle,
   };

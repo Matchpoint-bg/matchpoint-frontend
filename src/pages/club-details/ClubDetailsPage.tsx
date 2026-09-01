@@ -17,7 +17,8 @@ import {
   BookingSummary,
   CourtAvailabilityCard,
   SelectionAnnouncer,
-  useBookSlots,
+  intentFromSelection,
+  intentPath,
   useClubAvailability,
   useSlotSelection,
 } from '../../features/booking';
@@ -91,7 +92,6 @@ export function ClubDetailsPage() {
   // Filters change which courts are on screen, so a selection made under the
   // old filter has to go with it — same reason a date change clears it.
   const selection = useSlotSelection(slotsByCourt, `${clubId}|${date}|${demo}|${surface}|${cover}`);
-  const { book, authed, pending } = useBookSlots();
 
   const loading = clubQuery.isPending || courtsQuery.isPending;
   const error = clubQuery.error ?? courtsQuery.error;
@@ -186,19 +186,24 @@ export function ClubDetailsPage() {
                   last={selection.last}
                   minutes={selection.minutes}
                   total={selection.total}
-                  authenticated={authed}
-                  rescheduling={false}
-                  pending={pending}
+                  authenticated
+                  action="continue"
+                  pending={false}
                   onClear={selection.clear}
                   onSubmit={() =>
-                    void book({
-                      courtId: selection.courtId as number,
-                      first: selection.first as NonNullable<typeof selection.first>,
-                      last: selection.last as NonNullable<typeof selection.last>,
-                      total: selection.total,
-                      date,
-                      onDone: selection.clear,
-                    })
+                    navigate(
+                      intentPath(
+                        intentFromSelection(
+                          clubId,
+                          selection.courtId as number,
+                          date,
+                          selection.first as NonNullable<typeof selection.first>,
+                          selection.last as NonNullable<typeof selection.last>,
+                          selection.minutes,
+                          selection.total,
+                        ),
+                      ),
+                    )
                   }
                 />
               </div>
