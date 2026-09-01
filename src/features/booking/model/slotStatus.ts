@@ -8,9 +8,11 @@ import type { TranslationKey } from '../../../i18n/en';
  * sending `status` we honour it and the rest of this becomes the fallback.
  */
 export function slotStatus(slot: Slot, now: Date): SlotStatus {
-  if (slot.status) return slot.status;
-  // A slot the clock has passed is unbookable whatever the server said.
+  // A slot the clock has passed is unbookable whatever the server said — this
+  // outranks an explicit `status`, which was computed when the response was
+  // built and goes stale while the page is open.
   if (new Date(slot.end).getTime() <= now.getTime()) return 'past';
+  if (slot.status) return slot.status;
   const booked = slot._booked !== undefined ? slot._booked : !slot.available;
   if (booked) return 'booked';
   return slot.available ? 'available' : 'closed';

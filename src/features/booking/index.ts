@@ -10,4 +10,5 @@ export { AvailabilityLegend } from './ui/AvailabilityLegend';
 export { BookingSummary } from './ui/BookingSummary';
 export { CourtAvailabilityCard } from './ui/CourtAvailabilityCard';
 export { RescheduleNotice } from './ui/RescheduleNotice';
+export { SelectionAnnouncer } from './ui/SelectionAnnouncer';
 export { SlotGrid } from './ui/SlotGrid';

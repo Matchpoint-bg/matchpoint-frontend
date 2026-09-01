@@ -76,10 +76,6 @@ export function BookingSummary({
           </Button>
         </div>
       </div>
-      {/* Announced on change so the selection is not feedback by colour alone. */}
-      <p className="sr-only" role="status" aria-live="polite">
-        {range} · {fmt.money(total)}
-      </p>
     </aside>
   );
 }

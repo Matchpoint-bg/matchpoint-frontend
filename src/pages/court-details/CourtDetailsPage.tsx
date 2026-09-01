@@ -6,6 +6,7 @@ import {
   AvailabilityLegend,
   BookingSummary,
   RescheduleNotice,
+  SelectionAnnouncer,
   SlotGrid,
   useBookSlots,
   useSlotSelection,
@@ -107,6 +108,13 @@ export function CourtDetailsPage() {
             error={availabilityQuery.error?.message ?? null}
             onToggle={(index) => selection.toggle(courtId, index)}
             onRetry={() => void availabilityQuery.refetch()}
+          />
+
+          <SelectionAnnouncer
+            first={selection.first}
+            last={selection.last}
+            total={selection.total}
+            courtName={court.name}
           />
 
           {selection.first && selection.last && (

@@ -16,6 +16,7 @@ import {
   AvailabilityLegend,
   BookingSummary,
   CourtAvailabilityCard,
+  SelectionAnnouncer,
   useBookSlots,
   useClubAvailability,
   useSlotSelection,
@@ -143,6 +144,13 @@ export function ClubDetailsPage() {
           />
 
           <AvailabilityLegend />
+
+          <SelectionAnnouncer
+            first={selection.first}
+            last={selection.last}
+            total={selection.total}
+            courtName={selectedCourt?.name}
+          />
 
           <div className={styles.availability} data-has-selection={selection.first ? 'true' : undefined}>
             <div className={styles.courts}>
