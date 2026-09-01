@@ -16,6 +16,11 @@ export interface Club {
   website?: string;
   phone?: string;
   email?: string;
+  /** Ordered gallery; the first entry is the lead photo. Absent on the live API today. */
+  images?: string[];
+  /** Used for directions when present; otherwise the name and address are geocoded by Maps. */
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface OpeningHour {

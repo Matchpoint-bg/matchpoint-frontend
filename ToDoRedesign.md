@@ -397,9 +397,9 @@ MatchPoint трябва да комбинира:
 ### Club profile
 
 - [x] Compact club identity: име, квартал/адрес, trust facts.
-- [ ] Gallery с оптимизирани изображения и fallback. _(blocked: `Club` няма image полета)_
+- [x] Gallery с оптимизирани изображения и fallback. _(`Club.images` е optional; при липса се показва court placeholder)_
 - [x] Facilities, surfaces, indoor/outdoor и осветление.
-- [ ] Map/directions action. _(blocked: `Club` няма lat/lng)_
+- [x] Map/directions action. _(lat/lng, когато ги има; иначе name + address към Maps)_
 - [x] Phone и website actions.
 - [x] Opening hours и description под основния booking module.
 - [x] Дефинирай sticky anchor/CTA поведение при дълга страница.

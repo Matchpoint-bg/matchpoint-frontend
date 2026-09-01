@@ -1,5 +1,6 @@
 import { useI18n } from '../../../../i18n';
 import { Icon, SurfaceBadge } from '../../../../shared/ui';
+import { ClubVisual } from '../../../clubs';
 import type { Club, ClubCourtSummary } from '../../../clubs';
 import styles from './ClubResultCard.module.css';
 
@@ -13,20 +14,10 @@ interface ClubResultCardProps {
 export function ClubResultCard({ club, courts, index, onView }: ClubResultCardProps) {
   const { t } = useI18n();
   const location = club.address || club.city || t('sofia');
-  const shortIndex = String(index + 1).padStart(2, '0');
 
   return (
     <article className={styles.card}>
-      <div className={styles.visual} aria-hidden="true">
-        <span className={styles.number}>{shortIndex}</span>
-        <span className={styles.city}>{club.city || t('sofia')}</span>
-        <div className={styles.courtLines}>
-          <span />
-          <span />
-          <span />
-        </div>
-        <Icon name="ball" className={styles.ball} />
-      </div>
+      <ClubVisual index={index} city={club.city} className={styles.visual} />
 
       <div className={styles.body}>
         <div className={styles.heading}>

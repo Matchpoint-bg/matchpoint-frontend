@@ -3,6 +3,9 @@ import type { Club, Employee, Weekday } from '../features/clubs/model/club.types
 import type { Court, Slot } from '../features/courts/model/court.types';
 import type { DemoReservation } from '../features/reservations/model/reservation.types';
 
+/** Demo photos ship with the app, so demo mode keeps working offline. */
+const photo = (name: string) => `${import.meta.env.BASE_URL}demo/${name}.svg`;
+
 export const DEMO: {
   clubs: Club[];
   courts: Court[];
@@ -19,6 +22,9 @@ export const DEMO: {
       website: 'https://example.com',
       phone: '+35929001122',
       email: 'hello@lozenets.tennis',
+      images: [photo('club-1a'), photo('club-1b'), photo('club-1c')],
+      latitude: 42.6624,
+      longitude: 23.3211,
     },
     {
       id: 2,
@@ -29,6 +35,7 @@ export const DEMO: {
       website: 'https://example.com',
       phone: '+35929887766',
       email: 'book@serdika.park',
+      images: [photo('club-2a')],
     },
     {
       id: 3,

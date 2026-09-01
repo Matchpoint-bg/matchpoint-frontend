@@ -1,6 +1,7 @@
 import { useI18n } from '../../../../i18n';
 import { Icon, LinkButton, Seam } from '../../../../shared/ui';
 import type { Club } from '../../model/club.types';
+import { mapsDirectionsUrl } from '../../model/clubLinks';
 import type { ClubCourtSummary } from '../../model/useClubFilters';
 import styles from './ClubHero.module.css';
 
@@ -9,12 +10,13 @@ import styles from './ClubHero.module.css';
  * trust, and the two actions worth taking off-site. Everything else — hours,
  * description — sits below the booking module, not above it.
  *
- * Gallery and map/directions are deliberately absent: the API exposes neither
- * images nor coordinates yet.
+ * The gallery sits below this block; directions live here, next to the other
+ * off-site actions.
  */
 export function ClubHero({ club, summary }: { club: Club; summary?: ClubCourtSummary }) {
   const { t } = useI18n();
   const place = club.address || club.city || t('sofia');
+  const directions = mapsDirectionsUrl(club);
   const facts = [
     summary && summary.count > 0
       ? summary.count === 1
@@ -43,8 +45,20 @@ export function ClubHero({ club, summary }: { club: Club; summary?: ClubCourtSum
           </span>
         ))}
       </div>
-      {(club.phone || club.website) && (
+      {(club.phone || club.website || directions) && (
         <div className={styles.actions}>
+          {directions && (
+            <LinkButton
+              variant="soft"
+              size="sm"
+              icon="pin"
+              href={directions}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('directions')}
+            </LinkButton>
+          )}
           {club.phone && (
             <LinkButton variant="soft" size="sm" icon="phone" href={`tel:${club.phone}`}>
               {t('call_club')}

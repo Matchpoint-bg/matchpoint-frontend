@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import {
   ClubFacilities,
+  ClubGallery,
   ClubHero,
   OpeningHoursCard,
   summariseCourts,
@@ -122,6 +123,8 @@ export function ClubDetailsPage() {
       {!loading && !error && clubQuery.data && (
         <>
           <ClubHero club={clubQuery.data} summary={summary} />
+
+          <ClubGallery club={clubQuery.data} />
 
           <ClubFacilities summary={summary} courts={courts} />
 
