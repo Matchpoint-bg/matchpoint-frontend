@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import { useToast } from '../../../shared/ui/Toast';
+import { DEMO_BUILD } from '../../../shared/storage/store';
 import { useSettings } from '../../preferences/model/SettingsProvider';
 import { authApi } from '../api/auth.api';
 import { useAuth } from './AuthProvider';
@@ -16,7 +17,7 @@ interface AuthLocationState {
 export function useAuthFlow() {
   const { t } = useI18n();
   const { login, register } = useAuth();
-  const { demo } = useSettings();
+  const { demo, setDemo } = useSettings();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,11 +64,14 @@ export function useAuthFlow() {
   }
 
   async function continueWithGoogle() {
-    if (!demo) {
+    if (!demo && !DEMO_BUILD) {
       window.location.href = authApi.googleUrl();
       return;
     }
 
+    // A demo-capable build must never fall through to an unfinished OAuth
+    // endpoint because a stale developer preference disabled demo at runtime.
+    if (!demo) setDemo(true);
     toast(t('google_demo_note'));
     try {
       await login('google@demo.bg', 'x');

@@ -7,6 +7,7 @@ export const LS = {
   user: 'mp_user',
   demo: 'mp_demo',
   staff: 'mp_staff',
+  admin: 'mp_admin',
   demoRes: 'mp_demo_res',
   dismissInstall: 'mp_no_install',
   theme: 'mp_theme',
@@ -89,6 +90,13 @@ export const store = {
   },
   set staff(value: boolean) {
     localStorage.setItem(LS.staff, value ? '1' : '0');
+  },
+
+  get admin(): boolean {
+    return localStorage.getItem(LS.admin) === '1';
+  },
+  set admin(value: boolean) {
+    localStorage.setItem(LS.admin, value ? '1' : '0');
   },
 
   get theme(): Theme {

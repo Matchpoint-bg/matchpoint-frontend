@@ -13,6 +13,7 @@ interface AuthValue {
   authed: boolean;
   user: User | null;
   isStaff: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   updateProfile: (payload: UpdateUserPayload) => Promise<void>;
@@ -23,7 +24,7 @@ const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const { demo, staff } = useSettings();
+  const { demo, staff, admin } = useSettings();
   const { setLang } = useI18n();
   const [authed, setAuthed] = useState(() => Boolean(store.access));
   const [user, setUser] = useState<User | null>(() => store.user);
@@ -120,10 +121,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => Boolean(user?.is_staff || user?.is_superuser) || (TOOLS_ENABLED && staff),
     [user, staff],
   );
+  const isAdmin = useMemo(
+    () => Boolean(user?.is_admin || user?.is_superuser) || (TOOLS_ENABLED && admin),
+    [user, admin],
+  );
 
   const contextValue = useMemo<AuthValue>(
-    () => ({ booting, authed, user, isStaff, login, register, updateProfile, logout }),
-    [booting, authed, user, isStaff, login, register, updateProfile, logout],
+    () => ({ booting, authed, user, isStaff, isAdmin, login, register, updateProfile, logout }),
+    [booting, authed, user, isStaff, isAdmin, login, register, updateProfile, logout],
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

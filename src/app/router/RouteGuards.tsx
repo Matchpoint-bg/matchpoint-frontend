@@ -22,6 +22,14 @@ export function RequireStaff({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+export function RequireAdmin({ children }: { children: ReactNode }) {
+  const { authed, isAdmin } = useAuth();
+  const location = useLocation();
+  if (!authed) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!isAdmin) return <Navigate to="/players" replace />;
+  return <>{children}</>;
+}
+
 export function RequireAnon({ children }: { children: ReactNode }) {
   const { authed } = useAuth();
   if (authed) return <Navigate to="/players" replace />;

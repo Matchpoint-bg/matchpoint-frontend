@@ -10,7 +10,7 @@ import styles from './DeveloperSettings.module.css';
 
 export function DeveloperSettings() {
   const { t } = useI18n();
-  const { demo, setDemo, staff, setStaff, apiUrl, setApiUrl } = useSettings();
+  const { demo, setDemo, staff, setStaff, admin, setAdmin, apiUrl, setApiUrl } = useSettings();
   const { toast } = useToast();
   const [urlDraft, setUrlDraft] = useState(apiUrl);
   // Dev server or a demo build; never a real production bundle.
@@ -58,6 +58,15 @@ export function DeveloperSettings() {
           onChange={(value) => {
             setStaff(value);
             toast(value ? t('staff_on') : t('staff_off'));
+          }}
+        />
+        <ToggleRow
+          title={t('admin_view')}
+          desc={t('admin_view_desc')}
+          checked={admin}
+          onChange={(value) => {
+            setAdmin(value);
+            toast(value ? t('admin_on') : t('admin_off'));
           }}
         />
       </div>

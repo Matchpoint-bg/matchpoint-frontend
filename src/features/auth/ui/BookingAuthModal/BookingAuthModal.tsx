@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useI18n } from '../../../../i18n';
 import { useToast } from '../../../../shared/ui';
+import { DEMO_BUILD } from '../../../../shared/storage/store';
 import { useSettings } from '../../../preferences';
 import { authApi } from '../../api/auth.api';
 import { useAuth } from '../../model/AuthProvider';
@@ -20,7 +21,7 @@ interface AuthModalProps {
 export function AuthModal({ onSuccess, description }: AuthModalProps) {
   const { t } = useI18n();
   const { login, register } = useAuth();
-  const { demo } = useSettings();
+  const { demo, setDemo } = useSettings();
   const { toast } = useToast();
   const [mode, setMode] = useState<AuthMode>('login');
   const [busy, setBusy] = useState(false);
@@ -54,12 +55,13 @@ export function AuthModal({ onSuccess, description }: AuthModalProps) {
   };
 
   const continueWithGoogle = async () => {
-    if (!demo) {
+    if (!demo && !DEMO_BUILD) {
       // BookingIntent already lives in sessionStorage, so it survives the
       // external OAuth round trip once the backend callback is connected.
       window.location.href = authApi.googleUrl();
       return;
     }
+    if (!demo) setDemo(true);
     setBusy(true);
     try {
       await login('google@demo.bg', 'x');

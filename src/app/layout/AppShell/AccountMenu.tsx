@@ -35,7 +35,7 @@ interface AccountMenuProps {
 export function AccountMenu({ active, context = 'player' }: AccountMenuProps) {
   const { t, lang, setLang } = useI18n();
   const { theme, setTheme } = useTheme();
-  const { user, logout, isStaff } = useAuth();
+  const { user, logout, isStaff, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -89,6 +89,15 @@ export function AccountMenu({ active, context = 'player' }: AccountMenuProps) {
               {t('club_workspace')}
             </MenuItem>
           )}
+        </>
+      )}
+
+      {isAdmin && (
+        <>
+          <MenuSeparator />
+          <MenuItem to="/admin/clubs" icon="gear">
+            {t('admin_workspace')}
+          </MenuItem>
         </>
       )}
 

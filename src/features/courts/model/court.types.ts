@@ -10,6 +10,7 @@ export interface Court {
   surface_type: Surface | string;
   is_indoor: boolean;
   is_lit: boolean;
+  is_active?: boolean;
 }
 
 export interface Price {

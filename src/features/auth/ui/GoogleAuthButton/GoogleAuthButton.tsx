@@ -14,7 +14,7 @@ function GoogleMark() {
 export function GoogleAuthButton({ onClick }: { onClick: () => void }) {
   const { t } = useI18n();
   return (
-    <button className="btn btn--google" onClick={onClick}>
+    <button type="button" className="btn btn--google" onClick={onClick}>
       <GoogleMark />
       {t('continue_google')}
     </button>

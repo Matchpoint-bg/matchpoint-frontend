@@ -23,7 +23,8 @@ import { ReservationsPage } from '../../pages/reservations';
 import { ResetPasswordPage } from '../../pages/reset-password';
 import { SettingsPage } from '../../pages/settings';
 import { ShowcasePage } from '../../pages/showcase';
-import { RequireAnon, RequireAuth, RequireStaff } from './RouteGuards';
+import { AdminClubCreatePage, AdminClubSetupPage, AdminClubsPage } from '../../pages/admin-clubs';
+import { RequireAdmin, RequireAnon, RequireAuth, RequireStaff } from './RouteGuards';
 
 function LegacyClubsRedirect() {
   const { search } = useLocation();
@@ -57,6 +58,9 @@ export function AppRouter() {
           <Route path="/club/courts" element={<RequireStaff><ClubCourtsPage /></RequireStaff>} />
           <Route path="/club/team" element={<RequireStaff><ClubTeamPage /></RequireStaff>} />
           <Route path="/club/settings" element={<RequireStaff><ClubSettingsPage /></RequireStaff>} />
+          <Route path="/admin/clubs" element={<RequireAdmin><AdminClubsPage /></RequireAdmin>} />
+          <Route path="/admin/clubs/new" element={<RequireAdmin><AdminClubCreatePage /></RequireAdmin>} />
+          <Route path="/admin/clubs/:id" element={<RequireAdmin><AdminClubSetupPage /></RequireAdmin>} />
           {/* Dev-only design-system gallery; not registered in production builds. */}
           {import.meta.env.DEV && <Route path="/showcase" element={<ShowcasePage />} />}
           <Route path="/" element={<Navigate to="/players" replace />} />

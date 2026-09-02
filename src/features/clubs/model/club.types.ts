@@ -25,6 +25,7 @@ export interface Club {
   latitude?: number;
   longitude?: number;
   starting_price?: number;
+  status?: 'Draft' | 'Active' | 'Inactive';
 }
 
 export interface OpeningHour {

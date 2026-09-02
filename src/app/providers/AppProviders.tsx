@@ -7,6 +7,7 @@ import { ErrorBoundary } from '../../shared/ui/ErrorBoundary';
 import { ModalProvider } from '../../shared/ui/Modal';
 import { ToastProvider } from '../../shared/ui/Toast';
 import { QueryProvider } from './QueryProvider';
+import { AdminDataProvider } from '../../features/admin';
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
@@ -16,9 +17,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <QueryProvider>
             <SettingsProvider>
               <AuthProvider>
-                <ToastProvider>
-                  <ModalProvider>{children}</ModalProvider>
-                </ToastProvider>
+                <AdminDataProvider>
+                  <ToastProvider>
+                    <ModalProvider>{children}</ModalProvider>
+                  </ToastProvider>
+                </AdminDataProvider>
               </AuthProvider>
             </SettingsProvider>
           </QueryProvider>

@@ -8,6 +8,8 @@ interface SettingsValue {
   setDemo: (value: boolean) => void;
   staff: boolean;
   setStaff: (value: boolean) => void;
+  admin: boolean;
+  setAdmin: (value: boolean) => void;
   apiUrl: string;
   setApiUrl: (value: string) => void;
 }
@@ -18,6 +20,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [demo, setDemoState] = useState<boolean>(() => store.demo);
   const [staff, setStaffState] = useState<boolean>(() => store.staff);
+  const [admin, setAdminState] = useState<boolean>(() => store.admin);
   const [apiUrl, setApiUrlState] = useState<string>(() => store.api);
 
   const setDemo = useCallback(
@@ -34,6 +37,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setStaffState(value);
   }, []);
 
+  const setAdmin = useCallback((value: boolean) => {
+    store.admin = value;
+    setAdminState(value);
+  }, []);
+
   const setApiUrl = useCallback(
     (value: string) => {
       store.api = value;
@@ -44,8 +52,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   );
 
   const contextValue = useMemo<SettingsValue>(
-    () => ({ demo, setDemo, staff, setStaff, apiUrl, setApiUrl }),
-    [demo, setDemo, staff, setStaff, apiUrl, setApiUrl],
+    () => ({ demo, setDemo, staff, setStaff, admin, setAdmin, apiUrl, setApiUrl }),
+    [demo, setDemo, staff, setStaff, admin, setAdmin, apiUrl, setApiUrl],
   );
 
   return <SettingsContext.Provider value={contextValue}>{children}</SettingsContext.Provider>;
