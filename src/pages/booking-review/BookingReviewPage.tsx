@@ -3,13 +3,12 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import { useAuth } from '../../features/auth';
 import {
-  forgetIntent,
   intentFromParams,
   rememberIntent,
-  useBookSlots,
+  useConfirmBooking,
   validateIntent,
 } from '../../features/booking';
-import type { IntentProblem } from '../../features/booking';
+import type { ConfirmFailure, IntentProblem } from '../../features/booking';
 import { useClubQuery } from '../../features/clubs';
 import { useAvailabilityQuery, useCourtQuery } from '../../features/courts';
 import { useI18n } from '../../i18n';
@@ -43,6 +42,20 @@ const PROBLEM_DESC: Record<IntentProblem, TranslationKey> = {
   repriced: 'intent_repriced_desc',
 };
 
+const FAILURE_TITLE: Record<ConfirmFailure, TranslationKey> = {
+  conflict: 'confirm_conflict_title',
+  auth: 'confirm_auth_title',
+  invalid: 'confirm_invalid_title',
+  network: 'confirm_network_title',
+};
+
+const FAILURE_DESC: Record<ConfirmFailure, TranslationKey> = {
+  conflict: 'confirm_conflict_desc',
+  auth: 'confirm_auth_desc',
+  invalid: 'confirm_invalid_desc',
+  network: 'confirm_network_desc',
+};
+
 /**
  * The step between picking slots and owning them (ToDoRedesign §10).
  *
@@ -65,7 +78,7 @@ export function BookingReviewPage() {
   const clubQuery = useClubQuery(intent?.clubId ?? Number.NaN);
   const courtQuery = useCourtQuery(intent?.courtId ?? Number.NaN);
   const availabilityQuery = useAvailabilityQuery(intent?.courtId ?? Number.NaN, intent?.date ?? '');
-  const { book, pending } = useBookSlots();
+  const { confirm, pending, failure, message } = useConfirmBooking();
 
   // Re-validated on every render against whatever availability last returned,
   // so a slot taken while the player was reading is caught before the CTA.
@@ -93,26 +106,40 @@ export function BookingReviewPage() {
   const problem = check?.problem ?? null;
   const price = check?.price ?? intent.price;
 
-  const onContinue = () => {
+  const goSignIn = () => {
+    // The URL already carries the intent; the copy is only for an external
+    // identity provider that reloads the app out from under us.
+    rememberIntent(intent);
+    navigate('/login', { state: { from: location, reason: 'booking' } });
+  };
+
+  const onConfirm = async () => {
     if (!authed) {
-      // The URL already carries the intent; the copy is only for an external
-      // identity provider that reloads the app out from under us.
-      rememberIntent(intent);
-      navigate('/login', { state: { from: location, reason: 'booking' } });
+      goSignIn();
       return;
     }
     const first = check?.run[0];
     const last = check?.run[check.run.length - 1];
     if (!first || !last) return;
-    void book({
+
+    const result = await confirm({
       courtId: intent.courtId,
-      first,
-      last,
-      total: price,
+      clubId: intent.clubId,
       date: intent.date,
-      onDone: forgetIntent,
+      start: first.start,
+      end: last.end,
+      minutes: intent.minutes,
+      price,
     });
+
+    // The server knows something the grid doesn't. Re-read the day so the page
+    // stops offering a slot that is gone (§11: a path back to real availability).
+    if (!result.ok && result.failure === 'conflict') void availabilityQuery.refetch();
   };
+
+  // A conflict outranks whatever the last availability response said: the
+  // server has already refused this exact run once.
+  const blocked = !check?.bookable || failure === 'conflict';
 
   return (
     <AppShell active="clubs">
@@ -134,6 +161,34 @@ export function BookingReviewPage() {
               {!check?.bookable && (
                 <Button variant="primary" onClick={() => navigate(clubPath)}>
                   {t('pick_another_time')}
+                </Button>
+              )}
+            </Card>
+          )}
+
+          {failure && (
+            // A failed confirm is the answer to a button press, so it is
+            // announced rather than left for a screen reader to discover.
+            <Card className={styles.problem} data-blocking="true" role="alert">
+              <Icon name="info" />
+              <div>
+                <b>{t(FAILURE_TITLE[failure])}</b>
+                {/* Only the server knows why it rejected a valid-looking request. */}
+                <p>{failure === 'invalid' && message ? message : t(FAILURE_DESC[failure])}</p>
+              </div>
+              {failure === 'conflict' && (
+                <Button variant="primary" onClick={() => navigate(clubPath)}>
+                  {t('pick_another_time')}
+                </Button>
+              )}
+              {failure === 'network' && (
+                <Button variant="primary" icon="check" onClick={() => void onConfirm()}>
+                  {t('retry')}
+                </Button>
+              )}
+              {failure === 'auth' && (
+                <Button variant="primary" icon="user" onClick={goSignIn}>
+                  {t('sign_in')}
                 </Button>
               )}
             </Card>
@@ -190,10 +245,11 @@ export function BookingReviewPage() {
               <Button
                 variant="primary"
                 icon={authed ? 'check' : 'user'}
-                disabled={pending || !check?.bookable}
-                onClick={onContinue}
+                loading={pending}
+                disabled={blocked}
+                onClick={() => void onConfirm()}
               >
-                {pending ? t('booking') : authed ? t('book') : t('continue_cta')}
+                {pending ? t('confirming') : authed ? t('confirm_booking') : t('continue_cta')}
               </Button>
             </div>
 

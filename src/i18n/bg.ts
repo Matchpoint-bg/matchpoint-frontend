@@ -83,6 +83,7 @@ export const bg: Record<TranslationKey, string> = {
   upcoming: "Предстоящи",
   past: "Изиграни",
   played: "Изиграна",
+  status_confirmed: "Потвърдена",
   status_pending: "Изчаква",
   status_cancelled: "Отказана",
   status_no_show: "Неявяване",
@@ -422,6 +423,29 @@ export const bg: Record<TranslationKey, string> = {
   email_taken: "Вече има профил с този имейл — влез вместо това.",
   session_expired_title: "Излязохте от профила",
   session_expired_sub: "Сесията изтече. Влез отново, за да продължиш оттам, докъдето стигна.",
+
+  // Потвърждение и резултат (§11)
+  confirm_booking: "Потвърди резервацията",
+  confirming: "Потвърждаване…",
+  confirm_conflict_title: "Часът току-що беше зает",
+  confirm_conflict_desc: "Клубът не можа да запази този слот. Нищо не е резервирано и нищо не е таксувано — избери друг час.",
+  confirm_auth_title: "Сесията изтече",
+  confirm_auth_desc: "Влез отново, за да завършиш. Изборът ти се запазва.",
+  confirm_invalid_title: "Клубът отказа резервацията",
+  confirm_invalid_desc: "Заявката не мина. Опитай друг час или се свържи с клуба.",
+  confirm_network_title: "Няма връзка с клуба",
+  confirm_network_desc: "Резервацията не беше изпратена. Провери връзката и опитай пак — това не създава дублирана резервация.",
+  confirmation_eyebrow: "Резервация",
+  confirmation_title: "Кортът е резервиран",
+  confirmation_sub: "Покажи номера по-долу в клуба. Ако клубът изпраща имейл, ще го получиш.",
+  confirmation_past_sub: "Тази резервация вече е изиграна.",
+  booking_reference: "Номер на резервацията",
+  payment_due_at_club: "Дължимо на място, преди играта.",
+  add_to_calendar: "Добави в календара",
+  confirmation_help_title: "Нужна е промяна?",
+  confirmation_help_desc: "Откажи от „Резервации“ или се свържи директно с клуба.",
+  booking_missing_title: "Резервацията не е намерена",
+  booking_missing_desc: "Тази резервация я няма в профила ти. Може да е отказана или да е на друг профил.",
 };
 
 /**

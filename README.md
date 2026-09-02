@@ -152,7 +152,9 @@ Routing is **hash-based** (`#/clubs`) because the PWA manifest shortcuts point a
 | `#/reset-password/:uid/:token` | `pages/reset-password/ResetPasswordPage.tsx` | signed out |
 | `#/clubs` | `pages/clubs/ClubsPage.tsx` | public |
 | `#/clubs/:id` | `pages/club-details/ClubDetailsPage.tsx` | public |
-| `#/courts/:id` | `pages/court-details/CourtDetailsPage.tsx` | public; booking requires sign-in |
+| `#/courts/:id` | `pages/court-details/CourtDetailsPage.tsx` | public; reschedule only |
+| `#/book?club=…&court=…&start=…` | `pages/booking-review/BookingReviewPage.tsx` | public; confirming requires sign-in |
+| `#/booking/confirmation/:id` | `pages/booking-confirmation/BookingConfirmationPage.tsx` | signed in |
 | `#/reservations` | `pages/reservations/ReservationsPage.tsx` | signed in |
 | `#/profile` | `pages/profile/ProfilePage.tsx` | signed in |
 | `#/settings` | `pages/settings/SettingsPage.tsx` | signed in |
@@ -212,7 +214,7 @@ TanStack Query owns server-state caching and invalidation.
 | `PATCH /api/courts/{id}/` | **Edit court** modal (staff) |
 | `DELETE /api/courts/{id}/` | **Delete** court (staff) |
 | `GET /api/reservations/` | **Reservations** tab (own; all if staff) |
-| `POST /api/reservations/` | **Book** button after selecting slots |
+| `POST /api/reservations/` | **Confirm booking** on the review page |
 | `DELETE /api/reservations/{id}/` | **Cancel** on an upcoming booking |
 | `PATCH /api/reservations/{id}/` | **Reschedule** on an upcoming booking |
 
@@ -223,11 +225,21 @@ this only decides what gets rendered.
 
 ## Booking flow
 
-Court page → pick a day (14-day strip) → the grid loads live 30-minute slots
-(`availabilities?date=`). Tap consecutive open slots; the sticky summary totals the price
-and **Book** sends one reservation spanning the selection. Non-consecutive selections
-disable the button. The backend rejects clashes (`CourtBusyException`), surfaced as a toast.
-On success the app jumps to **Reservations** with the new booking highlighted.
+Club page → pick a day (14-day strip) → every court's live 30-minute slots load
+(`availabilities?date=`). Tap consecutive open slots; the sticky summary totals the price and
+**Continue** carries the selection to `#/book` as a booking intent in the URL — so a refresh,
+a Back, a shared link or the sign-in detour all rebuild the same review page. Non-consecutive
+selections are corrected as you tap.
+
+Nothing is booked until **Confirm booking** on the review page. That is the only
+`POST /api/reservations/` in the app: one request per confirm (a ref latch, not just a
+disabled button), no success until the server answers, and a named failure with a way out —
+a clash (`CourtBusyException`) reloads the day's availability and points back at the club
+page. On success the app lands on `#/booking/confirmation/<id>`, which reads everything from
+the id and is safe to refresh, bookmark or open later.
+
+There is no temporary hold: the backend has no `HELD` state, so the app shows no countdown
+and claims nothing is reserved before confirm. Payment is on site — reservation-only MVP.
 
 **Reschedule** reuses the same screen: the button on an upcoming reservation opens
 `#/courts/<court>?reschedule=<id>`, which swaps the confirm action from `POST` to

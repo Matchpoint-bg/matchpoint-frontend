@@ -81,6 +81,7 @@ export const en = {
   upcoming: "Upcoming",
   past: "Past",
   played: "Played",
+  status_confirmed: "Confirmed",
   status_pending: "Pending",
   status_cancelled: "Cancelled",
   status_no_show: "No-show",
@@ -420,6 +421,29 @@ export const en = {
   email_taken: "That email already has an account — sign in instead.",
   session_expired_title: "You were signed out",
   session_expired_sub: "Your session expired. Sign in again to pick up where you left off.",
+
+  // Confirm and confirmation (§11)
+  confirm_booking: "Confirm booking",
+  confirming: "Confirming…",
+  confirm_conflict_title: "That time was just taken",
+  confirm_conflict_desc: "The club could not hold this slot. Nothing was booked and nothing was charged — pick another time.",
+  confirm_auth_title: "Your session expired",
+  confirm_auth_desc: "Sign in again to finish. Your selection is kept.",
+  confirm_invalid_title: "The club refused this booking",
+  confirm_invalid_desc: "The request did not go through. Try another time, or contact the club.",
+  confirm_network_title: "We could not reach the club",
+  confirm_network_desc: "The booking was not sent. Check your connection and try again — this does not create a duplicate.",
+  confirmation_eyebrow: "Booking",
+  confirmation_title: "Your court is booked",
+  confirmation_sub: "Show the number below at the club. You will get an email if the club sends one.",
+  confirmation_past_sub: "This booking has already been played.",
+  booking_reference: "Booking number",
+  payment_due_at_club: "Due at the club, before you play.",
+  add_to_calendar: "Add to calendar",
+  confirmation_help_title: "Need to change something?",
+  confirmation_help_desc: "Cancel from My bookings, or reach the club directly.",
+  booking_missing_title: "Booking not found",
+  booking_missing_desc: "This booking is not on your account. It may have been cancelled, or belong to another profile.",
 };
 
 /** Every translatable string in the app. Adding a key here forces bg.ts to define it too. */

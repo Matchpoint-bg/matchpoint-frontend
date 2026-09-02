@@ -1,12 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
-import {
-  useCreateReservationMutation,
-  useUpdateReservationMutation,
-} from '../../reservations';
+import { useUpdateReservationMutation } from '../../reservations';
 import { useI18n } from '../../../i18n';
 import { useToast } from '../../../shared/ui/Toast';
 import type { Slot } from '../../courts';
+import { useConfirmBooking } from './useConfirmBooking';
 
 interface BookArgs {
   courtId: number;
@@ -20,8 +18,10 @@ interface BookArgs {
 }
 
 /**
- * Commits a slot run to a reservation. Shared by the club availability module
- * and the (reschedule-only) court page so there is one booking code path.
+ * The court page's write path: reschedule here, create through
+ * `useConfirmBooking` (ToDoRedesign §11 keeps a single place that POSTs a
+ * reservation). Reschedule moves to the review flow in Phase 5 (§12), and this
+ * hook retires with it.
  */
 export function useBookSlots() {
   const { t } = useI18n();
@@ -29,8 +29,8 @@ export function useBookSlots() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const createReservation = useCreateReservationMutation();
   const updateReservation = useUpdateReservationMutation();
+  const { confirm, pending: confirming } = useConfirmBooking();
 
   async function book({ courtId, first, last, total, date, rescheduleId, onDone }: BookArgs) {
     // Browsing the grid is public; committing to a slot isn't. Send them back here after.
@@ -38,32 +38,43 @@ export function useBookSlots() {
       navigate('/login', { state: { from: location } });
       return;
     }
-    const body = { court: courtId, start_datetime: first.start, end_datetime: last.end };
-    try {
-      if (rescheduleId !== null && rescheduleId !== undefined) {
+
+    if (rescheduleId !== null && rescheduleId !== undefined) {
+      const body = { court: courtId, start_datetime: first.start, end_datetime: last.end };
+      try {
         await updateReservation.mutateAsync({ id: rescheduleId, body });
         toast(t('rescheduled_toast'), 'ok');
         // Land on the booking that just moved, rather than leaving the user on the grid.
         navigate('/reservations', { state: { highlight: { id: rescheduleId, start: null } } });
-        return;
+      } catch (err) {
+        toast(err instanceof Error ? err.message : t('reschedule_fail'), 'err');
       }
-      const created = await createReservation.mutateAsync({ body, meta: { amt: total, date } });
-      toast(t('booked_toast'), 'ok');
-      onDone?.();
-      // POST /api/reservations/ answers with a serializer that omits the new id, so the
-      // start time is the only handle we have on the row we just created.
-      navigate('/reservations', {
-        state: { highlight: { id: created?.id ?? null, start: body.start_datetime } },
-      });
-    } catch (err) {
-      const fallback = rescheduleId != null ? t('reschedule_fail') : t('book_fail');
-      toast(err instanceof Error ? err.message : fallback, 'err');
+      return;
     }
+
+    const minutes = Math.round(
+      (new Date(last.end).getTime() - new Date(first.start).getTime()) / 60_000,
+    );
+    const result = await confirm({
+      courtId,
+      date,
+      start: first.start,
+      end: last.end,
+      minutes,
+      price: total,
+    });
+    if (result.ok) {
+      onDone?.();
+      return;
+    }
+    // This screen has no failure surface of its own — the review page owns that
+    // (§11); here the message is all there is.
+    toast(result.message ?? t('book_fail'), 'err');
   }
 
   return {
     book,
     authed,
-    pending: createReservation.isPending || updateReservation.isPending,
+    pending: confirming || updateReservation.isPending,
   };
 }
