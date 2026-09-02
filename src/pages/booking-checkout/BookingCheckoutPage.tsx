@@ -7,7 +7,7 @@ import {
   useBookingIntentValidation,
 } from '../../features/booking';
 import type { BookingConfirmationSnapshot } from '../../features/booking';
-import { useCreateReservationMutation } from '../../features/reservations';
+import { useCreateReservationMutation, useResolveReservationId } from '../../features/reservations';
 import { useI18n } from '../../i18n';
 import { BackLink, Button, EmptyState, ErrorState, Spinner } from '../../shared/ui';
 import styles from '../booking-review/BookingReviewPage.module.css';
@@ -18,6 +18,7 @@ export function BookingCheckoutPage() {
   const { t } = useI18n();
   const { intent, query, valid } = useBookingIntentValidation(courtId);
   const createReservation = useCreateReservationMutation();
+  const resolveReservationId = useResolveReservationId();
   const submitting = useRef(false);
   const reviewUrl = `/book/${courtId}/review`;
   const checking = query.isPending || query.isFetching;
@@ -25,26 +26,34 @@ export function BookingCheckoutPage() {
   const confirm = async () => {
     if (!intent || !valid || submitting.current) return;
     submitting.current = true;
+    const body = {
+      court: intent.courtId,
+      start_datetime: intent.start,
+      end_datetime: intent.end,
+    };
     try {
       const created = await createReservation.mutateAsync({
-        body: {
-          court: intent.courtId,
-          start_datetime: intent.start,
-          end_datetime: intent.end,
-        },
+        body,
         meta: { amt: intent.quotedPrice, date: intent.date },
       });
-      if (!created?.id) throw new Error('The booking response did not include an id.');
+      // The court is booked from here on. A response without an id is a missing
+      // deep link, not a failed booking, so never throw on it — look the row up,
+      // and fall back to the bookings list if even that comes back empty.
+      const id = await resolveReservationId(created, body);
+      bookingIntentStore.clear();
+      if (id === null) {
+        navigate('/reservations', { replace: true });
+        return;
+      }
       const snapshot: BookingConfirmationSnapshot = {
         ...intent,
-        reservationId: created.id,
-        bookingReference: `MP-${created.id}`,
+        reservationId: id,
+        bookingReference: `MP-${id}`,
         status: 'confirmed',
         confirmedAt: new Date().toISOString(),
       };
       bookingIntentStore.saveConfirmation(snapshot);
-      bookingIntentStore.clear();
-      navigate(`/booking/confirmation/${created.id}`, { replace: true });
+      navigate(`/booking/confirmation/${id}`, { replace: true });
     } catch {
       // TanStack Query exposes the error below. Keeping the user on this page
       // avoids losing the intent and gives them a path back to fresh slots.

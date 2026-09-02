@@ -7,6 +7,7 @@ export {
   useUpdateReservationMutation,
 } from './model/reservation.queries';
 export { useReservationOverview } from './model/useReservationOverview';
+export { useResolveReservationId } from './model/useResolveReservationId';
 export { CancelReservationModal } from './ui/CancelReservationModal';
 export { ReservationCard } from './ui/ReservationCard';
 export { ReservationGroup } from './ui/ReservationGroup';

@@ -61,8 +61,9 @@ export function ClubAvailability({ club, date, onDateChange, onReview }: ClubAva
       durationMinutes: chosen.count * (query.data?.slot_minutes ?? 30),
       quotedPrice: chosen.total,
       currency: 'BGN',
-      cancellationPolicy:
-        club.cancellation_policy || 'Free cancellation up to 24 hours before the booking.',
+      // The club's own policy when the API carries one, otherwise the platform
+      // default — translated, since this string is shown to the player.
+      cancellationPolicy: club.cancellation_policy || t('cancellation_policy_default'),
       paymentMethod: 'pay_on_site',
       createdAt: new Date().toISOString(),
     };

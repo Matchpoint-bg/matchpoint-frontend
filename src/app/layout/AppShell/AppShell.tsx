@@ -4,6 +4,8 @@ import { AuthModal, useAuth } from '../../../features/auth';
 import { useI18n } from '../../../i18n';
 import { Icon } from '../../../shared/ui/Icon';
 import { useModal } from '../../../shared/ui/Modal';
+import { DemoBadge } from '../DemoBadge';
+import { ThemeLanguageControls } from '../ThemeLanguageControls';
 import { AccountMenu } from './AccountMenu';
 import { DesktopNavigation, MobileNavigation } from './AppNavigation';
 import type { AppTab, NavigationItem } from './navigation.types';
@@ -101,6 +103,12 @@ export function AppShell({ children, active }: AppShellProps) {
           <DesktopNavigation items={primaryItems} active={active} />
 
           <div className="topbar__actions">
+            <DemoBadge />
+            {/* Outside `.topbar__user`, which is hidden below 900px: browsing is
+                public, so language and theme cannot depend on an account or a
+                wide screen. The account menu keeps its own copies for the
+                signed-in desktop path. */}
+            <ThemeLanguageControls />
             <div className="topbar__user">
               {authed ? (
                 <AccountMenu active={active} />

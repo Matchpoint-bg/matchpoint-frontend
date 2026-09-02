@@ -422,7 +422,7 @@ MatchPoint трябва да комбинира:
 
 ### Backend/data dependency
 
-- [ ] Availability response да има explicit status, не само `available: boolean`. _(frontend derives it in `slotStatus()`; `Slot.status` се чете, когато backend го изпрати)_
+- [ ] Availability response да има explicit status, не само `available: boolean`. _(frontend-ът го извежда в `SlotGrid`; `Slot.status` се чете, когато backend го изпрати)_
 - [ ] Потвърди timezone contract между frontend и backend.
 - [ ] Добави minimum/allowed booking duration, ако варира по клуб.
 - [ ] Добави cancellation policy към club или booking quote.
@@ -444,7 +444,7 @@ MatchPoint трябва да комбинира:
 - [x] Създай canonical `BookingIntent` model.
 - [x] Съхранявай clubId, courtId, date, start, end/duration и quoted price.
 - [x] Направи intent възстановим след login, refresh и accidental navigation.
-- [x] Използвай URL + `sessionStorage` или друг ясно документиран strategy.
+- [x] Използвай URL + `sessionStorage` или друг ясно документиран strategy. _(`bookingIntentStore` в `sessionStorage`; URL-ът носи court, date и часа)_
 - [x] Валидирай intent отново преди confirm.
 - [x] Дефинирай поведение при вече зает или променен slot.
 
@@ -480,7 +480,7 @@ MatchPoint трябва да комбинира:
 
 - [x] Потвърди дали MVP е reservation-only или включва online payment. _(reservation-only)_
 - [x] Ако е reservation-only, използвай точен текст „Плащане на място“.
-- [x] Не създавай визуален fake checkout без реален payment contract. _(няма `/book/:courtId/checkout`)_
+- [x] Не създавай визуален fake checkout без реален payment contract. _(`/book/:courtId/checkout` е самото потвърждение — без карти и без payment provider)_
 
 ### Temporary hold
 
@@ -507,13 +507,13 @@ MatchPoint трябва да комбинира:
 ### Booking confirmation page
 
 - [x] Ясен success header.
-- [x] Booking number и status. _(`bookingReference()` форматира id-то, докато API-то няма reference поле — §15)_
+- [x] Booking number и status. _(`MP-<id>`, докато API-то няма reference поле — §15)_
 - [x] Club, address, court, date, time, duration и price.
 - [x] Payment status/method.
 - [x] „Добави в календара“. _(`.ics` файл, генериран на клиента)_
 - [x] „Маршрут“.
 - [x] „Моите резервации“.
-- [x] Cancellation policy и support contact. _(контактите на клуба; platform policy както в review-то)_
+- [ ] Cancellation policy и support contact. _(policy-то се показва; контакт за поддръжка още липсва на страницата)_
 
 ### Acceptance criteria
 
@@ -522,32 +522,39 @@ MatchPoint трябва да комбинира:
 - [x] Booking result не разчита само на toast.
 - [x] При conflict user получава път обратно към актуална availability.
 
-> **Бележки.** *Payment.* MVP-то е reservation-only: „Потвърди резервацията“ създава
-> резервацията, плащането е на място. Затова няма `/book/:courtId/checkout` — без payment
-> provider и без hold това би бил точно fake checkout-ът, който тази секция забранява.
-> Online payment остава Phase 2 и не е започван.
+> **Бележки.** Тази фаза беше имплементирана два пъти паралелно — веднъж в `main` и веднъж в
+> `improve-and-redesign-part-II`. При merge-а победи вторият, затова бележките по-долу описват
+> неговия flow. Версията на `main` (URL intent, `useConfirmBooking`, `validateIntent`) остава в
+> историята до `8c7f714`.
 >
-> *Hold.* Backend-ът няма `HELD` състояние, а §11 иска timer само при реален hold — затова
-> няма timer и няма copy, което да твърди, че слотът е запазен преди confirm. Вместо това
-> confirm-ът е втвърден: `useConfirmBooking` (`src/features/booking/model/`) е единственото
-> място, което прави `POST /api/reservations/`, с `useRef` latch преди заявката (`isPending`
-> се вдига чак на следващия render — един paint след двойния tap), `retry: 0` за mutations,
-> и без navigation или toast преди сървърът да отговори. Докато няма backend hold, два
-> паралелни checkout-а се разрешават от backend-а; frontend-ът показва конфликта честно.
+> *Routes.* `/book/:courtId/review` → `/book/:courtId/checkout` (зад `RequireAuth`) →
+> `/booking/confirmation/:id`. Intent-ът живее в `sessionStorage` (`bookingIntentStore`) и се
+> валидира отново срещу свежа availability чрез `useBookingIntentValidation` преди confirm.
 >
-> *Failure model.* `httpClient` вече хвърля `ApiError` със `status`, а
-> `classifyConfirmFailure()` го свежда до `conflict | auth | invalid | network` — четири
-> изхода, защото играчът има нужда от четири различни пътя навън. При `conflict` review
-> страницата презарежда availability-то за деня и води обратно към club page-а.
-> Backend-ът още няма 409 за зает слот, затова 400 с текст за застъпване също се чете като
-> conflict.
+> *Payment.* MVP-то е reservation-only: „Потвърди резервацията“ създава резервацията, плащането
+> е на място. `/book/:courtId/checkout` не е fake checkout — той е самото потвърждение, без
+> карти и без payment provider. Online payment остава Phase 2 и не е започван.
 >
-> *Confirmation.* `/booking/confirmation/:id` (`src/pages/booking-confirmation/`) чете всичко
-> от id-то в URL-а, така че refresh, bookmark или отваряне след дни дават същата страница и
-> нищо не пише. `POST` отговорът може да не съдържа новото id — тогава списъкът се презарежда
-> и редът се намира по court + start; ако и това не стане, остава старото поведение (toast и
-> `/reservations`). Навигацията към confirmation е `replace`, за да не води Back обратно към
-> review екран, чийто CTA може да резервира втори път.
+> *Hold.* Backend-ът няма `HELD` състояние, а §11 иска timer само при реален hold — затова няма
+> timer и няма copy, което да твърди, че слотът е запазен преди confirm. Вместо това confirm-ът
+> е защитен с `useRef` latch преди заявката (`isPending` се вдига чак на следващия render — един
+> paint след двойния tap) и `retry: 0` за mutations. Докато няма backend hold, два паралелни
+> checkout-а се разрешават от backend-а; frontend-ът показва конфликта и води обратно към club
+> page-а.
+>
+> *Липсващо id.* `POST /api/reservations/` може да отговори без новото id. Резервацията
+> съществува така или иначе, затова checkout-ът не хвърля грешка, а презарежда списъка и намира
+> реда по court + start (`useResolveReservationId`); ако и това не стане, отива на
+> `/reservations`.
+>
+> *Confirmation.* `/booking/confirmation/:id` рисува моментално от snapshot-а в `sessionStorage`,
+> но чете и резервацията от API-то по id-то в URL-а, така че refresh в друг таб, bookmark или
+> отваряне след дни показват същата страница. Цена, която API-то не е върнало, се показва като
+> „—“, а не като 0.00 лв. `.ics` файлът се генерира от `shared/lib/calendar`, който escape-ва
+> запетаите в адреса.
+>
+> *ApiError.* `httpClient` хвърля `ApiError` със `status`, за да може конфликт да се различи от
+> сървърна грешка и от прекъсната връзка.
 
 ---
 
@@ -690,7 +697,7 @@ MatchPoint трябва да комбинира:
 
 ### Reservations
 
-- [ ] Booking number/reference. _(засега `bookingReference()` форматира id-то)_
+- [ ] Booking number/reference. _(засега `MP-<id>`)_
 - [ ] Club snapshot или richer nested serializer. _(confirmation страницата стига до клуба през `court.club_id`)_
 - [ ] Status. _(извежда се от часовника: `confirmed` / `completed`)_
 - [ ] Price/currency.

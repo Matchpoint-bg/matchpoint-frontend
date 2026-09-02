@@ -31,7 +31,10 @@ export function BookingIntentCard({ intent }: { intent: BookingIntent }) {
         </div>
         <div>
           <dt><Icon name="tag" />{t('total_price')}</dt>
-          <dd className={styles.price}>{fmt.money(intent.quotedPrice)}</dd>
+          {/* A price the API never sent is unknown, not free. */}
+          <dd className={styles.price}>
+            {Number.isFinite(intent.quotedPrice) ? fmt.money(intent.quotedPrice) : '—'}
+          </dd>
         </div>
         <div>
           <dt><Icon name="pin" />{t('label_address')}</dt>

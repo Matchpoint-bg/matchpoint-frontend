@@ -15,6 +15,27 @@ export function apiUrl(path: string): string {
   return store.api.replace(/\/$/, '') + path;
 }
 
+/**
+ * A failed response, with the status kept alongside the message.
+ *
+ * Callers that only ever showed `error.message` are unaffected — this is still
+ * an `Error`. It exists so a caller can tell a booking conflict from a server
+ * error from a dropped connection (ToDoRedesign §11) instead of guessing from
+ * translated prose.
+ */
+export class ApiError extends Error {
+  readonly status: number;
+  /** The parsed response body, when there was one. */
+  readonly body: unknown;
+
+  constructor(message: string, status: number, body: unknown) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.body = body;
+  }
+}
+
 function errorMessage(data: unknown, status: number): string {
   if (data && typeof data === 'object') {
     const record = data as Record<string, unknown>;
@@ -70,7 +91,7 @@ async function json<T>(path: string, options?: RequestOptions): Promise<T> {
   } catch {
     // Some successful DELETE endpoints return an empty body.
   }
-  if (!response.ok) throw new Error(errorMessage(data, response.status));
+  if (!response.ok) throw new ApiError(errorMessage(data, response.status), response.status, data);
   return data as T;
 }
 

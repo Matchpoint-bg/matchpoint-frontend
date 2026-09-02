@@ -14,8 +14,9 @@ npm run dev      # http://localhost:5173
 
 `npm run dev` reads `.env.development`, which turns **demo mode on** — the whole UI works
 with no backend running. Copy `.env.example` to `.env.local` to point dev at a different
-API. Demo mode is a development-only facility: it is compiled out of production builds, so
-a deployed app can never serve fixtures or accept a fake login.
+API. Demo mode is a build-time decision: an ordinary production build compiles it out
+entirely, so a deployed app can never serve fixtures or accept a fake login. Building with
+`VITE_DEMO=1` opts a specific image in — see [Running it with no backend at all](#docker).
 
 | Script | What it does |
 |---|---|
@@ -164,11 +165,15 @@ Routing is **hash-based** (`#/clubs`) because the PWA manifest shortcuts point a
 | `#/login` | `pages/auth/AuthPage.tsx` | signed out |
 | `#/forgot-password` | `pages/forgot-password/ForgotPasswordPage.tsx` | signed out |
 | `#/reset-password/:uid/:token` | `pages/reset-password/ResetPasswordPage.tsx` | signed out |
-| `#/clubs` | `pages/clubs/ClubsPage.tsx` | public |
+| `#/players` | `pages/clubs/ClubsPage.tsx` | public |
+| `#/search` | `pages/clubs/ClubResultsPage.tsx` | public |
 | `#/clubs/:id` | `pages/club-details/ClubDetailsPage.tsx` | public |
 | `#/courts/:id` | `pages/court-details/CourtDetailsPage.tsx` | public; reschedule only |
-| `#/book?club=…&court=…&start=…` | `pages/booking-review/BookingReviewPage.tsx` | public; confirming requires sign-in |
+| `#/book/:courtId/review` | `pages/booking-review/BookingReviewPage.tsx` | public |
+| `#/book/:courtId/checkout` | `pages/booking-checkout/BookingCheckoutPage.tsx` | signed in |
 | `#/booking/confirmation/:id` | `pages/booking-confirmation/BookingConfirmationPage.tsx` | signed in |
+| `#/for-clubs` | `pages/for-clubs/ForClubsPage.tsx` | public |
+| `#/club`, `#/club/schedule`, `#/club/bookings`, `#/club/courts`, `#/club/team`, `#/club/settings` | `pages/club/*` | staff |
 | `#/reservations` | `pages/reservations/ReservationsPage.tsx` | signed in |
 | `#/profile` | `pages/profile/ProfilePage.tsx` | signed in |
 | `#/settings` | `pages/settings/SettingsPage.tsx` | signed in |
@@ -240,21 +245,20 @@ this only decides what gets rendered.
 
 ## Booking flow
 
-Club page → pick a day (14-day strip) → every court's live 30-minute slots load
-(`availabilities?date=`). Tap consecutive open slots; the sticky summary totals the price and
-**Continue** carries the selection to `#/book` as a booking intent in the URL — so a refresh,
-a Back, a shared link or the sign-in detour all rebuild the same review page. Non-consecutive
-selections are corrected as you tap.
+Search on `#/players` → results on `#/search` → a club page that opens with its own availability
+grid (`ClubAvailability`, one row per court for the chosen day). Tap consecutive open slots; the
+summary totals the price and **Review** carries the selection to `#/book/:courtId/review` as a
+`BookingIntent` in `sessionStorage`, so a reload or the sign-in detour does not lose it. Signing in
+happens in a modal, not a separate screen.
 
-Nothing is booked until **Confirm booking** on the review page. That is the only
-`POST /api/reservations/` in the app: one request per confirm (a ref latch, not just a
-disabled button), no success until the server answers, and a named failure with a way out —
-a clash (`CourtBusyException`) reloads the day's availability and points back at the club
-page. On success the app lands on `#/booking/confirmation/<id>`, which reads everything from
-the id and is safe to refresh, bookmark or open later.
+Nothing is booked until **Confirm** on `#/book/:courtId/checkout`. `useBookingIntentValidation`
+re-checks the run against fresh availability first, a `useRef` latch means one request per confirm,
+and the reservation's id is looked up from the list when the POST response omits it
+(`useResolveReservationId`). Success lands on `#/booking/confirmation/:id`, which paints from the
+stored snapshot and re-reads the reservation from the API, so the URL survives a reload in any tab.
 
-There is no temporary hold: the backend has no `HELD` state, so the app shows no countdown
-and claims nothing is reserved before confirm. Payment is on site — reservation-only MVP.
+There is no temporary hold: the backend has no `HELD` state, so the app shows no countdown and
+claims nothing is reserved before confirm. Payment is on site — reservation-only MVP.
 
 **Reschedule** reuses the same screen: the button on an upcoming reservation opens
 `#/courts/<court>?reschedule=<id>`, which swaps the confirm action from `POST` to
