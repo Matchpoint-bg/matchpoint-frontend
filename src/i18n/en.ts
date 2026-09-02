@@ -112,6 +112,8 @@ export const en = {
   api_note: "Point this at your MatchPoint Django server. Endpoints used:",
   demo_mode: "Demo mode",
   demo_mode_desc: "Explore the app with sample Sofia clubs — no server needed.",
+  demo_badge: "Demo data",
+  demo_badge_title: "Sample data. Clubs, courts and bookings here are not real.",
   staff_view: "Staff view",
   staff_view_desc: "Unlock club-management buttons: create courts, set prices, block times, opening hours.",
   appearance: "Appearance",

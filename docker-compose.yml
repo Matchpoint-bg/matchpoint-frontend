@@ -7,6 +7,9 @@ services:
       args:
         # Empty = same origin; nginx proxies /api/ to API_ORIGIN below.
         VITE_API_URL: "${VITE_API_URL-}"
+        # `VITE_DEMO=1 docker compose up --build web` runs the whole app on demo
+        # fixtures, with no backend and no proxy behind it.
+        VITE_DEMO: "${VITE_DEMO-0}"
     image: matchpoint-frontend
     environment:
       # Where nginx forwards /api/. On Linux, host.docker.internal needs the extra_hosts entry.

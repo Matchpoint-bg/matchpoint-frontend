@@ -103,12 +103,26 @@ user-facing API-URL field in production:
    docker compose up web --build
    ```
 
+**Running it with no backend at all.** `npm run dev` already does this — `.env.development` sets
+`VITE_DEMO=1`, so the dev server at :5173 serves the demo fixtures. For the built app, make a demo
+image:
+
+```bash
+VITE_DEMO=1 docker compose up --build web    # http://localhost:8080, no API required
+```
+
+Everything works against sample Sofia clubs: sign in with any email and password, book, cancel,
+reschedule. A **Demo data** badge sits in the header the whole time, and Settings gains the dev
+controls (demo off, staff view, API URL) so the same image can be pointed at a real backend. This is
+a build-time switch — an image built without `VITE_DEMO=1` cannot be talked into serving fixtures,
+whatever is in `localStorage`.
+
 | Variable | Where it applies | Default |
 |---|---|---|
 | `VITE_API_URL` | Build arg, baked into the bundle | empty (same origin) |
 | `API_ORIGIN` | Container env, nginx `/api/` proxy target | `http://host.docker.internal:8000` |
 | `CSP_CONNECT_SRC` | Container env, CSP `connect-src` | `'self'` |
-| `VITE_DEMO` | Build/dev env, `1` enables fixtures | `0` (and always off in production) |
+| `VITE_DEMO` | Build/dev env, `1` builds a demo image that runs on fixtures | `0` (a build without it can never serve fixtures) |
 
 ## Project layout
 
@@ -174,7 +188,8 @@ In development the app opens in **Demo mode** (sample Sofia clubs, any email/pas
 works) so the design is usable immediately. To develop against your real API:
 
 1. Start the Django backend (`python manage.py runserver` → `http://localhost:8000`).
-2. Turn **Demo mode off** in **Settings** (a dev-only card, alongside the API base URL).
+2. Turn **Demo mode off** in **Settings** (a card that exists only on the dev server and in demo
+   images, alongside the API base URL).
 
 > CORS: allow the front-end origin on the Django side (e.g. `django-cors-headers`,
 > `CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]`). Deployments can skip this by using

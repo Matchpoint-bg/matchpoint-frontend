@@ -15,6 +15,12 @@ COPY . .
 ARG VITE_API_URL=""
 ENV VITE_API_URL=$VITE_API_URL
 
+# 1 = build an image that runs entirely on the demo fixtures: no API, no /api/ proxy, and a
+# "Demo data" badge in the header so nobody mistakes it for the real thing. Anything else
+# builds the normal image, which cannot be switched to fixtures at runtime.
+ARG VITE_DEMO="0"
+ENV VITE_DEMO=$VITE_DEMO
+
 # `npm run build` typechecks before bundling, so a type error fails the image build.
 RUN npm run build
 

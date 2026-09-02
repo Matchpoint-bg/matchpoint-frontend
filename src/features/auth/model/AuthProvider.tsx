@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { ReactNode } from 'react';
 import { apiToLang, useI18n } from '../../../i18n';
 import { setSessionExpiredHandler } from '../../../shared/api/httpClient';
-import { store } from '../../../shared/storage/store';
+import { store, TOOLS_ENABLED } from '../../../shared/storage/store';
 import { useSettings } from '../../preferences/model/SettingsProvider';
 import { authApi } from '../api/auth.api';
 import type { RegisterPayload, UpdateUserPayload, User } from './auth.types';
@@ -120,8 +120,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sync();
   }, [queryClient, sync]);
 
+  // The Settings staff toggle exists wherever the dev controls do, so the club
+  // workspace can be shown from a demo build too. The backend still enforces the
+  // real permissions — this only decides what is rendered.
   const isStaff = useMemo(
-    () => Boolean(user?.is_staff || user?.is_superuser) || (import.meta.env.DEV && staff),
+    () => Boolean(user?.is_staff || user?.is_superuser) || (TOOLS_ENABLED && staff),
     [user, staff],
   );
 
