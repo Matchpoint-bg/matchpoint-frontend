@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { ReactNode } from 'react';
 import { apiToLang, useI18n } from '../../../i18n';
 import { setSessionExpiredHandler } from '../../../shared/api/httpClient';
-import { store, TOOLS_ENABLED } from '../../../shared/storage/store';
+import { store } from '../../../shared/storage/store';
 import { useSettings } from '../../preferences/model/SettingsProvider';
 import { authApi } from '../api/auth.api';
 import type { RegisterPayload, UpdateUserPayload, User } from './auth.types';
@@ -13,8 +13,6 @@ interface AuthValue {
   authed: boolean;
   user: User | null;
   isStaff: boolean;
-  /** Set when the API rejected our tokens mid-session, so login can say why. */
-  sessionExpired: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   updateProfile: (payload: UpdateUserPayload) => Promise<void>;
@@ -30,7 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authed, setAuthed] = useState(() => Boolean(store.access));
   const [user, setUser] = useState<User | null>(() => store.user);
   const [booting, setBooting] = useState(() => Boolean(store.access));
-  const [sessionExpired, setSessionExpired] = useState(false);
   const adoptedLang = useRef(false);
 
   const adoptServerLang = useCallback(
@@ -84,7 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.clear();
       setAuthed(false);
       setUser(null);
-      setSessionExpired(true);
     });
     return () => setSessionExpiredHandler(null);
   }, [queryClient]);
@@ -93,7 +89,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       await authApi.login(email, password);
       queryClient.clear();
-      setSessionExpired(false);
       sync();
     },
     [queryClient, sync],
@@ -103,7 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (payload: RegisterPayload) => {
       await authApi.register(payload);
       queryClient.clear();
-      setSessionExpired(false);
       sync();
     },
     [queryClient, sync],
@@ -116,31 +110,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     store.clearTokens();
     queryClient.clear();
-    setSessionExpired(false);
     sync();
   }, [queryClient, sync]);
 
-  // The Settings staff toggle exists wherever the dev controls do, so the club
-  // workspace can be shown from a demo build too. The backend still enforces the
-  // real permissions — this only decides what is rendered.
   const isStaff = useMemo(
-    () => Boolean(user?.is_staff || user?.is_superuser) || (TOOLS_ENABLED && staff),
+    () => Boolean(user?.is_staff || user?.is_superuser) || (import.meta.env.DEV && staff),
     [user, staff],
   );
 
   const contextValue = useMemo<AuthValue>(
-    () => ({
-      booting,
-      authed,
-      user,
-      isStaff,
-      sessionExpired,
-      login,
-      register,
-      updateProfile,
-      logout,
-    }),
-    [booting, authed, user, isStaff, sessionExpired, login, register, updateProfile, logout],
+    () => ({ booting, authed, user, isStaff, login, register, updateProfile, logout }),
+    [booting, authed, user, isStaff, login, register, updateProfile, logout],
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

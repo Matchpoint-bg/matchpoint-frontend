@@ -4,8 +4,6 @@ import { useI18n } from '../../../i18n';
 import { useStaffClub } from '../../../features/staff';
 import { Icon } from '../../../shared/ui/Icon';
 import { AccountMenu } from '../AppShell/AccountMenu';
-import { DemoBadge } from '../DemoBadge';
-import { ThemeLanguageControls } from '../ThemeLanguageControls';
 import { ClubMobileNav, ClubSidebarNav } from './ClubNavigation';
 import type { ClubNavItem, ClubTab } from './navigation.types';
 
@@ -119,11 +117,6 @@ export function ClubShell({ children, title }: ClubShellProps) {
             </Link>
             <h1 className="club-topbar__title">{title}</h1>
             <div className="topbar__actions">
-              <DemoBadge />
-              {/* Same reason as the player shell: `.topbar__user` and its account
-                  menu are hidden below 900px, and the workspace is used on a phone
-                  at the desk. */}
-              <ThemeLanguageControls />
               <div className="topbar__user">
                 <AccountMenu context="club" />
               </div>

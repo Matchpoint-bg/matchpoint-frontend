@@ -19,35 +19,12 @@
   gap: 20px;
 }
 
-.formEyebrow {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-}
-
 .formHeading h2 {
   margin: 0;
   font-family: var(--display);
   font-size: clamp(20px, 3vw, 26px);
   font-weight: 800;
   letter-spacing: -0.035em;
-}
-
-.step {
-  flex: none;
-  padding: 6px 9px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .urlNotice {
@@ -83,26 +60,9 @@
 }
 
 .formFooter {
-  display: grid;
-  margin-top: 17px;
-  gap: 16px;
-}
-
-.quickDates {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.quickDates > span {
-  width: 100%;
-  margin: 0 0 2px 2px;
-  color: var(--faint);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  justify-content: flex-end;
+  margin-top: 17px;
 }
 
 /* The submit keeps the hero's taller rhythm; the rest comes from `.btn`. */
@@ -114,25 +74,51 @@
   .fields {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .quickDates > span {
-    width: auto;
-    margin-right: 3px;
-  }
 }
 
 @media (min-width: 940px) {
+  .form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px;
+    align-items: end;
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px -24px rgba(6, 18, 9, 0.42);
+    gap: 16px;
+  }
+
+  .formHeading {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .urlNotice {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+  }
+
   .fields {
-    grid-template-columns: 1.1fr 1fr 1.15fr 0.85fr;
+    grid-template-columns: 1.05fr .9fr 1.15fr 1fr;
+  }
+
+  .fields :global(.field) {
+    margin-bottom: 0;
   }
 
   .formFooter {
-    align-items: end;
-    grid-template-columns: minmax(0, 1fr) 190px;
+    margin: 0;
   }
 
   .submit {
-    align-self: end;
+    width: 100%;
   }
 }
 

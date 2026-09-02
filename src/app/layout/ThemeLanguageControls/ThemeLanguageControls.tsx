@@ -1,15 +1,21 @@
 import { useI18n } from '../../../i18n';
 import { Icon } from '../../../shared/ui/Icon';
 import { useTheme } from '../../../theme';
-import { LanguageToggle } from './LanguageToggle';
 
-/** Language and theme side by side — the auth screens' dark brand panel. */
 export function ThemeLanguageControls() {
-  const { t } = useI18n();
+  const { lang, toggleLang, t } = useI18n();
   const { theme, toggleTheme } = useTheme();
   return (
     <>
-      <LanguageToggle />
+      <button
+        className="lang-toggle"
+        type="button"
+        onClick={toggleLang}
+        title={t('language')}
+        aria-label={`${t('language')}: ${lang === 'bg' ? 'English' : 'Български'}`}
+      >
+        {lang === 'bg' ? 'EN' : 'BG'}
+      </button>
       <button
         className="theme-toggle"
         type="button"

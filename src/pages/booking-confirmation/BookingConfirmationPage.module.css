@@ -1,211 +1,63 @@
-/*
- * The success block reads first: a tick, the sentence, then the number the
- * player quotes at the desk. On mobile it stacks; the reference never wraps
- * away from its label.
- */
 .success {
-  display: grid;
+  display: flex;
   align-items: center;
-  padding: 20px 18px;
-  gap: 14px;
-  grid-template-columns: auto 1fr;
-  border-color: var(--brand);
+  margin-bottom: var(--space-6);
+  padding: clamp(20px, 4vw, 32px);
+  border-radius: var(--radius-lg);
+  background: var(--court);
+  color: var(--on-dark);
+  gap: var(--space-5);
 }
 
-.tick {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border-radius: var(--radius-full);
-  background: var(--brand-soft);
-  color: var(--brand-text);
-}
-
-.tick svg {
-  width: 22px;
-  height: 22px;
-}
-
-.successCopy h1 {
-  margin: 2px 0 0;
+.success h1 {
+  margin: 4px 0 8px;
   font-family: var(--display);
-  font-size: 22px;
-  font-weight: 800;
-  line-height: var(--leading-heading);
+  font-size: var(--text-2xl);
 }
 
-.successCopy p {
-  margin: 4px 0 0;
-  color: var(--ink-2);
-  font-size: 14px;
+.icon {
+  display: grid;
+  flex: none;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--ball);
+  color: var(--on-brand);
+  place-items: center;
+}
+
+.icon svg {
+  width: 30px;
+  height: 30px;
 }
 
 .reference {
   display: flex;
-  align-items: center;
-  grid-column: 1 / -1;
-  padding-top: 14px;
-  gap: 12px;
-  border-top: 1px solid var(--line);
   flex-wrap: wrap;
-}
-
-.reference span {
-  display: grid;
-  gap: 2px;
-}
-
-.reference small {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.reference b {
-  font-family: var(--mono);
-  font-size: 16px;
-  letter-spacing: 0.04em;
-}
-
-.card {
-  margin-top: 14px;
-  padding: 18px;
-}
-
-.clubName {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.address {
-  margin: 2px 0 12px;
-  color: var(--ink-2);
-  font-size: 14px;
-}
-
-.rows {
-  margin: 16px 0 0;
-  display: grid;
-  gap: 12px;
-}
-
-.rows > div {
-  display: grid;
-  align-items: baseline;
-  grid-template-columns: 1fr;
-  gap: 2px;
-}
-
-.rows dt {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.rows dd {
-  margin: 0;
-  font-size: 15px;
-}
-
-.rows dd small {
-  display: block;
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 12.5px;
-}
-
-@media (min-width: 620px) {
-  .rows > div {
-    grid-template-columns: 160px 1fr;
-    gap: 16px;
-  }
-}
-
-.total {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+  color: var(--on-dark-muted);
+  gap: var(--space-3);
 }
 
-.total b {
-  font-family: var(--display);
-  font-size: 22px;
+.reference strong {
+  color: var(--leaf);
+  font-family: var(--mono);
 }
 
-/* Actions wrap rather than shrink — Bulgarian labels are the long ones. */
 .actions {
   display: flex;
-  margin-top: 14px;
-  gap: 10px;
   flex-wrap: wrap;
-}
-
-.support {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-  padding: 16px 18px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.support b {
-  font-family: var(--display);
-  font-size: 15px;
-}
-
-.support p {
-  margin: 2px 0 0;
-  color: var(--ink-2);
-  font-size: 13.5px;
-}
-
-.supportLinks {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.supportLinks a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 12px;
-  gap: 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-full);
-  color: var(--ink);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.supportLinks a:hover {
-  border-color: var(--line-2);
-}
-
-.supportLinks svg {
-  width: 16px;
-  height: 16px;
+  margin-top: var(--space-5);
+  gap: var(--space-3);
 }
 
 @media (max-width: 520px) {
   .success {
-    grid-template-columns: 1fr;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  .tick {
-    grid-column: 1;
+  .actions > * {
+    width: 100%;
   }
 }

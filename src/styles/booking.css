@@ -43,6 +43,13 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.availability-dates {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
 .daybtn {
   display: flex;
   flex: none;
@@ -105,30 +112,20 @@
   vertical-align: -2px;
 }
 
-.legend__sw[data-status='available'] {
+.lg-free {
   background: var(--legend-free-bg);
 }
 
-.legend__sw[data-status='selected'] {
+.lg-sel {
   background: var(--ball);
 }
 
-.legend__sw[data-status='booked'] {
+.lg-book {
   background: var(--legend-booked-bg);
 }
 
-.legend__sw[data-status='held'] {
-  background: var(--slot-held-bg);
-  border-color: var(--slot-held-border);
-}
-
-.legend__sw[data-status='closed'] {
+.lg-un {
   background: var(--legend-blocked-bg);
-}
-
-.legend__sw[data-status='past'] {
-  background: var(--slot-past-bg);
-  border-color: var(--slot-past-border);
 }
 
 .slotgrid {
@@ -154,7 +151,6 @@
 }
 
 .slot__t {
-  display: block;
   color: var(--slot-text);
   font-size: 14px;
   font-weight: 700;
@@ -162,99 +158,65 @@
 }
 
 .slot__p {
-  display: block;
   margin-top: 3px;
   color: var(--slot-price);
   font-size: 11px;
 }
 
-.slot:hover:not(:disabled) {
+.slot:hover:not(.is-booked):not(.is-un) {
   border-color: var(--ball);
 }
 
-.slot:disabled {
-  cursor: not-allowed;
-}
-
-.slot[data-selected] {
+.slot.is-sel {
   border-color: var(--ball);
   background: var(--ball);
 }
 
-.slot[data-selected] .slot__t {
+.slot.is-sel .slot__t {
   color: var(--slot-selected-text);
 }
 
-.slot[data-selected] .slot__p {
+.slot.is-sel .slot__p {
   color: var(--slot-selected-price);
 }
 
-.slot[data-status='booked'] {
+.slot.is-booked {
   border-color: var(--slot-booked-border);
   background: var(--slot-booked-bg);
+  cursor: not-allowed;
 }
 
-.slot[data-status='booked'] .slot__t {
+.slot.is-booked .slot__t {
   color: var(--slot-booked-text);
   text-decoration: line-through;
   text-decoration-color: var(--ball);
 }
 
-.slot[data-status='booked'] .slot__p {
+.slot.is-booked .slot__p {
   color: var(--slot-booked-price);
 }
 
-/* Someone else is mid-checkout: not yours, but not gone either. */
-.slot[data-status='held'] {
-  border-color: var(--slot-held-border);
-  background: var(--slot-held-bg);
-}
-
-.slot[data-status='held'] .slot__t,
-.slot[data-status='held'] .slot__p {
-  color: var(--slot-held-text);
-}
-
-.slot[data-status='closed'] {
+.slot.is-un {
   border-color: var(--slot-blocked-border);
   background: var(--slot-blocked-bg);
+  cursor: not-allowed;
 }
 
-.slot[data-status='closed'] .slot__t,
-.slot[data-status='closed'] .slot__p {
+.slot.is-un .slot__t,
+.slot.is-un .slot__p {
   color: var(--slot-blocked-text);
 }
 
-/* Past slots recede rather than shout — they are the least interesting state. */
-.slot[data-status='past'] {
-  border-color: var(--slot-past-border);
-  background: var(--slot-past-bg);
-}
-
-.slot[data-status='past'] .slot__t,
-.slot[data-status='past'] .slot__p {
-  color: var(--slot-past-text);
-}
-
-/*
- * Below 900px this is a bar fixed above the tab bar, so it stays reachable
- * however far the court list scrolls. From 900px up the page docks it into a
- * side column that does the sticking, and it becomes an ordinary block.
- */
 .book-summary {
-  position: fixed;
-  z-index: var(--z-header, 40);
-  right: 0;
-  bottom: calc(76px + var(--safe-b));
-  left: 0;
-  padding: 0 clamp(16px, 3.5vw, 32px);
+  position: sticky;
+  z-index: 20;
+  bottom: calc(84px + var(--safe-b));
+  margin-top: 18px;
 }
 
 .book-summary__in {
   display: flex;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 14px 16px;
   border-radius: var(--r);
   background: var(--court);
@@ -275,12 +237,24 @@
   font-weight: 600;
 }
 
-@media (min-width: 900px) {
+.book-summary .btn {
+  margin-left: auto;
+}
+
+@media (min-width: 820px) {
   .book-summary {
-    /* Sticky rather than static so the court page still pins it; inert inside
-     * the club page's side column, which does its own sticking. */
-    position: sticky;
     bottom: 16px;
-    padding: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .availability-dates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .availability-dates .datepick {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: var(--r-sm);
   }
 }

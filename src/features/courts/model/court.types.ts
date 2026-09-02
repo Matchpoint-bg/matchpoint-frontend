@@ -19,22 +19,15 @@ export interface Price {
   price_per_30_minutes: number;
 }
 
-/**
- * Why a slot can or cannot be picked. `selected` is not here on purpose — that
- * is view state the grid owns, not something the slot itself carries.
- */
-export type SlotStatus = 'available' | 'booked' | 'held' | 'closed' | 'past';
-
 export interface Slot {
   start: string;
   end: string;
   available: boolean;
+  /** Preferred API contract. `available` remains while the backend migrates. */
+  status?: 'available' | 'booked' | 'held' | 'closed' | 'past';
   price: number;
-  /**
-   * Sent by the backend once it models status explicitly. Until then
-   * `slotStatus()` derives it from `available`/`_booked` and the clock.
-   */
-  status?: SlotStatus;
+  currency?: 'BGN' | string;
+  unavailable_reason?: string;
   _booked?: boolean;
   _t?: string;
 }

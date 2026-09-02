@@ -33,6 +33,11 @@ export function MobileNavigation({ items, active }: { items: NavigationItem[]; a
               to={item.to}
               className={isCurrent ? 'active' : ''}
               aria-current={isCurrent ? 'page' : undefined}
+              onClick={(event) => {
+                if (!item.onClick) return;
+                event.preventDefault();
+                item.onClick();
+              }}
             >
               <span className="tabbar__ic" aria-hidden="true">
                 <span className="tabbar__dot" />

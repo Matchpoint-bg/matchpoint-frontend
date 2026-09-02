@@ -85,6 +85,7 @@ export function ProfilePage() {
           onClick={() => {
             logout();
             toast(t('signed_out'));
+            navigate('/players', { replace: true });
           }}
         >
           <Icon name="logout" />

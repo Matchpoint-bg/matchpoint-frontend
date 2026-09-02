@@ -1,5 +1,6 @@
 export { courtsApi } from './api/courts.api';
 export { CourtHero } from './ui/CourtHero';
+export { CourtCard } from './ui/CourtCard';
 export {
   availabilityQueryOptions,
   courtKeys,
@@ -12,4 +13,4 @@ export {
   useSaveCourtMutation,
   useSetCourtPricesMutation,
 } from './model/court.queries';
-export type { Court, Price, Slot, SlotStatus, Surface, Unavailability } from './model/court.types';
+export type { Court, Price, Slot, Surface, Unavailability } from './model/court.types';

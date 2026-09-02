@@ -1,28 +1,3 @@
 .price {
   font-size: 17px;
 }
-
-.actions {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  gap: 8px;
-}
-
-/*
- * Desktop docks the summary into the availability grid's side column, so it
- * stops behaving like a page-wide bar and stacks instead.
- */
-@media (min-width: 900px) {
-  .root :global(.book-summary__in) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .root .actions {
-    margin-left: 0;
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-}

@@ -4,6 +4,33 @@
   gap: var(--space-3);
 }
 
+.lead {
+  display: grid;
+  margin-bottom: clamp(28px, 5vw, 54px);
+  padding: clamp(24px, 5vw, 54px);
+  border: 1px solid var(--line);
+  border-radius: clamp(22px, 4vw, 32px);
+  background: linear-gradient(135deg, var(--card-2), var(--card));
+  gap: clamp(24px, 4vw, 38px);
+}
+
+.leadCopy h1 {
+  max-width: 18ch;
+  margin: 8px 0 14px;
+  font-family: var(--display);
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1;
+}
+
+.leadCopy p { max-width: 64ch; margin: 0; color: var(--muted); line-height: 1.6; }
+.formCard { width: 100%; box-shadow: 0 24px 60px -38px rgba(5, 18, 8, .5); }
+.formCard h2 { margin: 0 0 20px; font-family: var(--display); font-size: 24px; }
+.formGrid { display: grid; grid-template-columns: 1fr; gap: 0; }
+.heroTitle { max-width: 800px; margin: 0; font-family: var(--display); font-size: clamp(36px, 7vw, 64px); font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+
+
 .contact {
   margin-top: var(--space-6);
   text-align: center;

@@ -21,29 +21,14 @@ export type NotifyKey = 'notifyConfirm' | 'notifyRemind' | 'notifyCancel';
 export type Theme = 'light' | 'dark';
 export type Lang = 'en' | 'bg';
 
-/**
- * Built with `VITE_DEMO=1`: the app serves fixtures and makes no API calls at
- * all, which is how the Docker image is shown without a backend. It is a
- * build-time decision on purpose — an ordinary production bundle can never be
- * talked into fabricating data, whatever localStorage holds.
- */
-export const DEMO_BUILD = import.meta.env.VITE_DEMO === '1';
-
-/**
- * Whether the development controls (demo toggle, staff view, API URL) exist.
- * A demo build gets them too: it is a build made to be poked at.
- */
-export const TOOLS_ENABLED = import.meta.env.DEV || DEMO_BUILD;
-
 export const store = {
   get api(): string {
-    // The Settings override only exists where the controls that write it do —
-    // so a demo build can also be pointed at a real API to test against.
-    if (TOOLS_ENABLED) {
+    if (import.meta.env.DEV) {
       const override = localStorage.getItem(LS.api);
       if (override) return override;
+      return import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
     }
-    return import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8000' : '');
+    return import.meta.env.VITE_API_URL ?? '';
   },
   set api(v: string) {
     localStorage.setItem(LS.api, v);
@@ -75,10 +60,10 @@ export const store = {
   },
 
   get demo(): boolean {
-    if (!TOOLS_ENABLED) return false;
+    if (!import.meta.env.DEV) return false;
     const override = localStorage.getItem(LS.demo);
     if (override !== null) return override === '1';
-    return DEMO_BUILD;
+    return import.meta.env.VITE_DEMO === '1';
   },
   set demo(value: boolean) {
     localStorage.setItem(LS.demo, value ? '1' : '0');

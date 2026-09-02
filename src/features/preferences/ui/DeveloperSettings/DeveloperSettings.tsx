@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useI18n } from '../../../../i18n';
-import { TOOLS_ENABLED } from '../../../../shared/storage/store';
 import { CardTitle } from '../../../../shared/ui/CardTitle';
 import { Icon } from '../../../../shared/ui/Icon';
 import { useToast } from '../../../../shared/ui/Toast';
@@ -13,8 +12,7 @@ export function DeveloperSettings() {
   const { demo, setDemo, staff, setStaff, apiUrl, setApiUrl } = useSettings();
   const { toast } = useToast();
   const [urlDraft, setUrlDraft] = useState(apiUrl);
-  // Dev server or a demo build; never a real production bundle.
-  if (!TOOLS_ENABLED) return null;
+  if (!import.meta.env.DEV) return null;
 
   function saveApiUrl() {
     const value = urlDraft.trim();

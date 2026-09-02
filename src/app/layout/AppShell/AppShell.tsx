@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../../features/auth';
+import { AuthModal, useAuth } from '../../../features/auth';
 import { useI18n } from '../../../i18n';
 import { Icon } from '../../../shared/ui/Icon';
-import { DemoBadge } from '../DemoBadge';
-import { ThemeLanguageControls } from '../ThemeLanguageControls';
+import { useModal } from '../../../shared/ui/Modal';
 import { AccountMenu } from './AccountMenu';
 import { DesktopNavigation, MobileNavigation } from './AppNavigation';
 import type { AppTab, NavigationItem } from './navigation.types';
@@ -17,6 +16,16 @@ interface AppShellProps {
 export function AppShell({ children, active }: AppShellProps) {
   const { t } = useI18n();
   const { authed } = useAuth();
+  const { openModal, closeModal } = useModal();
+  const openAuth = () => {
+    openModal(
+      t('sign_in'),
+      <AuthModal
+        description={t('signin_sub')}
+        onSuccess={closeModal}
+      />,
+    );
+  };
   const primaryItems: NavigationItem[] = [
     {
       to: '/players',
@@ -61,10 +70,11 @@ export function AppShell({ children, active }: AppShellProps) {
         ] satisfies NavigationItem[])
       : ([
           {
-            to: '/login',
+            to: '/players#login',
             icon: 'user',
             desktopLabel: t('sign_in'),
             mobileLabel: t('sign_in'),
+            onClick: openAuth,
           },
         ] satisfies NavigationItem[])),
   ];
@@ -91,19 +101,17 @@ export function AppShell({ children, active }: AppShellProps) {
           <DesktopNavigation items={primaryItems} active={active} />
 
           <div className="topbar__actions">
-            <DemoBadge />
-            {/* Outside `.topbar__user`, which is hidden below 900px: browsing is
-                public, so language and theme cannot depend on an account or a
-                wide screen. The account menu keeps its own copies for the
-                signed-in desktop path. */}
-            <ThemeLanguageControls />
             <div className="topbar__user">
               {authed ? (
                 <AccountMenu active={active} />
               ) : (
-                <Link className="topbar__signin btn btn--primary btn--sm" to="/login">
+                <button
+                  type="button"
+                  className="topbar__signin btn btn--primary btn--sm"
+                  onClick={openAuth}
+                >
                   {t('sign_in')}
-                </Link>
+                </button>
               )}
             </div>
           </div>

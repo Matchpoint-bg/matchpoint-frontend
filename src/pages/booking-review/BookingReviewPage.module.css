@@ -1,116 +1,61 @@
-.card {
-  padding: 18px;
+.header {
+  max-width: 700px;
+  margin: var(--space-4) 0 var(--space-6);
 }
 
-.clubName {
-  margin: 0;
+.header h1 {
+  margin: 5px 0 8px;
   font-family: var(--display);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--text-2xl);
 }
 
-.address {
-  margin: 2px 0 12px;
-  color: var(--ink-2);
-  font-size: 14px;
-}
-
-.rows {
-  margin: 16px 0 0;
-  display: grid;
-  gap: 12px;
-}
-
-.rows > div {
-  display: grid;
-  align-items: baseline;
-  grid-template-columns: 1fr;
-  gap: 2px;
-}
-
-.rows dt {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.rows dd {
+.header p {
   margin: 0;
-  font-size: 15px;
+  color: var(--ink-2);
 }
 
-.rows dd small {
-  display: block;
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 12.5px;
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 0.35fr);
+  align-items: start;
+  gap: var(--space-5);
 }
 
-@media (min-width: 620px) {
-  .rows > div {
-    grid-template-columns: 160px 1fr;
-    gap: 16px;
+.actionCard {
+  position: sticky;
+  top: 92px;
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.accountNote {
+  display: flex;
+  margin-bottom: var(--space-5);
+  gap: var(--space-3);
+}
+
+.accountNote > svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--brand-text);
+}
+
+.accountNote p {
+  margin: 5px 0 0;
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
   }
-}
 
-.total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-
-.total b {
-  font-family: var(--display);
-  font-size: 22px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  gap: 10px;
-}
-
-.note {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-/*
- * A changed or lost slot is the one thing that must be read before the CTA, so
- * it sits above the card. Blocking problems take the warning colour; a reprice
- * is only a notice.
- */
-.problem {
-  display: flex;
-  align-items: center;
-  margin-bottom: 14px;
-  padding: 14px 16px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.problem[data-blocking] {
-  border-color: var(--danger);
-}
-
-.problem b {
-  font-family: var(--display);
-  font-size: 15px;
-}
-
-.problem p {
-  margin: 2px 0 0;
-  color: var(--ink-2);
-  font-size: 13.5px;
-}
-
-.problem :last-child:not(p):not(b) {
-  margin-left: auto;
+  .actionCard {
+    position: static;
+  }
 }

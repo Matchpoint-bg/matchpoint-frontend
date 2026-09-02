@@ -1,1 +1,0 @@
-export { ClubVisual } from './ClubVisual';

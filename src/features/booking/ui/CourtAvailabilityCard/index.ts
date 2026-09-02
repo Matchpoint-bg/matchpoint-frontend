@@ -1,1 +1,0 @@
-export { CourtAvailabilityCard } from './CourtAvailabilityCard';

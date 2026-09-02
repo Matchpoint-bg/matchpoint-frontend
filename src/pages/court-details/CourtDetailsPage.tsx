@@ -1,19 +1,23 @@
-import { useMemo, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
+import { useAuth } from '../../features/auth';
 import {
   AvailabilityDatePicker,
   AvailabilityLegend,
   BookingSummary,
   RescheduleNotice,
-  SelectionAnnouncer,
   SlotGrid,
-  useBookSlots,
   useSlotSelection,
 } from '../../features/booking';
 import { CourtHero, useAvailabilityQuery, useCourtQuery } from '../../features/courts';
 import { useSettings } from '../../features/preferences';
 import { useI18n } from '../../i18n';
+import { useToast } from '../../shared/ui/Toast';
+import {
+  useCreateReservationMutation,
+  useUpdateReservationMutation,
+} from '../../features/reservations';
 import { fmt } from '../../shared/lib/format';
 import { BackLink } from '../../shared/ui/BackLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -22,19 +26,15 @@ import { Icon } from '../../shared/ui/Icon';
 import { Spinner } from '../../shared/ui/Spinner';
 import styles from './CourtDetailsPage.module.css';
 
-/**
- * Single-court availability.
- *
- * As of ToDoRedesign §9 this is no longer part of the primary player flow —
- * booking happens on the club page. It survives only as the destination for
- * `/reservations` → reschedule, and retires in Phase 4 once that flow moves.
- */
 export function CourtDetailsPage() {
   const { id } = useParams();
   const courtId = Number(id);
   const { t, lang } = useI18n();
+  const { authed } = useAuth();
   const { demo } = useSettings();
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // `?reschedule=<id>` turns this screen into "pick a new time for that booking".
   const [params] = useSearchParams();
@@ -52,25 +52,69 @@ export function CourtDetailsPage() {
 
   const courtQuery = useCourtQuery(courtId);
   const availabilityQuery = useAvailabilityQuery(courtId, date);
-  const { book, authed, pending } = useBookSlots();
+  const createReservation = useCreateReservationMutation();
+  const updateReservation = useUpdateReservationMutation();
+  const court = {
+    data: courtQuery.data,
+    error: courtQuery.error?.message ?? null,
+    loading: courtQuery.isPending,
+    reload: () => void courtQuery.refetch(),
+  };
+  const slots = {
+    data: availabilityQuery.data,
+    error: availabilityQuery.error?.message ?? null,
+    loading: availabilityQuery.isPending,
+    reload: () => void availabilityQuery.refetch(),
+  };
+  const booking = createReservation.isPending || updateReservation.isPending;
+  const list = slots.data ?? [];
+  const selection = useSlotSelection(list, `${courtId}|${date}|${demo}`);
 
-  const list = useMemo(() => availabilityQuery.data ?? [], [availabilityQuery.data]);
-  const slotsByCourt = useMemo(() => new Map([[courtId, list]]), [courtId, list]);
-  const selection = useSlotSelection(slotsByCourt, `${courtId}|${date}|${demo}`);
-
-  const court = courtQuery.data;
-  const courtError = courtQuery.error?.message ?? null;
+  async function doBook() {
+    if (!selection.first || !selection.last || !court.data) return;
+    // Browsing the grid is public; committing to a slot isn't. Send them back here after.
+    if (!authed) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    const body = {
+      court: court.data.id,
+      start_datetime: selection.first.start,
+      end_datetime: selection.last.end,
+    };
+    try {
+      if (rescheduling && rescheduleId !== null) {
+        await updateReservation.mutateAsync({ id: rescheduleId, body });
+        toast(t('rescheduled_toast'), 'ok');
+        // Land on the booking that just moved, rather than leaving the user on the grid.
+        navigate('/reservations', { state: { highlight: { id: rescheduleId, start: null } } });
+        return;
+      }
+      const created = await createReservation.mutateAsync({
+        body,
+        meta: { amt: selection.total, date },
+      });
+      toast(t('booked_toast'), 'ok');
+      selection.clear();
+      // POST /api/reservations/ answers with a serializer that omits the new id, so the
+      // start time is the only handle we have on the row we just created.
+      navigate('/reservations', {
+        state: { highlight: { id: created?.id ?? null, start: body.start_datetime } },
+      });
+    } catch (err) {
+      const fallback = rescheduling ? t('reschedule_fail') : t('book_fail');
+      toast(err instanceof Error ? err.message : fallback, 'err');
+    }
+  }
 
   return (
     <AppShell active="clubs">
       <BackLink label={t('back')} onClick={() => navigate(-1)} />
 
-      {courtQuery.isPending && <Spinner />}
-      {!courtQuery.isPending && courtError && (
-        <ErrorState msg={courtError} onRetry={() => void courtQuery.refetch()} />
-      )}
+      {court.loading && <Spinner />}
+      {!court.loading && court.error && <ErrorState msg={court.error} onRetry={court.reload} />}
 
-      {!courtQuery.isPending && !courtError && !court && (
+      {!court.loading && !court.error && !court.data && (
         <EmptyState title={t('court_missing_title')} desc={t('court_missing_desc')} icon="info">
           <button
             className={`btn btn--primary ${styles.emptyAction}`}
@@ -82,13 +126,15 @@ export function CourtDetailsPage() {
         </EmptyState>
       )}
 
-      {!courtQuery.isPending && !courtError && court && (
+      {!court.loading && !court.error && court.data && (
         <>
           {rescheduling && (
-            <RescheduleNotice onCancel={() => navigate('/reservations', { replace: true })} />
+            <RescheduleNotice
+              onCancel={() => navigate('/reservations', { replace: true })}
+            />
           )}
 
-          <CourtHero court={court} />
+          <CourtHero court={court.data} />
 
           <div className={`section-head ${styles.availabilityHeading}`}>
             <div>
@@ -103,46 +149,26 @@ export function CourtDetailsPage() {
 
           <SlotGrid
             slots={list}
-            isSelected={(index) => selection.isOn(courtId, index)}
-            loading={availabilityQuery.isPending}
-            error={availabilityQuery.error?.message ?? null}
-            onToggle={(index) => selection.toggle(courtId, index)}
-            onRetry={() => void availabilityQuery.refetch()}
+            selected={selection.selected}
+            loading={slots.loading}
+            error={slots.error}
+            onToggle={selection.toggle}
+            onRetry={slots.reload}
           />
 
-          <SelectionAnnouncer
-            first={selection.first}
-            last={selection.last}
-            total={selection.total}
-            courtName={court.name}
-          />
-
-          {selection.first && selection.last && (
+          {selection.indices.length > 0 && selection.first && selection.last && (
             <BookingSummary
-              courtName={court.name}
               first={selection.first}
               last={selection.last}
-              minutes={selection.minutes}
+              count={selection.indices.length}
               total={selection.total}
+              contiguous={selection.contiguous}
               authenticated={authed}
-              action={rescheduling ? 'reschedule' : 'book'}
-              pending={pending}
-              onClear={selection.clear}
-              onSubmit={() =>
-                void book({
-                  courtId,
-                  first: selection.first as NonNullable<typeof selection.first>,
-                  last: selection.last as NonNullable<typeof selection.last>,
-                  total: selection.total,
-                  date,
-                  rescheduleId: rescheduling ? rescheduleId : null,
-                  onDone: selection.clear,
-                })
-              }
+              rescheduling={rescheduling}
+              pending={booking}
+              onSubmit={() => void doBook()}
             />
           )}
-
-          {selection.first && <div className={styles.barSpacer} aria-hidden="true" />}
         </>
       )}
     </AppShell>

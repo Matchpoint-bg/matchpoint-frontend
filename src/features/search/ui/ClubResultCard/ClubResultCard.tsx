@@ -1,6 +1,6 @@
 import { useI18n } from '../../../../i18n';
+import { fmt } from '../../../../shared/lib/format';
 import { Icon, SurfaceBadge } from '../../../../shared/ui';
-import { ClubVisual } from '../../../clubs';
 import type { Club, ClubCourtSummary } from '../../../clubs';
 import styles from './ClubResultCard.module.css';
 
@@ -14,10 +14,23 @@ interface ClubResultCardProps {
 export function ClubResultCard({ club, courts, index, onView }: ClubResultCardProps) {
   const { t } = useI18n();
   const location = club.address || club.city || t('sofia');
+  const shortIndex = String(index + 1).padStart(2, '0');
 
   return (
     <article className={styles.card}>
-      <ClubVisual index={index} city={club.city} className={styles.visual} />
+      <div className={styles.visual} aria-hidden="true">
+        {club.thumbnail_url && (
+          <img src={club.thumbnail_url} alt="" width="720" height="480" loading="lazy" />
+        )}
+        <span className={styles.number}>{shortIndex}</span>
+        <span className={styles.city}>{club.city || t('sofia')}</span>
+        <div className={styles.courtLines}>
+          <span />
+          <span />
+          <span />
+        </div>
+        <Icon name="ball" className={styles.ball} />
+      </div>
 
       <div className={styles.body}>
         <div className={styles.heading}>
@@ -63,11 +76,14 @@ export function ClubResultCard({ club, courts, index, onView }: ClubResultCardPr
 
         <div className={styles.footer}>
           <span className={styles.availabilityHint}>
-            <Icon name="clock" />
-            {t('search_times_inside')}
+            {club.starting_price ? (
+              <><Icon name="tag" />{t('search_price_from')} {fmt.money(club.starting_price)}</>
+            ) : (
+              <><Icon name="clock" />{t('search_times_inside')}</>
+            )}
           </span>
           <button type="button" onClick={onView}>
-            {t('search_view_times')}
+            {t('search_view_details')}
             <span aria-hidden="true">→</span>
           </button>
         </div>
