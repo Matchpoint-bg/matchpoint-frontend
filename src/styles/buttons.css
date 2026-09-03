@@ -9,6 +9,9 @@
   font-size: 14.5px;
   font-weight: 700;
   white-space: nowrap;
+  /* `LinkButton` renders an anchor, which would otherwise carry the global
+     link underline and read differently from the buttons beside it. */
+  text-decoration: none;
   cursor: pointer;
   transition: transform var(--duration-fast) var(--ease-out), filter var(--duration-fast), background var(--duration-fast), border-color var(--duration-fast), box-shadow var(--duration-fast);
   gap: 8px;

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { queryScope } from '../../../shared/api/queryScope';
 import { courtKeys } from '../../courts/model/court.queries';
 import { reservationsApi } from '../api/reservations.api';
@@ -19,6 +20,27 @@ export function useReservationsQuery() {
     queryFn: reservationsApi.list,
     staleTime: 0,
   });
+}
+
+/**
+ * One booking, read out of the list.
+ *
+ * The API has no detail endpoint (§15), and the list is small, user-scoped and
+ * never stale (`staleTime: 0`), so a deep link costs the same single request a
+ * detail endpoint would.
+ */
+export function useReservationQuery(id: number) {
+  const query = useReservationsQuery();
+  const reservation = useMemo(
+    () => (query.data ?? []).find((item) => item.id === id) ?? null,
+    [query.data, id],
+  );
+  return {
+    reservation,
+    isPending: query.isPending,
+    error: query.error,
+    refetch: () => void query.refetch(),
+  };
 }
 
 function useInvalidateReservations() {

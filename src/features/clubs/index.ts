@@ -1,6 +1,7 @@
 export { clubsApi } from './api/clubs.api';
 export {
   clubKeys,
+  clubQueryOptions,
   useAddOpeningHourMutation,
   useClubCourtsQuery,
   useClubEmployeesQuery,

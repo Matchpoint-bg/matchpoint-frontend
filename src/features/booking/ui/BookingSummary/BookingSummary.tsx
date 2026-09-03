@@ -11,7 +11,6 @@ interface BookingSummaryProps {
   total: number;
   contiguous: boolean;
   authenticated: boolean;
-  rescheduling: boolean;
   pending: boolean;
   onSubmit: () => void;
 }
@@ -38,13 +37,7 @@ export function BookingSummary(props: BookingSummaryProps) {
           onClick={props.onSubmit}
         >
           <Icon name={props.authenticated ? 'check' : 'user'} />
-          {!props.authenticated
-            ? t('sign_in')
-            : props.pending
-              ? t('booking')
-              : props.rescheduling
-                ? t('confirm_reschedule')
-                : t('book')}
+          {!props.authenticated ? t('sign_in') : props.pending ? t('booking') : t('book')}
         </button>
       </div>
     </div>

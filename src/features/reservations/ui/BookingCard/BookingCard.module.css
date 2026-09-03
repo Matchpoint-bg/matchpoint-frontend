@@ -1,13 +1,8 @@
-.flash {
-  border-color: var(--ball);
-  box-shadow: 0 0 0 3px rgba(123, 193, 51, 0.22);
-}
-
 .row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 14px 16px 10px;
 }
 
 .calendar {
@@ -32,7 +27,6 @@
   color: var(--muted);
   font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -41,17 +35,31 @@
   min-width: 0;
 }
 
-.main h3 {
-  margin: 0 0 3px;
+.heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.heading h3 {
+  margin: 0;
   font-family: var(--display);
   font-size: 16px;
   font-weight: 800;
 }
 
+.court {
+  margin: 2px 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .details {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 6px 12px;
   color: var(--muted);
   font-size: 13px;
 }
@@ -60,9 +68,11 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  min-width: 0;
 }
 
 .details svg {
+  flex: none;
   width: 13px;
   height: 13px;
   color: var(--faint);
@@ -70,9 +80,10 @@
 
 .actions {
   display: flex;
-  align-items: center;
-  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+  padding: 0 16px 14px;
 }
 
 :global(:root[data-theme='dark']) .calendar {
@@ -80,13 +91,11 @@
 }
 
 @media (max-width: 520px) {
-  .row {
-    align-items: flex-start;
-    flex-wrap: wrap;
+  .actions {
+    justify-content: stretch;
   }
 
-  .actions {
-    width: 100%;
-    justify-content: flex-end;
+  .actions > * {
+    flex: 1 1 auto;
   }
 }

@@ -1,13 +1,15 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import { useAuth } from '../../features/auth';
 import {
+  BookingList,
   CancelReservationModal,
-  ReservationGroup,
+  useBookingViews,
   useDeleteReservationMutation,
   useReservationOverview,
 } from '../../features/reservations';
-import type { Reservation } from '../../features/reservations';
+import type { BookingView } from '../../features/reservations';
 import { useI18n } from '../../i18n';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorState } from '../../shared/ui/ErrorState';
@@ -15,12 +17,11 @@ import { Icon } from '../../shared/ui/Icon';
 import { useModal } from '../../shared/ui/Modal';
 import { SectionHeader } from '../../shared/ui/SectionHeader';
 import { Spinner } from '../../shared/ui/Spinner';
+import { Tabs } from '../../shared/ui/Tabs';
 import { useToast } from '../../shared/ui/Toast';
 import styles from './ReservationsPage.module.css';
 
-interface HighlightState {
-  highlight?: { id: number | null; start: string | null };
-}
+type BookingsTab = 'upcoming' | 'past';
 
 export function ReservationsPage() {
   const { t } = useI18n();
@@ -28,30 +29,53 @@ export function ReservationsPage() {
   const { openModal, closeModal } = useModal();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const deleteReservation = useDeleteReservationMutation();
   const overview = useReservationOverview();
-  const highlight = (location.state as HighlightState | null)?.highlight ?? null;
+  const { byId } = useBookingViews(overview.reservations);
 
-  const courtLabel = (reservation: Reservation) =>
-    overview.courtNames.get(reservation.court) ??
-    `${t('tennis_court')} #${reservation.court}`;
+  // The tab lives in the URL: it survives a refresh, and a player can send
+  // someone "my past bookings" as a link.
+  const tab: BookingsTab = searchParams.get('tab') === 'past' ? 'past' : 'upcoming';
+  const setTab = (next: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', next);
+    setSearchParams(params, { replace: true });
+  };
 
-  const isHighlighted = (reservation: Reservation) =>
-    highlight !== null &&
-    ((highlight.id !== null && reservation.id === highlight.id) ||
-      (highlight.start !== null && reservation.start_datetime === highlight.start));
+  const newBookingId = Number(searchParams.get('new'));
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const newBooking =
+    !bannerDismissed && Number.isFinite(newBookingId) ? (byId.get(newBookingId) ?? null) : null;
 
-  function askCancel(reservation: Reservation) {
+  const upcomingViews = useMemo(
+    () => overview.upcoming.map((reservation) => byId.get(reservation.id)).filter(Boolean),
+    [overview.upcoming, byId],
+  ) as BookingView[];
+  // History reads newest first; the schedule reads soonest first.
+  const pastViews = useMemo(
+    () =>
+      overview.past
+        .map((reservation) => byId.get(reservation.id))
+        .filter(Boolean)
+        .reverse(),
+    [overview.past, byId],
+  ) as BookingView[];
+
+  const openBooking = (view: BookingView) => navigate(`/reservations/${view.id}`);
+
+  const goReschedule = (view: BookingView) =>
+    navigate(`/clubs/${view.clubId}?date=${view.date}&reschedule=${view.id}`);
+
+  function askCancel(view: BookingView) {
     openModal(
       t('cancel_title'),
       <CancelReservationModal
-        reservation={reservation}
-        courtLabel={courtLabel(reservation)}
+        view={view}
         onKeep={closeModal}
         onConfirm={async () => {
           try {
-            await deleteReservation.mutateAsync(reservation.id);
+            await deleteReservation.mutateAsync(view.id);
             toast(t('cancelled_toast'), 'ok');
             closeModal();
           } catch (error) {
@@ -62,8 +86,11 @@ export function ReservationsPage() {
     );
   }
 
-  const goReschedule = (reservation: Reservation) =>
-    navigate(`/courts/${reservation.court}?reschedule=${reservation.id}`);
+  const listProps = {
+    onView: openBooking,
+    onCancel: askCancel,
+    onReschedule: goReschedule,
+  };
 
   return (
     <AppShell active="reservations">
@@ -77,6 +104,25 @@ export function ReservationsPage() {
           {t('book_more')}
         </button>
       </SectionHeader>
+
+      {newBooking && (
+        <div className={styles.banner} role="status">
+          <Icon name="check" />
+          <p>
+            <b>{t('booking_confirmed_banner')}</b> · {newBooking.reference}
+          </p>
+          <button className="btn btn--soft btn--sm" onClick={() => openBooking(newBooking)}>
+            {t('view_booking')}
+          </button>
+          <button
+            className={styles.dismiss}
+            aria-label={t('dismiss')}
+            onClick={() => setBannerDismissed(true)}
+          >
+            <Icon name="x" />
+          </button>
+        </div>
+      )}
 
       {overview.loading && <Spinner />}
       {!overview.loading && overview.error && (
@@ -95,26 +141,58 @@ export function ReservationsPage() {
         </EmptyState>
       )}
 
-      {!overview.loading && !overview.error && (
+      {!overview.loading && !overview.error && overview.reservations.length > 0 && (
         <>
-          <ReservationGroup
-            label={t('upcoming')}
-            reservations={overview.upcoming}
-            upcoming
-            courtLabel={courtLabel}
-            isHighlighted={isHighlighted}
-            onCancel={askCancel}
-            onReschedule={goReschedule}
+          <Tabs
+            items={[
+              { value: 'upcoming', label: `${t('upcoming')} (${upcomingViews.length})` },
+              { value: 'past', label: `${t('past')} (${pastViews.length})` },
+            ]}
+            value={tab}
+            onChange={setTab}
+            variant="segmented"
+            label={t('bookings_tabs_label')}
+            getPanelId={(value) => `bookings-${value}-panel`}
+            className={styles.tabs}
           />
-          <ReservationGroup
-            label={t('past')}
-            reservations={overview.past}
-            upcoming={false}
-            courtLabel={courtLabel}
-            isHighlighted={isHighlighted}
-            onCancel={askCancel}
-            onReschedule={goReschedule}
-          />
+
+          <div
+            id="bookings-upcoming-panel"
+            role="tabpanel"
+            aria-label={t('upcoming')}
+            hidden={tab !== 'upcoming'}
+          >
+            <BookingList
+              views={upcomingViews}
+              empty={
+                <EmptyState
+                  title={t('no_upcoming_res_title')}
+                  desc={t('no_upcoming_res_desc')}
+                  icon="ticket"
+                />
+              }
+              {...listProps}
+            />
+          </div>
+
+          <div
+            id="bookings-past-panel"
+            role="tabpanel"
+            aria-label={t('past')}
+            hidden={tab !== 'past'}
+          >
+            <BookingList
+              views={pastViews}
+              empty={
+                <EmptyState
+                  title={t('no_past_res_title')}
+                  desc={t('no_past_res_desc')}
+                  icon="clock"
+                />
+              }
+              {...listProps}
+            />
+          </div>
         </>
       )}
     </AppShell>

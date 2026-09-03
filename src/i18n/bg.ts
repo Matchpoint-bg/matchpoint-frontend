@@ -306,8 +306,6 @@ export const bg: Record<TranslationKey, string> = {
   rescheduling_title: "Преместване",
   rescheduling_desc: "Избери нов час за тази резервация. Старият слот се освобождава при потвърждение.",
   confirm_reschedule: "Потвърди новия час",
-  rescheduled_toast: "Резервацията е преместена",
-  reschedule_fail: "Преместването не бе успешно",
   cancel_reschedule: "Запази оригиналния час",
 
   // Not-found guards
@@ -441,6 +439,26 @@ export const bg: Record<TranslationKey, string> = {
   add_to_calendar: "Добави в календара",
   confirmation_missing_title: "Потвърждението не е намерено",
   confirmation_missing_desc: "Отвори „Моите резервации“, за да видиш текущите си резервации.",
+  reschedule_confirmed_eyebrow: "Преместена резервация",
+  reschedule_confirmed_title: "Новият час е запазен",
+
+  // My bookings (§12)
+  bookings_tabs_label: "Резервации по период",
+  booking_details_eyebrow: "Резервация",
+  booking_details_title: "Детайли за резервацията",
+  booking_not_found_title: "Резервацията не е намерена",
+  booking_not_found_desc: "Възможно е да е отказана или да принадлежи на друг профил.",
+  view_booking: "Виж",
+  booking_confirmed_banner: "Резервацията е потвърдена",
+  dismiss: "Скрий",
+  no_upcoming_res_title: "Няма предстоящи резервации",
+  no_upcoming_res_desc: "Намери свободен корт и следващият ти мач ще се появи тук.",
+  no_past_res_title: "Няма изиграни резервации",
+  no_past_res_desc: "Тук ще виждаш мачовете, които вече си изиграл.",
+  cancel_consequence:
+    "Часът се освобождава веднага за други играчи, а резервацията изчезва от списъка ти.",
+  cancel_free_window: "Отказваш повече от 24 часа предварително — отказът е безплатен.",
+  cancel_late_warning: "Остават по-малко от 24 часа до началото — клубът може да таксува резервацията.",
 };
 
 /**

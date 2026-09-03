@@ -3,6 +3,7 @@ import { ErrorBoundary } from '../../shared/ui/ErrorBoundary';
 import { AuthPage } from '../../pages/auth';
 import { BookingCheckoutPage } from '../../pages/booking-checkout';
 import { BookingConfirmationPage } from '../../pages/booking-confirmation';
+import { BookingDetailsPage } from '../../pages/booking-details';
 import { BookingReviewPage } from '../../pages/booking-review';
 import {
   ClubBookingsPage,
@@ -48,6 +49,7 @@ export function AppRouter() {
           <Route path="/courts/:id" element={<CourtDetailsPage />} />
           <Route path="/for-clubs" element={<ForClubsPage />} />
           <Route path="/reservations" element={<RequireAuth><ReservationsPage /></RequireAuth>} />
+          <Route path="/reservations/:id" element={<RequireAuth><BookingDetailsPage /></RequireAuth>} />
           <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
           <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
           {/* Club operator workspace — separate IA from the player app (§4). */}

@@ -2,6 +2,7 @@ import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { courtQueryOptions } from '../../courts/model/court.queries';
 import { useReservationsQuery } from './reservation.queries';
+import { partitionReservations } from './reservationStatus';
 
 export function useReservationOverview() {
   const reservationsQuery = useReservationsQuery();
@@ -27,13 +28,7 @@ export function useReservationOverview() {
     if (name) courtNames.set(id, name);
   });
 
-  const now = Date.now();
-  const upcoming = reservations.filter(
-    (reservation) => new Date(reservation.end_datetime).getTime() >= now,
-  );
-  const past = reservations.filter(
-    (reservation) => new Date(reservation.end_datetime).getTime() < now,
-  );
+  const { upcoming, past } = partitionReservations(reservations);
 
   return {
     reservations,

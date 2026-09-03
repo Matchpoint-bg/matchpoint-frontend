@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryScope } from '../../../shared/api/queryScope';
 import { clubsApi } from '../api/clubs.api';
 import type { Club, OpeningHour } from './club.types';
@@ -21,13 +21,22 @@ export function useClubsQuery() {
   });
 }
 
-export function useClubQuery(clubId: number) {
+/**
+ * Also consumed through `useQueries` when a screen resolves several clubs at
+ * once (the bookings list), so it stays a shared options factory rather than
+ * living inside the hook.
+ */
+export function clubQueryOptions(clubId: number) {
   const scope = queryScope();
-  return useQuery({
+  return queryOptions({
     queryKey: clubKeys.detail(scope, clubId),
     queryFn: () => (Number.isFinite(clubId) ? clubsApi.get(clubId) : Promise.resolve(null)),
     staleTime: 2 * 60_000,
   });
+}
+
+export function useClubQuery(clubId: number) {
+  return useQuery(clubQueryOptions(clubId));
 }
 
 export function useClubCourtsQuery(clubId: number) {

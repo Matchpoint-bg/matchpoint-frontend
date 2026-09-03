@@ -1,7 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import { BookingAuthModal, useAuth } from '../../features/auth';
-import { BookingIntentCard, useBookingIntentValidation } from '../../features/booking';
+import {
+  BookingIntentCard,
+  clubBookingUrl,
+  RescheduleNotice,
+  useBookingIntentValidation,
+} from '../../features/booking';
 import { useI18n } from '../../i18n';
 import { BackLink, Button, EmptyState, ErrorState, Icon, Spinner } from '../../shared/ui';
 import { useModal } from '../../shared/ui/Modal';
@@ -14,8 +19,9 @@ export function BookingReviewPage() {
   const { openModal, closeModal } = useModal();
   const { t } = useI18n();
   const { intent, query, valid } = useBookingIntentValidation(courtId);
-  const clubUrl = intent ? `/clubs/${intent.clubId}?date=${intent.date}` : '/players';
+  const clubUrl = intent ? clubBookingUrl(intent) : '/players';
   const checking = query.isPending || query.isFetching;
+  const rescheduling = intent?.rescheduleOf !== undefined;
 
   const proceed = () => {
     if (!authed) {
@@ -36,6 +42,10 @@ export function BookingReviewPage() {
   return (
     <AppShell active="clubs">
       <BackLink label={t('change_time')} onClick={() => navigate(clubUrl)} />
+
+      {rescheduling && (
+        <RescheduleNotice onCancel={() => navigate('/reservations', { replace: true })} />
+      )}
 
       <header className={styles.header}>
         <span className="eyebrow">{t('review_eyebrow')}</span>
@@ -75,7 +85,7 @@ export function BookingReviewPage() {
               </div>
             )}
             <Button block icon="arrowRight" iconPosition="end" onClick={proceed}>
-              {t('continue')}
+              {rescheduling ? t('confirm_reschedule') : t('continue')}
             </Button>
           </aside>
         </div>

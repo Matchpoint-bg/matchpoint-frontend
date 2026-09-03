@@ -304,8 +304,6 @@ export const en = {
   rescheduling_title: "Rescheduling",
   rescheduling_desc: "Pick a new time for this booking. The old slot is released once you confirm.",
   confirm_reschedule: "Confirm new time",
-  rescheduled_toast: "Booking moved",
-  reschedule_fail: "Could not reschedule",
   cancel_reschedule: "Keep original time",
 
   // Not-found guards
@@ -439,6 +437,26 @@ export const en = {
   add_to_calendar: "Add to calendar",
   confirmation_missing_title: "Confirmation not found",
   confirmation_missing_desc: "Open My bookings to see your current reservations.",
+  reschedule_confirmed_eyebrow: "Booking moved",
+  reschedule_confirmed_title: "Your new time is set",
+
+  // My bookings (§12)
+  bookings_tabs_label: "Booking history",
+  booking_details_eyebrow: "Booking",
+  booking_details_title: "Booking details",
+  booking_not_found_title: "Booking not found",
+  booking_not_found_desc: "It may have been cancelled, or it belongs to another account.",
+  view_booking: "View",
+  booking_confirmed_banner: "Booking confirmed",
+  dismiss: "Dismiss",
+  no_upcoming_res_title: "No upcoming bookings",
+  no_upcoming_res_desc: "Find a free court and your next match will show up here.",
+  no_past_res_title: "No past bookings",
+  no_past_res_desc: "Matches you have played will be listed here.",
+  cancel_consequence:
+    "The slot is released for other players straight away and this booking is removed from your list.",
+  cancel_free_window: "You are cancelling more than 24 hours ahead, so this cancellation is free.",
+  cancel_late_warning: "Less than 24 hours to the start — the club may charge for this booking.",
 };
 
 /** Every translatable string in the app. Adding a key here forces bg.ts to define it too. */

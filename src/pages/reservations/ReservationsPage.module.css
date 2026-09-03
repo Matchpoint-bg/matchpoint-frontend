@@ -1,3 +1,66 @@
 .emptyAction {
   margin-top: 6px;
 }
+
+.tabs {
+  margin-bottom: 14px;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--ball);
+  border-radius: 12px;
+  background: var(--pale);
+}
+
+.banner > svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--ball);
+}
+
+.banner p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+}
+
+.dismiss {
+  flex: none;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.dismiss svg {
+  width: 14px;
+  height: 14px;
+}
+
+.dismiss:hover {
+  color: var(--ink);
+}
+
+:global(:root[data-theme='dark']) .banner {
+  background: var(--court-3);
+}
+
+@media (max-width: 520px) {
+  .banner {
+    flex-wrap: wrap;
+  }
+
+  .banner p {
+    flex: 1 1 100%;
+    order: -1;
+  }
+}

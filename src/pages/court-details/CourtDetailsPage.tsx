@@ -6,7 +6,6 @@ import {
   AvailabilityDatePicker,
   AvailabilityLegend,
   BookingSummary,
-  RescheduleNotice,
   SlotGrid,
   useSlotSelection,
 } from '../../features/booking';
@@ -14,10 +13,7 @@ import { CourtHero, useAvailabilityQuery, useCourtQuery } from '../../features/c
 import { useSettings } from '../../features/preferences';
 import { useI18n } from '../../i18n';
 import { useToast } from '../../shared/ui/Toast';
-import {
-  useCreateReservationMutation,
-  useUpdateReservationMutation,
-} from '../../features/reservations';
+import { useCreateReservationMutation } from '../../features/reservations';
 import { fmt } from '../../shared/lib/format';
 import { BackLink } from '../../shared/ui/BackLink';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -36,11 +32,7 @@ export function CourtDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // `?reschedule=<id>` turns this screen into "pick a new time for that booking".
   const [params] = useSearchParams();
-  const rescheduleParam = params.get('reschedule');
-  const rescheduleId = rescheduleParam !== null ? Number(rescheduleParam) : null;
-  const rescheduling = rescheduleId !== null && Number.isFinite(rescheduleId);
 
   const [date, setDate] = useState(() => {
     const requested = params.get('date');
@@ -53,7 +45,6 @@ export function CourtDetailsPage() {
   const courtQuery = useCourtQuery(courtId);
   const availabilityQuery = useAvailabilityQuery(courtId, date);
   const createReservation = useCreateReservationMutation();
-  const updateReservation = useUpdateReservationMutation();
   const court = {
     data: courtQuery.data,
     error: courtQuery.error?.message ?? null,
@@ -66,7 +57,7 @@ export function CourtDetailsPage() {
     loading: availabilityQuery.isPending,
     reload: () => void availabilityQuery.refetch(),
   };
-  const booking = createReservation.isPending || updateReservation.isPending;
+  const booking = createReservation.isPending;
   const list = slots.data ?? [];
   const selection = useSlotSelection(list, `${courtId}|${date}|${demo}`);
 
@@ -83,27 +74,18 @@ export function CourtDetailsPage() {
       end_datetime: selection.last.end,
     };
     try {
-      if (rescheduling && rescheduleId !== null) {
-        await updateReservation.mutateAsync({ id: rescheduleId, body });
-        toast(t('rescheduled_toast'), 'ok');
-        // Land on the booking that just moved, rather than leaving the user on the grid.
-        navigate('/reservations', { state: { highlight: { id: rescheduleId, start: null } } });
-        return;
-      }
       const created = await createReservation.mutateAsync({
         body,
         meta: { amt: selection.total, date },
       });
       toast(t('booked_toast'), 'ok');
       selection.clear();
-      // POST /api/reservations/ answers with a serializer that omits the new id, so the
-      // start time is the only handle we have on the row we just created.
-      navigate('/reservations', {
-        state: { highlight: { id: created?.id ?? null, start: body.start_datetime } },
-      });
+      // POST /api/reservations/ answers with a serializer that omits the new id.
+      // With one, the list can point straight at the new booking; without, it
+      // simply opens on Upcoming.
+      navigate(created?.id ? `/reservations?new=${created.id}` : '/reservations');
     } catch (err) {
-      const fallback = rescheduling ? t('reschedule_fail') : t('book_fail');
-      toast(err instanceof Error ? err.message : fallback, 'err');
+      toast(err instanceof Error ? err.message : t('book_fail'), 'err');
     }
   }
 
@@ -128,12 +110,6 @@ export function CourtDetailsPage() {
 
       {!court.loading && !court.error && court.data && (
         <>
-          {rescheduling && (
-            <RescheduleNotice
-              onCancel={() => navigate('/reservations', { replace: true })}
-            />
-          )}
-
           <CourtHero court={court.data} />
 
           <div className={`section-head ${styles.availabilityHeading}`}>
@@ -164,7 +140,6 @@ export function CourtDetailsPage() {
               total={selection.total}
               contiguous={selection.contiguous}
               authenticated={authed}
-              rescheduling={rescheduling}
               pending={booking}
               onSubmit={() => void doBook()}
             />
