@@ -1,6 +1,18 @@
 import { apiUrl, httpClient } from '../../../shared/api/httpClient';
+import { currentUserId } from '../../../shared/api/session';
 import { store } from '../../../shared/storage/store';
 import type { RegisterPayload, UpdateUserPayload, User } from '../model/auth.types';
+
+interface LoginResponse {
+  access: string;
+  refresh: string;
+  user?: User;
+}
+
+function withId(user: User): User {
+  const pk = user.pk ?? currentUserId();
+  return pk === undefined ? user : { ...user, pk };
+}
 
 async function getCurrentUser(): Promise<User> {
   if (store.demo) {
@@ -11,14 +23,10 @@ async function getCurrentUser(): Promise<User> {
       is_staff: store.staff,
     };
   }
-  const base = await httpClient.json<User>('/api/v1/auth/user/');
-  if (base.pk === undefined) return base;
-  try {
-    const details = await httpClient.json<User>(`/api/users/${base.pk}/`);
-    return { ...base, ...details, pk: base.pk };
-  } catch {
-    return base;
-  }
+  // `/api/v1/auth/user/` is already backed by `UserSerializer` (REST_AUTH's
+  // USER_DETAILS_SERIALIZER), the same one `/api/users/{pk}/` returns, so there is
+  // nothing further to fetch.
+  return withId(await httpClient.json<User>('/api/v1/auth/user/'));
 }
 
 async function login(email: string, password: string): Promise<void> {
@@ -34,15 +42,22 @@ async function login(email: string, password: string): Promise<void> {
     };
     return;
   }
-  const tokens = await httpClient.json<{ access: string; refresh: string }>(
-    '/api/v1/auth/login/',
-    { method: 'POST', noAuth: true, body: JSON.stringify({ email, password }) },
-  );
-  store.setTokens(tokens.access, tokens.refresh);
+  const session = await httpClient.json<LoginResponse>('/api/v1/auth/login/', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({ email, password }),
+  });
+  store.setTokens(session.access, session.refresh);
+  // dj-rest-auth returns the user alongside the tokens, so the usual case costs
+  // one request. The re-fetch is only for a backend that stops doing that.
+  if (session.user) {
+    store.user = withId(session.user);
+    return;
+  }
   try {
     store.user = await getCurrentUser();
   } catch {
-    store.user = { email };
+    store.user = withId({ email });
   }
 }
 
@@ -79,7 +94,7 @@ async function updateUser(payload: UpdateUserPayload): Promise<User> {
     store.user = user;
     return user;
   }
-  const pk = store.user?.pk ?? (await getCurrentUser()).pk;
+  const pk = store.user?.pk ?? currentUserId() ?? (await getCurrentUser()).pk;
   if (pk === undefined) throw new Error('Cannot resolve the current user');
   const details = await httpClient.json<User>(`/api/users/${pk}/`, {
     method: 'PATCH',

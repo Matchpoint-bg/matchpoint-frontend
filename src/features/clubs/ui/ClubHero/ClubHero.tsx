@@ -23,7 +23,7 @@ export function ClubHero({ club }: { club: Club }) {
       </div>
       <div className={styles.visual}>
         {club.thumbnail_url ? (
-          <img src={club.thumbnail_url} alt="" width="720" height="480" />
+          <img src={club.thumbnail_url} alt="" width="720" height="480" loading="lazy" />
         ) : (
           <span>
             <Icon name="court" />

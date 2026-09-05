@@ -10,6 +10,12 @@ export interface Court {
   surface_type: Surface | string;
   is_indoor: boolean;
   is_lit: boolean;
+  /**
+   * Flattened from the API's `images: [{ image }]`. The rows carry no id and no
+   * ordering column, so this is only ever a list of URLs in whatever order the
+   * database returned them.
+   */
+  image_urls?: string[];
 }
 
 export interface Price {

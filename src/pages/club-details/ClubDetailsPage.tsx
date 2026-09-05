@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import {
+  ClubGallery,
   ClubHero,
+  clubPhotos,
   OpeningHoursCard,
   useClubCourtsQuery,
   useClubOpeningHoursQuery,
@@ -162,13 +164,10 @@ export function ClubDetailsPage() {
               <div className={styles.infoGrid}>
                 <OpeningHoursCard hours={hoursQuery.data ?? []} />
 
-                <div className={styles.galleryCard}>
-                  {(clubQuery.data.gallery_urls?.[0] || clubQuery.data.thumbnail_url) ? (
-                    <img src={clubQuery.data.gallery_urls?.[0] || clubQuery.data.thumbnail_url} alt={clubQuery.data.name} />
-                  ) : (
-                    <span><Icon name="court" />{t('club_gallery_fallback')}</span>
-                  )}
-                </div>
+                <ClubGallery
+                  photos={clubPhotos(clubQuery.data, courtsQuery.data ?? [])}
+                  clubName={clubQuery.data.name}
+                />
 
               </div>
             </section>

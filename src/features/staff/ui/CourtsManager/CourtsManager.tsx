@@ -7,6 +7,7 @@ import { ErrorState } from '../../../../shared/ui/ErrorState';
 import { Icon } from '../../../../shared/ui/Icon';
 import { Spinner } from '../../../../shared/ui/Spinner';
 import { CourtFormModal } from '../modals/CourtFormModal';
+import { CourtImagesModal } from '../modals/CourtImagesModal';
 import { DeleteCourtModal } from '../modals/DeleteCourtModal';
 import { PricesModal } from '../modals/PricesModal';
 import { UnavailabilityModal } from '../modals/UnavailabilityModal';
@@ -70,6 +71,20 @@ export function CourtsManager({ clubId }: { clubId: number }) {
             >
               <Icon name="tag" />
               {t('prices')}
+            </button>
+            <button
+              className="btn btn--outline btn--sm"
+              onClick={() =>
+                openModal(
+                  t('court_photos'),
+                  <CourtImagesModal clubId={clubId} courtId={court.id} onDone={refresh} />,
+                )
+              }
+            >
+              <Icon name="image" />
+              {court.image_urls?.length
+                ? `${court.image_urls.length} ${t('photo_count')}`
+                : t('court_photo_add')}
             </button>
             <button
               className="btn btn--outline btn--sm"

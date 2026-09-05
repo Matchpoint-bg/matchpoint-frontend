@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ClubShell } from '../../app/layout/ClubShell';
-import { EditClubModal, OpeningHoursEditor, useStaffClub } from '../../features/staff';
+import {
+  ClubPhotoEditor,
+  EditClubModal,
+  OpeningHoursEditor,
+  useStaffClub,
+} from '../../features/staff';
 import { useI18n } from '../../i18n';
 import { Button, Card, CardTitle, Icon, Select, useModal } from '../../shared/ui';
 import { ClubGate } from './ClubGate';
@@ -33,6 +38,12 @@ export function ClubSettingsPage() {
               >
                 {t('edit_club')}
               </Button>
+            </Card>
+
+            <Card padded className={styles.card}>
+              <CardTitle icon="image">{t('club_photos_card')}</CardTitle>
+              <p className="small-note">{t('club_photos_desc')}</p>
+              <ClubPhotoEditor club={club} />
             </Card>
 
             <Card padded className={styles.card}>

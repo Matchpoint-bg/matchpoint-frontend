@@ -1,7 +1,9 @@
 export { useStaffClub } from './model/useStaffClub';
+export { ClubPhotoEditor } from './ui/ClubPhotoEditor';
 export { CourtsManager } from './ui/CourtsManager';
 export { OpeningHoursEditor } from './ui/OpeningHoursEditor';
 export { CourtFormModal } from './ui/modals/CourtFormModal';
+export { CourtImagesModal } from './ui/modals/CourtImagesModal';
 export { DeleteCourtModal } from './ui/modals/DeleteCourtModal';
 export { EditClubModal } from './ui/modals/EditClubModal';
 export { EmployeesModal } from './ui/modals/EmployeesModal';

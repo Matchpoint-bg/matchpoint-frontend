@@ -381,7 +381,7 @@ MatchPoint трябва да комбинира:
 - [x] Проучи endpoint за aggregated availability по city/sport/date/time. Текущият backend няма такъв endpoint; остава отделна API зависимост.
 - [x] Не допускай N clubs × N courts заявки от frontend-а като production решение.
 - [ ] Добави `starting_price` или еквивалентен aggregate.
-- [ ] Добави club thumbnail/image field.
+- [x] Добави club thumbnail/image field. _(`header_image` идва от `ClubListSerializer`; detail serializer-ът още го няма, затова `clubsApi.get` го дочита от list-а.)_
 
 ### Acceptance criteria
 
@@ -397,7 +397,7 @@ MatchPoint трябва да комбинира:
 ### Club profile
 
 - [x] Compact club identity: име, квартал/адрес, trust facts.
-- [x] Gallery с оптимизирани изображения и fallback. _(`Club.images` е optional; при липса се показва court placeholder)_
+- [x] Gallery с оптимизирани изображения и fallback. _(`ClubGallery`: основна снимка + thumbnail лента; при липса се показва court placeholder.)_
 - [x] Facilities, surfaces, indoor/outdoor и осветление.
 - [x] Map/directions action. _(lat/lng, когато ги има; иначе name + address към Maps)_
 - [x] Phone и website actions.
@@ -678,7 +678,7 @@ MatchPoint трябва да комбинира:
 ### Clubs
 
 - [ ] `slug`.
-- [ ] thumbnail и gallery images.
+- [x] thumbnail и gallery images. _(Клубът има едно `header_image`; галерията се сглобява от него плюс снимките на кортовете.)_
 - [ ] latitude/longitude или map location.
 - [ ] facilities.
 - [ ] cancellation policy.

@@ -5,3 +5,23 @@
 .availabilityHeading {
   margin-top: 6px;
 }
+
+/* Court photos scroll sideways rather than pushing the availability grid —
+   the slot picker is what people came for. */
+.photos {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.photos img {
+  flex: 0 0 auto;
+  width: 240px;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}

@@ -16,6 +16,8 @@ services:
       API_ORIGIN: "${API_ORIGIN:-http://host.docker.internal:8000}"
       # Widen only if you build with an absolute VITE_API_URL (cross-origin API calls).
       CSP_CONNECT_SRC: "${CSP_CONNECT_SRC:-'self'}"
+      # Uploaded photos come from Cloudinary; data: covers the demo fixtures.
+      CSP_IMG_SRC: "${CSP_IMG_SRC:-'self' data: https://res.cloudinary.com}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

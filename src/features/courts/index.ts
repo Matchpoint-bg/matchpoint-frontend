@@ -5,6 +5,7 @@ export {
   availabilityQueryOptions,
   courtKeys,
   courtQueryOptions,
+  useAddCourtImageMutation,
   useAddUnavailabilityMutation,
   useAvailabilityQuery,
   useCourtPricesQuery,
@@ -13,4 +14,5 @@ export {
   useSaveCourtMutation,
   useSetCourtPricesMutation,
 } from './model/court.queries';
+export { CLUB_TIMEZONE, normalizeSlots, SLOT_MINUTES } from './model/slots';
 export type { Court, Price, Slot, Surface, Unavailability } from './model/court.types';

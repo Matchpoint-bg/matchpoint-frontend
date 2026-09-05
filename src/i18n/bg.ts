@@ -362,6 +362,23 @@ export const bg: Record<TranslationKey, string> = {
   club_details_card: "Данни за клуба",
   club_details_desc: "Име, описание и контакти, които играчите виждат.",
 
+  // Staff: photos
+  club_photos_card: "Снимки",
+  club_photos_desc: "Една основна снимка за клуба и по една за всеки корт. И двете се виждат на страницата на клуба.",
+  club_photo_upload: "Качи снимка",
+  club_photo_replace: "Смени снимката",
+  club_photo_updated: "Снимката на клуба е обновена",
+  club_photo_hint: "PNG, JPG или WebP, до 5 MB.",
+  court_photos: "Снимки на корта",
+  court_photos_desc: "Снимки на този корт, които се показват в галерията на клуба.",
+  court_photo_add: "Добави снимка",
+  court_photo_added: "Снимката на корта е добавена",
+  no_court_photos: "Още няма снимки за този корт.",
+  photo_invalid_format: "Използвай PNG, JPG или WebP изображение",
+  photo_too_large: "Изображението е над 5 MB — избери по-малко",
+  photo_delete_unavailable: "Снимките още не могат да се изтриват оттук. Управителят на клуба може да ги премахне в Django admin.",
+  photo_count: "снимки",
+
   // Staff: club picker
   staff_club_card: "Клуб, който управляваш",
   staff_club_desc: "Избери клуба, за който важат тези настройки.",
@@ -377,6 +394,7 @@ export const bg: Record<TranslationKey, string> = {
   hours_saved: "Работното време е обновено",
   hours_removed: "Денят е отбелязан като затворен",
   hours_invalid_order: "Часът на затваряне трябва да е след часа на отваряне",
+  hours_locked: "API-то още не позволява промяна на вече запазен ден — управителят на клуба може да го редактира в Django admin. Добавянето на часове за ден без такива работи.",
   hours_invalid_step: "Часовете трябва да са на интервали от 30 минути",
 
   // Staff: courts

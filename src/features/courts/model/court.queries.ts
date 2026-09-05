@@ -86,6 +86,18 @@ export function useSetCourtPricesMutation(courtId: number) {
   });
 }
 
+/**
+ * Invalidating clubs as well is what makes the club details gallery pick the
+ * photo up — it is built from the club's courts, not from the club itself.
+ */
+export function useAddCourtImageMutation(courtId: number) {
+  const invalidate = useInvalidateCourts();
+  return useMutation({
+    mutationFn: (file: File) => courtsApi.addImage(courtId, file),
+    onSuccess: invalidate,
+  });
+}
+
 export function useAddUnavailabilityMutation(courtId: number) {
   const invalidate = useInvalidateCourts();
   return useMutation({

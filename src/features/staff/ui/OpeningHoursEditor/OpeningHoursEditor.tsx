@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ApiError } from '../../../../shared/api/httpClient';
 import { useToast } from '../../../../shared/ui/Toast';
 import { ErrorState } from '../../../../shared/ui/ErrorState';
 import { Spinner } from '../../../../shared/ui/Spinner';
@@ -14,6 +15,16 @@ import { OpeningHoursDayRow } from './OpeningHoursDayRow';
 function onHalfHour(value: string): boolean {
   const minutes = value.slice(3, 5);
   return minutes === '00' || minutes === '30';
+}
+
+/**
+ * `/api/openinghours/{pk}/` guards itself with `IsClubEmployeeOrAdmin`, whose
+ * object check only answers for Club and Court instances — on an OpeningHours row
+ * it returns nothing, which DRF reads as "denied". Every caller gets a 403,
+ * superusers included, so the generic permission text would be misleading.
+ */
+function editBlocked(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 403;
 }
 
 export function OpeningHoursEditor({ clubId }: { clubId: number }) {
@@ -42,7 +53,8 @@ export function OpeningHoursEditor({ clubId }: { clubId: number }) {
       });
       toast(t('hours_saved'), 'ok');
     } catch (error) {
-      toast(error instanceof Error ? error.message : String(error), 'err');
+      if (row && editBlocked(error)) toast(t('hours_locked'), 'err');
+      else toast(error instanceof Error ? error.message : String(error), 'err');
     } finally {
       setBusyDay(null);
     }
@@ -55,7 +67,8 @@ export function OpeningHoursEditor({ clubId }: { clubId: number }) {
       await deleteHour.mutateAsync({ pk: row.pk, weekday });
       toast(t('hours_removed'), 'ok');
     } catch (error) {
-      toast(error instanceof Error ? error.message : String(error), 'err');
+      if (editBlocked(error)) toast(t('hours_locked'), 'err');
+      else toast(error instanceof Error ? error.message : String(error), 'err');
     } finally {
       setBusyDay(null);
     }

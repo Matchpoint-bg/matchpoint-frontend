@@ -1,5 +1,6 @@
 import { demoReservations, saveDemoReservations } from '../../../demo/demoData';
 import { httpClient } from '../../../shared/api/httpClient';
+import { currentUserId } from '../../../shared/api/session';
 import { store } from '../../../shared/storage/store';
 import type {
   CreateReservationBody,
@@ -19,7 +20,13 @@ export const reservationsApi = {
         reservation_amt: reservation.amt,
       }));
     }
-    return httpClient.json<Reservation[]>('/api/reservations/');
+    const rows = await httpClient.json<Reservation[]>('/api/reservations/');
+    // The endpoint scopes itself to the caller — except for Django-staff accounts,
+    // which get every booking in the system. "My bookings" means mine either way.
+    const me = currentUserId();
+    return me === undefined
+      ? rows
+      : rows.filter((row) => row.user === undefined || row.user === me);
   },
 
   create: async (

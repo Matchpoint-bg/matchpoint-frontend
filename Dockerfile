@@ -31,9 +31,13 @@ FROM nginx:1.27-alpine AS runtime
 # so API_ORIGIN can be set per-deployment without rebuilding the image. The FILTER is
 # essential — without it envsubst would also replace $uri, $host, $scheme and so on.
 COPY nginx.conf /etc/nginx/templates/default.conf.template
-ENV NGINX_ENVSUBST_FILTER="^(API_ORIGIN|CSP_CONNECT_SRC)$"
+ENV NGINX_ENVSUBST_FILTER="^(API_ORIGIN|CSP_CONNECT_SRC|CSP_IMG_SRC)$"
 ENV API_ORIGIN="http://host.docker.internal:8000"
 ENV CSP_CONNECT_SRC="'self'"
+# Club and court photos are served straight from Cloudinary, so the default CSP
+# has to allow that origin or every uploaded image is blocked. `data:` stays for
+# the demo fixtures, which draw their placeholder photos inline.
+ENV CSP_IMG_SRC="'self' data: https://res.cloudinary.com"
 
 COPY --from=build /app/dist /usr/share/nginx/html
 

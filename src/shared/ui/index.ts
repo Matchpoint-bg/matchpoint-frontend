@@ -82,6 +82,8 @@ export { Sheet } from './Sheet';
 export type { SheetPlacement, SheetProps } from './Sheet';
 
 // Misc
+export { ImageUpload } from './ImageUpload';
+export type { ImageUploadProps } from './ImageUpload';
 export { Icon, Seam } from './Icon';
 export type { IconName, IconProps } from './Icon';
 export { ToggleRow } from './Toggle';

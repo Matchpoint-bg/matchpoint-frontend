@@ -14,6 +14,7 @@ import {
   DateTime,
   Divider,
   EmptyState,
+  ImageUpload,
   ErrorState,
   Field,
   FilterChip,
@@ -522,6 +523,20 @@ export function ShowcasePage() {
           </ChipRow>
           <Field label="Date">{(control) => <DateField {...control} />}</Field>
         </Sheet>
+      </Section>
+
+      <Divider />
+
+      <Section eyebrow="Media" title="Image upload">
+        <Card padded>
+          <ImageUpload
+            onSelect={() => undefined}
+            label="Upload photo"
+            hint="PNG, JPG or WebP, up to 5 MB."
+            invalidFormatMessage="Use a PNG, JPG or WebP image"
+            tooLargeMessage="That image is over 5 MB — pick a smaller one"
+          />
+        </Card>
       </Section>
 
       <Divider />

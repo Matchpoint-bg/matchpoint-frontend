@@ -112,6 +112,16 @@ export function CourtDetailsPage() {
         <>
           <CourtHero court={court.data} />
 
+          {(court.data.image_urls?.length ?? 0) > 0 && (
+            <ul className={styles.photos}>
+              {court.data.image_urls?.map((url) => (
+                <li key={url}>
+                  <img src={url} alt="" width="320" height="220" loading="lazy" />
+                </li>
+              ))}
+            </ul>
+          )}
+
           <div className={`section-head ${styles.availabilityHeading}`}>
             <div>
               <div className="eyebrow">{t('availability')}</div>

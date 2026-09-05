@@ -360,6 +360,23 @@ export const en = {
   club_details_card: "Club details",
   club_details_desc: "Name, description and contact details shown to players.",
 
+  // Staff: photos
+  club_photos_card: "Photos",
+  club_photos_desc: "One header photo for the club, plus a photo per court. Both show on the club page.",
+  club_photo_upload: "Upload photo",
+  club_photo_replace: "Replace photo",
+  club_photo_updated: "Club photo updated",
+  club_photo_hint: "PNG, JPG or WebP, up to 5 MB.",
+  court_photos: "Court photos",
+  court_photos_desc: "Photos of this court, shown in the club gallery.",
+  court_photo_add: "Add photo",
+  court_photo_added: "Court photo added",
+  no_court_photos: "No photos for this court yet.",
+  photo_invalid_format: "Use a PNG, JPG or WebP image",
+  photo_too_large: "That image is over 5 MB — pick a smaller one",
+  photo_delete_unavailable: "Photos can't be removed from here yet. A club manager can delete them in the Django admin.",
+  photo_count: "photos",
+
   // Staff: club picker
   staff_club_card: "Club you manage",
   staff_club_desc: "Pick the club these settings apply to.",
@@ -375,6 +392,7 @@ export const en = {
   hours_saved: "Opening hours updated",
   hours_removed: "Day marked closed",
   hours_invalid_order: "Closing time must be after opening time",
+  hours_locked: "The API does not allow changing a saved day yet — a club manager can edit it in the Django admin. Adding hours to a day that has none still works.",
   hours_invalid_step: "Times must be on 30-minute increments",
 
   // Staff: courts
