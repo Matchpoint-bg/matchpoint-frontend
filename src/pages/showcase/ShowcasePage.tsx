@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import {
+  Accordion,
   BackLink,
   Badge,
   BookingStatus,
@@ -386,6 +387,19 @@ export function ShowcasePage() {
               items={[
                 { value: 'day', label: 'Day' },
                 { value: 'week', label: 'Week' },
+              ]}
+            />
+          </div>
+        </Row>
+        <Row label="Accordion">
+          <div style={{ width: '100%' }}>
+            <Accordion
+              label="Frequently asked"
+              defaultOpen={['cost']}
+              items={[
+                { value: 'cost', title: 'What does it cost?', body: <p>Agreed per club, with no setup fee.</p> },
+                { value: 'setup', title: 'How long does setup take?', body: <p>Usually a few days.</p> },
+                { value: 'gone', title: 'Disabled section', body: <p>Skipped by the arrow keys.</p>, disabled: true },
               ]}
             />
           </div>

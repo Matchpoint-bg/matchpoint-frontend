@@ -381,6 +381,49 @@ each one has a defined behaviour in the UI rather than a blank screen.
 - Clubs carry no `facilities`, `gallery_urls`, `cancellation_policy` or `starting_price`; the
   UI falls back to platform defaults or hides those blocks. `header_image` from the list
   serializer is mapped onto `thumbnail_url`.
+- **There is no club-lead endpoint.** `/for-clubs` has a full inquiry form (ToDoRedesign §13)
+  with nowhere to send it, so only the demo path completes today. The contract below is what
+  `src/features/leads/api/leads.api.ts` already posts; the day the endpoint lands, the flow
+  works with no UI change.
+
+### Club leads — the contract the front end expects
+
+`POST /api/v1/leads/` — public, unauthenticated (a club owner writing in has no account).
+
+```jsonc
+{
+  "club_name":    "Lokomotiv Tennis Club",  // required, <= 120
+  "city":         "Plovdiv",                // required, <= 80, free text (not the search city list)
+  "contact_name": "Georgi Dimitrov",        // required, <= 120
+  "email":        "club@example.bg",        // required
+  "phone":        "+359 88 812 3456",       // required, 6-20 digits, any punctuation
+  "courts_count": 4,                        // required, integer 1-60
+  "website":      "https://lokomotiv.bg",   // optional, omitted when blank, scheme added client-side
+  "message":      "…",                      // optional, omitted when blank, <= 1000
+  "client_token": "3f9c…"                   // idempotency key, see below
+}
+```
+
+`201` returns `{id, reference, status, created_at}`. `reference` is shown to the club as the
+code to quote — anything short and human-readable works (`MP-7K2F9` is what demo mode makes).
+
+Errors use the standard envelope. Field errors are placed under the control that caused them
+by `leadServerErrors.ts`, which maps the snake_case names above onto the form; `non_field_errors`
+and any key it does not recognise are shown at form level rather than dropped:
+
+```json
+{ "status": "error", "errors": { "email": ["Enter a valid email address."] } }
+```
+
+`client_token` is a UUID generated once per form instance and reused across retries, so a
+submission the network duplicated should resolve to one lead. Returning `409` with a
+`non_field_errors` message for a token already seen is what demo mode does; ignoring the field
+entirely is also safe — the client has its own duplicate guards.
+
+**Still needed on the backend, and not solvable from here** (§13, §15): rate limiting — the API
+defines no `DEFAULT_THROTTLE_CLASSES` anywhere — and server-side spam checks. The client sends a
+honeypot-filtered, time-gated submission, but every one of those guards runs in the browser and
+is therefore advisory.
 
 ## Known gaps
 

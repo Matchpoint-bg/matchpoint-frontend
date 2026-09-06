@@ -2,6 +2,7 @@ import { LS } from '../shared/storage/store';
 import type { Club, Employee, Weekday } from '../features/clubs/model/club.types';
 import type { Court, Slot } from '../features/courts/model/court.types';
 import type { DemoReservation } from '../features/reservations/model/reservation.types';
+import type { DemoLead } from '../features/leads/model/lead.types';
 
 /**
  * A stand-in court photo, drawn rather than fetched.
@@ -138,6 +139,25 @@ export function demoReservations(): DemoReservation[] {
 
 export function saveDemoReservations(reservations: DemoReservation[]): void {
   localStorage.setItem(LS.demoRes, JSON.stringify(reservations));
+}
+
+/**
+ * Club inquiries submitted in demo mode.
+ *
+ * Kept the same way reservations are — in localStorage, so a demo build has
+ * somewhere to put a lead with no backend behind it, and so the duplicate-submit
+ * guard has real prior submissions to recognise.
+ */
+export function demoLeads(): DemoLead[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS.demoLeads) || '[]') as DemoLead[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveDemoLeads(leads: DemoLead[]): void {
+  localStorage.setItem(LS.demoLeads, JSON.stringify(leads));
 }
 
 function seeded(value: string): number {

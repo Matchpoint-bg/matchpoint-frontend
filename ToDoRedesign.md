@@ -299,9 +299,10 @@ MatchPoint трябва да комбинира:
 > да го заключва. `.topbar__user` е скрит под 900 px, затова на mobile език, тема и изход
 > остават в Settings и на `/profile` — sign out съзнателно е запазен и там.
 >
-> „За клубове“ води към нов публичен `/for-clubs` stub (`src/pages/for-clubs/`): hero, benefits
-> и contact блок с `mailto:`. Phase 6 (§13) заменя contact блока с истинска lead форма. Няма го
-> в mobile tab bar-а — B2B destination, а не player primary destination.
+> „За клубове“ води към публичния `/for-clubs` (`src/pages/for-clubs/`). Беше stub с hero,
+> benefits и `mailto:` contact блок; Phase 6 (§13) го замени с истинска lead форма зад
+> `features/leads`. Няма го в mobile tab bar-а — B2B destination, а не player primary
+> destination.
 
 ### Club workspace shell
 
@@ -591,38 +592,51 @@ MatchPoint трябва да комбинира:
 
 ### Landing page
 
-- [ ] Hero: ясно предложение за собственици на тенис клубове.
-- [ ] Benefits: повече резервации, online schedule, по-малко обаждания, по-лесно управление.
-- [ ] Кратко „Как работи“.
-- [ ] Product screenshots/mockups, не generic illustrations.
-- [ ] Trust section и FAQ.
-- [ ] Primary CTA: „Добави клуба си“.
-- [ ] Landing page да използва MatchPoint brand, но да не прилича на player search page.
+- [x] Hero: ясно предложение за собственици на тенис клубове.
+- [x] Benefits: повече резервации, online schedule, по-малко обаждания, по-лесно управление.
+- [x] Кратко „Как работи“ — три номерирани стъпки (`<ol>`, защото редът е смисълът).
+- [x] Product screenshots/mockups, не generic illustrations — `ProductShot` рисува
+      умалено *реалния* UI от токените на приложението (schedule, search, booking).
+- [x] Trust section и FAQ — FAQ стои зад нов `Accordion` primitive в `shared/ui`.
+- [x] Primary CTA: „Добави клуба си“.
+- [x] Landing page да използва MatchPoint brand, но да не прилича на player search page —
+      split hero със собствен module CSS, а не глобалния центриран `.hero` на `/players`.
 
 ### Lead form
 
-- [ ] Club name.
-- [ ] City.
-- [ ] Contact person.
-- [ ] Email.
-- [ ] Phone.
-- [ ] Number of courts.
-- [ ] Website/social — optional.
-- [ ] Message — optional.
-- [ ] Consent/privacy copy, ако е необходимо.
-- [ ] Inline validation и server errors.
-- [ ] Prevent duplicate submissions.
+- [x] Club name.
+- [x] City — свободен текст, не `SEARCH_CITIES`: търсенето покрива само София, но клуб
+      от Пловдив, който пише, е точно заявката, която искаме.
+- [x] Contact person.
+- [x] Email.
+- [x] Phone.
+- [x] Number of courts.
+- [x] Website/social — optional.
+- [x] Message — optional.
+- [x] Consent/privacy copy, ако е необходимо — текст под бутона, не блокиращ checkbox:
+      няма privacy страница, към която да сочи. Лесно се вдига до checkbox после.
+- [x] Inline validation и server errors — `leadServerErrors.ts` разпределя DRF `errors`
+      картата по полетата; неразпознатите ключове отиват на ниво форма, не се губят.
+- [x] Prevent duplicate submissions — три слоя: `isPending`, fingerprint на вече
+      изпратената заявка и `client_token` за идемпотентност на сървъра.
 
 ### Success
 
-- [ ] Ясно „Получихме запитването“.
-- [ ] Очакван следващ контакт/срок, ако business процесът го позволява.
-- [ ] Action към player product или homepage.
+- [x] Ясно „Получихме запитването“ — inline панел на мястото на формата, `role="status"`,
+      фокусът отива на заглавието.
+- [x] Очакван следващ контакт/срок, ако business процесът го позволява — „до два работни
+      дни“. **Това е заместващ текст, не потвърден ангажимент** — да се коригира или
+      махне, преди да тръгне пред клубове.
+- [x] Action към player product или homepage.
 
 ### Backend dependency
 
 - [ ] Създай lead submission endpoint или одобрен external CRM/email flow.
+      *Не е тикнато: endpoint-ът живее в `matchpoint-api`, отделно repo. Фронтендът вече
+      праща по договорения контракт (README → „Club leads“); днес завършва само demo пътят.*
 - [ ] Добави spam protection и rate limiting.
+      *Не е тикнато: honeypot и 3-секундният праг работят в браузъра и затова са само
+      препоръчителни. API-то няма `DEFAULT_THROTTLE_CLASSES` никъде — това е сървърна работа.*
 
 ---
 
@@ -713,6 +727,11 @@ MatchPoint трябва да комбинира:
 - [ ] Club lead model/endpoint.
 - [ ] Submission status и timestamp.
 - [ ] Spam/rate protection.
+
+> Трите остават отворени, защото са в `matchpoint-api`. Контрактът, който фронтендът вече
+> праща — path, body, error envelope и `client_token` — е записан в README → „Club leads“,
+> така че имплементацията отсреща не трябва да гадае. `status` и `created_at` са част от
+> отговора, който `Lead` очаква.
 
 ---
 
@@ -892,8 +911,8 @@ Analytics не трябва да включва чувствителни persona
 
 ### Milestone 6 — Clubs
 
-- [ ] For Clubs landing.
-- [ ] Lead form/success.
+- [x] For Clubs landing.
+- [x] Lead form/success.
 - [x] Separate club workspace.
 - [x] Migrate existing staff tools.
 

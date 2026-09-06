@@ -11,5 +11,18 @@
 }
 
 .icon {
+  display: inline-flex;
+  flex: 0 0 auto;
   color: var(--brand-text);
+}
+
+/*
+ * <Icon> carries no intrinsic size, so in this flex row the SVG collapsed to
+ * 0x0 and every card title across the app rendered with an invisible icon and
+ * a stray gap. Sized here rather than in Icon, which is deliberately styled by
+ * whatever contains it.
+ */
+.icon svg {
+  width: 20px;
+  height: 20px;
 }

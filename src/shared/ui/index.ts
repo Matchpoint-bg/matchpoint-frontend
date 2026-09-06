@@ -37,6 +37,8 @@ export { Toolbar, ToolbarSpacer } from './Toolbar';
 export type { ToolbarProps } from './Toolbar';
 export { Tabs } from './Tabs';
 export type { TabItem, TabsProps } from './Tabs';
+export { Accordion } from './Accordion';
+export type { AccordionItem, AccordionProps } from './Accordion';
 
 // Labels
 export { Chip, ChipRow, FilterChip } from './Chip';
