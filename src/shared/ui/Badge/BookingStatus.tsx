@@ -15,7 +15,7 @@ export type BookingStatusValue =
  * API grows an explicit status field, only this map has to learn about it.
  */
 const STATUS: Record<BookingStatusValue, { tone: BadgeTone; key: TranslationKey }> = {
-  confirmed: { tone: 'success', key: 'upcoming' },
+  confirmed: { tone: 'success', key: 'status_confirmed' },
   pending: { tone: 'warning', key: 'status_pending' },
   cancelled: { tone: 'danger', key: 'status_cancelled' },
   completed: { tone: 'neutral', key: 'played' },

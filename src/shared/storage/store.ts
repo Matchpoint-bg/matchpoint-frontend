@@ -8,6 +8,7 @@ export const LS = {
   demo: 'mp_demo',
   staff: 'mp_staff',
   demoRes: 'mp_demo_res',
+  demoLeads: 'mp_demo_leads',
   dismissInstall: 'mp_no_install',
   theme: 'mp_theme',
   lang: 'mp_lang',

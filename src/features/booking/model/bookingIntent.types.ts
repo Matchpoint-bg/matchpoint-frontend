@@ -15,6 +15,13 @@ export interface BookingIntent {
   cancellationPolicy: string;
   paymentMethod: 'pay_on_site';
   createdAt: string;
+  /**
+   * Set when this intent moves an existing booking: checkout PATCHes that
+   * reservation instead of creating one, so the old time is only given up once
+   * the new one is confirmed. Optional, so intents saved before it existed
+   * still parse.
+   */
+  rescheduleOf?: number;
 }
 
 export interface BookingConfirmationSnapshot extends BookingIntent {

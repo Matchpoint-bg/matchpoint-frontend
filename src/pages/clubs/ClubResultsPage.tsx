@@ -16,9 +16,21 @@ export function ClubResultsPage() {
   const { demo } = useSettings();
   const navigate = useNavigate();
   const search = usePlayerSearch();
-  const clubsQuery = useClubsQuery();
-  const clubs = clubsQuery.data ?? [];
   const criteria = search.urlState.criteria;
+  // City, sport, surface and date are all `ClubFilter` fields, so the API narrows
+  // the list before it is fetched; `useClubFilters` still applies them to the demo
+  // fixtures, which have no server to ask.
+  const clubsQuery = useClubsQuery(
+    criteria
+      ? {
+          city: criteria.city,
+          sport: criteria.sport,
+          date: criteria.date,
+          ...(criteria.surface ? { surface: criteria.surface } : {}),
+        }
+      : {},
+  );
+  const clubs = clubsQuery.data ?? [];
   const filters = useClubFilters(
     clubs,
     demo,

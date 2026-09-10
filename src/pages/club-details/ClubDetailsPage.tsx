@@ -2,13 +2,20 @@ import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../../app/layout/AppShell';
 import {
+  ClubGallery,
   ClubHero,
+  clubPhotos,
   OpeningHoursCard,
   useClubCourtsQuery,
   useClubOpeningHoursQuery,
   useClubQuery,
 } from '../../features/clubs';
-import { bookingIntentStore, bookingIntentUrl, ClubAvailability } from '../../features/booking';
+import {
+  bookingIntentStore,
+  bookingIntentUrl,
+  ClubAvailability,
+  RescheduleNotice,
+} from '../../features/booking';
 import type { BookingIntent } from '../../features/booking';
 import { useI18n } from '../../i18n';
 import { fmt } from '../../shared/lib/format';
@@ -41,7 +48,14 @@ export function ClubDetailsPage() {
       ? requested
       : today;
   });
-  const [activeTab, setActiveTab] = useState<'booking' | 'info'>('info');
+  // `?reschedule=<id>` means the player is moving an existing booking: the whole
+  // page exists to pick a new time, so it opens straight on availability.
+  const rescheduleParam = searchParams.get('reschedule');
+  const rescheduleOf = rescheduleParam === null ? null : Number(rescheduleParam);
+  const rescheduling = rescheduleOf !== null && Number.isFinite(rescheduleOf);
+  const [activeTab, setActiveTab] = useState<'booking' | 'info'>(
+    rescheduling ? 'booking' : 'info',
+  );
 
   const reload = () => {
     void Promise.all([clubQuery.refetch(), courtsQuery.refetch(), hoursQuery.refetch()]);
@@ -55,8 +69,9 @@ export function ClubDetailsPage() {
   };
 
   const review = (intent: BookingIntent) => {
-    bookingIntentStore.save(intent);
-    navigate(bookingIntentUrl(intent));
+    const next = rescheduling ? { ...intent, rescheduleOf: rescheduleOf as number } : intent;
+    bookingIntentStore.save(next);
+    navigate(bookingIntentUrl(next));
   };
 
   const openBooking = () => {
@@ -66,7 +81,14 @@ export function ClubDetailsPage() {
 
   return (
     <AppShell active="clubs">
-      <BackLink label={t('all_clubs')} onClick={() => navigate(clubListUrl)} />
+      <BackLink
+        label={rescheduling ? t('my_reservations') : t('all_clubs')}
+        onClick={() => navigate(rescheduling ? '/reservations' : clubListUrl)}
+      />
+
+      {rescheduling && (
+        <RescheduleNotice onCancel={() => navigate('/reservations', { replace: true })} />
+      )}
 
       {loading && <Spinner />}
       {!loading && error && <ErrorState msg={error.message} onRetry={reload} />}
@@ -142,13 +164,10 @@ export function ClubDetailsPage() {
               <div className={styles.infoGrid}>
                 <OpeningHoursCard hours={hoursQuery.data ?? []} />
 
-                <div className={styles.galleryCard}>
-                  {(clubQuery.data.gallery_urls?.[0] || clubQuery.data.thumbnail_url) ? (
-                    <img src={clubQuery.data.gallery_urls?.[0] || clubQuery.data.thumbnail_url} alt={clubQuery.data.name} />
-                  ) : (
-                    <span><Icon name="court" />{t('club_gallery_fallback')}</span>
-                  )}
-                </div>
+                <ClubGallery
+                  photos={clubPhotos(clubQuery.data, courtsQuery.data ?? [])}
+                  clubName={clubQuery.data.name}
+                />
 
               </div>
             </section>

@@ -1,9 +1,54 @@
 .message {
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   color: var(--ink-2);
+}
+
+.policy {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--pale);
+}
+
+.policy > svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--faint);
+}
+
+.policy b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+
+.policy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.timing {
+  margin-top: 6px !important;
+  font-weight: 600;
+}
+
+.consequence {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .actions {
   display: flex;
   gap: 10px;
+}
+
+:global(:root[data-theme='dark']) .policy {
+  background: var(--court-3);
 }

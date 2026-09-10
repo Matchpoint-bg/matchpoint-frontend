@@ -2,7 +2,7 @@ export { useSlotSelection } from './model/useSlotSelection';
 export { useClubSlotSelection } from './model/useClubSlotSelection';
 export { useClubAvailabilityQuery } from './model/availability.queries';
 export { useBookingIntentValidation } from './model/useBookingIntentValidation';
-export { bookingIntentStore, bookingIntentUrl } from './model/bookingIntent.store';
+export { bookingIntentStore, bookingIntentUrl, clubBookingUrl } from './model/bookingIntent.store';
 export type { ClubAvailabilityResponse, CourtAvailability } from './model/availability.types';
 export type { BookingConfirmationSnapshot, BookingIntent } from './model/bookingIntent.types';
 export { AvailabilityDatePicker } from './ui/AvailabilityDatePicker';

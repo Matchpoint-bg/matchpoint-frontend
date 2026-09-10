@@ -27,6 +27,17 @@ export interface Club {
   starting_price?: number;
 }
 
+/** Server-side filters accepted by `GET /api/clubs/` (`ClubFilter`). */
+export interface ClubListParams {
+  /** Partial, case-insensitive name match. */
+  name?: string;
+  city?: string;
+  sport?: string;
+  surface?: string;
+  /** `YYYY-MM-DD` — keeps only clubs with a free slot that day. */
+  date?: string;
+}
+
 export interface OpeningHour {
   pk?: number;
   weekday: Weekday | string;

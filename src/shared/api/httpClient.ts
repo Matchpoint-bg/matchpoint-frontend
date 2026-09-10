@@ -36,16 +36,44 @@ export class ApiError extends Error {
   }
 }
 
+/** The first human-readable string anywhere in a nested DRF error payload. */
+function firstString(value: unknown): string | null {
+  if (typeof value === 'string') return value.trim() || null;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = firstString(item);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (value && typeof value === 'object') {
+    for (const item of Object.values(value)) {
+      const found = firstString(item);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/**
+ * MatchPoint's `custom_exception_handler` wraps every failure in an envelope:
+ * `{status: "error", message}` for APIExceptions and `{status: "error", errors: {...}}`
+ * for validation errors, where `errors` is DRF's usual field -> [message] map.
+ *
+ * `status` is the literal string "error" on all of them, so it must never be read
+ * as prose — picking the first value off the object would show the user "error".
+ */
 function errorMessage(data: unknown, status: number): string {
   if (data && typeof data === 'object') {
     const record = data as Record<string, unknown>;
     const candidate =
       record.detail ??
       record.message ??
-      (Array.isArray(record.non_field_errors) ? record.non_field_errors[0] : undefined) ??
-      Object.values(record)[0];
-    if (Array.isArray(candidate)) return String(candidate[0]);
-    if (typeof candidate === 'string') return candidate;
+      record.errors ??
+      record.non_field_errors ??
+      Object.fromEntries(Object.entries(record).filter(([key]) => key !== 'status'));
+    const message = firstString(candidate);
+    if (message) return message;
   }
   return `Request failed (${status})`;
 }
@@ -71,6 +99,10 @@ async function raw(path: string, options: RequestOptions = {}): Promise<Response
     'Content-Type': 'application/json',
     ...((options.headers as Record<string, string>) || {}),
   };
+  // A multipart body carries its own boundary, which only the browser can generate.
+  // Sending our JSON default instead leaves the server with no boundary to split on,
+  // so every image upload would arrive as an empty form.
+  if (options.body instanceof FormData) delete headers['Content-Type'];
   if (store.access && !options.noAuth) headers.Authorization = `Bearer ${store.access}`;
 
   const response = await fetch(apiUrl(path), { ...options, headers });

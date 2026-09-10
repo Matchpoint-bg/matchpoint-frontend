@@ -1,5 +1,7 @@
+import { useQueries } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { DEMO } from '../../../demo/demoData';
+import { clubCourtsQueryOptions } from './club.queries';
 import type { Club } from './club.types';
 
 export interface ClubCourtSummary {
@@ -33,13 +35,24 @@ export function useClubFilters(
   const city = criteria.city;
   const sport = criteria.sport;
 
+  const clubIds = useMemo(() => clubs.map((club) => club.id), [clubs]);
+  // `GET /api/clubs/` says nothing about a club's courts, so the cards' surface and
+  // indoor counts need one request per club. They share `clubKeys.courts` with the
+  // club detail page, so opening a result costs nothing further.
+  const courtQueries = useQueries({
+    queries: demo ? [] : clubIds.map(clubCourtsQueryOptions),
+  });
+  const courtSignature = courtQueries.map((query) => query.data?.length ?? -1).join(',');
+
   const courtsByClub = useMemo(() => {
     const summaries = new Map<number, ClubCourtSummary>();
-    if (!demo) return summaries;
 
-    clubs.forEach((club) => {
-      const courts = DEMO.courts.filter((court) => court.club_id === club.id);
-      summaries.set(club.id, {
+    clubIds.forEach((clubId, index) => {
+      const courts = demo
+        ? DEMO.courts.filter((court) => court.club_id === clubId)
+        : courtQueries[index]?.data;
+      if (!courts) return;
+      summaries.set(clubId, {
         count: courts.length,
         surfaces: [...new Set(courts.map((court) => court.surface_type))],
         sports: [...new Set(courts.map((court) => court.sport_type))],
@@ -48,7 +61,9 @@ export function useClubFilters(
       });
     });
     return summaries;
-  }, [clubs, demo]);
+    // Query results get a new array identity every render; what actually changes
+    // is how many courts each one carries.
+  }, [clubIds, demo, courtSignature]);
 
   const surfaceOptions = useMemo(
     () => [...new Set([...courtsByClub.values()].flatMap((value) => value.surfaces))].sort(),
@@ -72,7 +87,11 @@ export function useClubFilters(
         summary?.sports.length &&
         !summary.sports.some((item) => normalize(item) === normalizedSport)
       ) return false;
-      if (effectiveSurface && !summary?.surfaces.includes(effectiveSurface)) return false;
+      // A club whose courts are still in flight keeps its place rather than
+      // blinking out of the list and back in.
+      if (effectiveSurface && summary && !summary.surfaces.includes(effectiveSurface)) {
+        return false;
+      }
       return true;
     });
   }, [city, clubs, courtsByClub, effectiveQuery, effectiveSurface, sport]);

@@ -299,15 +299,16 @@ MatchPoint трябва да комбинира:
 > да го заключва. `.topbar__user` е скрит под 900 px, затова на mobile език, тема и изход
 > остават в Settings и на `/profile` — sign out съзнателно е запазен и там.
 >
-> „За клубове“ води към нов публичен `/for-clubs` stub (`src/pages/for-clubs/`): hero, benefits
-> и contact блок с `mailto:`. Phase 6 (§13) заменя contact блока с истинска lead форма. Няма го
-> в mobile tab bar-а — B2B destination, а не player primary destination.
+> „За клубове“ води към публичния `/for-clubs` (`src/pages/for-clubs/`). Беше stub с hero,
+> benefits и `mailto:` contact блок; Phase 6 (§13) го замени с истинска lead форма зад
+> `features/leads`. Няма го в mobile tab bar-а — B2B destination, а не player primary
+> destination.
 
 ### Club workspace shell
 
 - [x] Отделна desktop sidebar/topbar IA за operator tasks.
 - [x] Mobile navigation за Schedule, Bookings, Courts и More.
-- [ ] Club switcher само ако user има достъп до повече от един клуб.
+- [x] Club switcher само ако user има достъп до повече от един клуб.
 - [x] Role/staff контекстът да е ясен, без staff controls в player страниците.
 
 ### Acceptance criteria
@@ -370,7 +371,7 @@ MatchPoint трябва да комбинира:
 - [x] Резултатите се показват само след валидно search действие.
 - [x] Добави results summary: град, дата, optional time и брой резултати.
 - [ ] Добави mobile filter/sort sheet.
-- [ ] Club result card: image, име, локация, surfaces, indoor/outdoor, price from.
+- [x] Club result card: image, име, локация, surfaces, indoor/outdoor, price from.
 - [ ] Когато API позволява: покажи 2–4 най-близки свободни часа.
 - [x] CTA: „Виж свободни часове“.
 - [ ] Проектирай loading, no clubs, no availability, error и retry states.
@@ -381,7 +382,7 @@ MatchPoint трябва да комбинира:
 - [x] Проучи endpoint за aggregated availability по city/sport/date/time. Текущият backend няма такъв endpoint; остава отделна API зависимост.
 - [x] Не допускай N clubs × N courts заявки от frontend-а като production решение.
 - [ ] Добави `starting_price` или еквивалентен aggregate.
-- [ ] Добави club thumbnail/image field.
+- [x] Добави club thumbnail/image field. _(`header_image` идва от `ClubListSerializer`; detail serializer-ът още го няма, затова `clubsApi.get` го дочита от list-а.)_
 
 ### Acceptance criteria
 
@@ -397,7 +398,7 @@ MatchPoint трябва да комбинира:
 ### Club profile
 
 - [x] Compact club identity: име, квартал/адрес, trust facts.
-- [x] Gallery с оптимизирани изображения и fallback. _(`Club.images` е optional; при липса се показва court placeholder)_
+- [x] Gallery с оптимизирани изображения и fallback. _(`ClubGallery`: основна снимка + thumbnail лента; при липса се показва court placeholder.)_
 - [x] Facilities, surfaces, indoor/outdoor и осветление.
 - [x] Map/directions action. _(lat/lng, когато ги има; иначе name + address към Maps)_
 - [x] Phone и website actions.
@@ -562,28 +563,28 @@ MatchPoint трябва да комбинира:
 
 ### My bookings
 
-- [ ] Tabs/segments: Upcoming и Past.
-- [ ] Booking card: club, court, address, date, time, status и price.
-- [ ] Upcoming card actions: View, Directions, Add to calendar, Cancel/Reschedule.
-- [ ] Past card actions: View; future phase — Repeat booking.
-- [ ] Отделен booking details route.
-- [ ] Cancel flow да показва policy и consequence преди confirm.
-- [ ] Reschedule да използва същия availability и review flow.
-- [ ] Status model: confirmed, cancelled, completed, no-show и payment-related statuses при нужда.
+- [x] Tabs/segments: Upcoming и Past. _(състоянието живее в URL-а: `?tab=past`)_
+- [x] Booking card: club, court, address, date, time, status и price.
+- [x] Upcoming card actions: View, Directions, Add to calendar, Cancel/Reschedule.
+- [x] Past card actions: View; future phase — Repeat booking.
+- [x] Отделен booking details route. _(`/reservations/:id`; чете се от списъка — няма detail endpoint, §15)_
+- [x] Cancel flow да показва policy и consequence преди confirm. _(24-часовият hint се показва само срещу platform default policy — свободният текст на клуб не се тълкува)_
+- [x] Reschedule да използва същия availability и review flow. _(`?reschedule=<id>` → `BookingIntent.rescheduleOf` → PATCH на checkout)_
+- [ ] Status model: confirmed, cancelled, completed, no-show и payment-related statuses при нужда. _(`reservationStatus()` е единственото място, но без API поле извежда само `confirmed`/`completed` — §15)_
 
 ### Account
 
-- [ ] Обедини profile actions в ясен Account overview.
-- [ ] Edit profile и change password.
-- [ ] Language, theme, notifications и install app в Settings.
-- [ ] Logout да бъде отделен destructive action с предвидимо поведение.
-- [ ] Developer/demo controls да не се появяват в production UX.
+- [x] Обедини profile actions в ясен Account overview.
+- [x] Edit profile и change password.
+- [x] Language, theme, notifications и install app в Settings.
+- [x] Logout да бъде отделен destructive action с предвидимо поведение.
+- [x] Developer/demo controls да не се появяват в production UX.
 
 ### Acceptance criteria
 
-- [ ] Новата резервация се намира лесно без highlight hack като единствен feedback.
-- [ ] Cancelled booking не изчезва неочаквано, ако product policy изисква history.
-- [ ] Reschedule запазва старата резервация до успешното потвърждение на новия slot.
+- [x] Новата резервация се намира лесно без highlight hack като единствен feedback. _(`?new=<id>` банер + Upcoming по подразбиране, сортирано най-скоро първо; `scrollIntoView` е премахнат)_
+- [ ] Cancelled booking не изчезва неочаквано, ако product policy изисква history. _(`DELETE` трие реда — не може да се реши от frontend-а, §15)_
+- [x] Reschedule запазва старата резервация до успешното потвърждение на новия slot. _(PATCH, не delete-then-rebook)_
 
 ---
 
@@ -591,38 +592,51 @@ MatchPoint трябва да комбинира:
 
 ### Landing page
 
-- [ ] Hero: ясно предложение за собственици на тенис клубове.
-- [ ] Benefits: повече резервации, online schedule, по-малко обаждания, по-лесно управление.
-- [ ] Кратко „Как работи“.
-- [ ] Product screenshots/mockups, не generic illustrations.
-- [ ] Trust section и FAQ.
-- [ ] Primary CTA: „Добави клуба си“.
-- [ ] Landing page да използва MatchPoint brand, но да не прилича на player search page.
+- [x] Hero: ясно предложение за собственици на тенис клубове.
+- [x] Benefits: повече резервации, online schedule, по-малко обаждания, по-лесно управление.
+- [x] Кратко „Как работи“ — три номерирани стъпки (`<ol>`, защото редът е смисълът).
+- [x] Product screenshots/mockups, не generic illustrations — `ProductShot` рисува
+      умалено *реалния* UI от токените на приложението (schedule, search, booking).
+- [x] Trust section и FAQ — FAQ стои зад нов `Accordion` primitive в `shared/ui`.
+- [x] Primary CTA: „Добави клуба си“.
+- [x] Landing page да използва MatchPoint brand, но да не прилича на player search page —
+      split hero със собствен module CSS, а не глобалния центриран `.hero` на `/players`.
 
 ### Lead form
 
-- [ ] Club name.
-- [ ] City.
-- [ ] Contact person.
-- [ ] Email.
-- [ ] Phone.
-- [ ] Number of courts.
-- [ ] Website/social — optional.
-- [ ] Message — optional.
-- [ ] Consent/privacy copy, ако е необходимо.
-- [ ] Inline validation и server errors.
-- [ ] Prevent duplicate submissions.
+- [x] Club name.
+- [x] City — свободен текст, не `SEARCH_CITIES`: търсенето покрива само София, но клуб
+      от Пловдив, който пише, е точно заявката, която искаме.
+- [x] Contact person.
+- [x] Email.
+- [x] Phone.
+- [x] Number of courts.
+- [x] Website/social — optional.
+- [x] Message — optional.
+- [x] Consent/privacy copy, ако е необходимо — текст под бутона, не блокиращ checkbox:
+      няма privacy страница, към която да сочи. Лесно се вдига до checkbox после.
+- [x] Inline validation и server errors — `leadServerErrors.ts` разпределя DRF `errors`
+      картата по полетата; неразпознатите ключове отиват на ниво форма, не се губят.
+- [x] Prevent duplicate submissions — три слоя: `isPending`, fingerprint на вече
+      изпратената заявка и `client_token` за идемпотентност на сървъра.
 
 ### Success
 
-- [ ] Ясно „Получихме запитването“.
-- [ ] Очакван следващ контакт/срок, ако business процесът го позволява.
-- [ ] Action към player product или homepage.
+- [x] Ясно „Получихме запитването“ — inline панел на мястото на формата, `role="status"`,
+      фокусът отива на заглавието.
+- [x] Очакван следващ контакт/срок, ако business процесът го позволява — „до два работни
+      дни“. **Това е заместващ текст, не потвърден ангажимент** — да се коригира или
+      махне, преди да тръгне пред клубове.
+- [x] Action към player product или homepage.
 
 ### Backend dependency
 
 - [ ] Създай lead submission endpoint или одобрен external CRM/email flow.
+      *Не е тикнато: endpoint-ът живее в `matchpoint-api`, отделно repo. Фронтендът вече
+      праща по договорения контракт (README → „Club leads“); днес завършва само demo пътят.*
 - [ ] Добави spam protection и rate limiting.
+      *Не е тикнато: honeypot и 3-секундният праг работят в браузъра и затова са само
+      препоръчителни. API-то няма `DEFAULT_THROTTLE_CLASSES` никъде — това е сървърна работа.*
 
 ---
 
@@ -657,17 +671,17 @@ MatchPoint трябва да комбинира:
 
 ### Management
 
-- [ ] Club details editor.
-- [ ] Opening hours editor с end-after-start validation.
-- [ ] Court create/edit/delete.
-- [ ] Price editor без `NaN` submissions.
-- [ ] Block time form с timezone/date validation.
-- [ ] Employees/team view.
-- [ ] Ясни destructive confirmations.
+- [x] Club details editor.
+- [x] Opening hours editor с end-after-start validation.
+- [x] Court create/edit/delete.
+- [x] Price editor без `NaN` submissions.
+- [x] Block time form с timezone/date validation. _(date/range validation е налична; timezone contract-ът остава §15)_
+- [x] Employees/team view.
+- [x] Ясни destructive confirmations.
 
 ### Acceptance criteria
 
-- [ ] Staff задачите не зависят от посещаване на публична club page.
+- [x] Staff задачите не зависят от посещаване на публична club page.
 - [ ] Schedule е използваем на телефон от рецепция/корт.
 - [ ] Permissions продължават да се enforce-ват от backend-а.
 
@@ -678,7 +692,7 @@ MatchPoint трябва да комбинира:
 ### Clubs
 
 - [ ] `slug`.
-- [ ] thumbnail и gallery images.
+- [x] thumbnail и gallery images. _(Клубът има едно `header_image`; галерията се сглобява от него плюс снимките на кортовете.)_
 - [ ] latitude/longitude или map location.
 - [ ] facilities.
 - [ ] cancellation policy.
@@ -697,12 +711,14 @@ MatchPoint трябва да комбинира:
 
 ### Reservations
 
-- [ ] Booking number/reference. _(засега `MP-<id>`)_
+- [ ] Booking number/reference. _(засега `MP-<id>`, синтезиран в `bookingReference()`)_
 - [ ] Club snapshot или richer nested serializer. _(confirmation страницата стига до клуба през `court.club_id`)_
-- [ ] Status. _(извежда се от часовника: `confirmed` / `completed`)_
+- [ ] Status. _(извежда се от часовника в `reservationStatus()`; `pending`, `cancelled` и `no_show` са в типа, но недостижими)_
+- [ ] Soft cancel — `DELETE` да маркира `cancelled` вместо да трие реда. _(без него отказаната резервация изчезва и §12 history criterion остава блокиран)_
+- [ ] Reservation detail endpoint. _(`/reservations/:id` чете списъка, защото `GET /api/reservations/{id}/` не е потвърден)_
 - [ ] Price/currency.
 - [ ] Payment method/status.
-- [ ] Cancellation deadline/policy snapshot.
+- [ ] Cancellation deadline/policy snapshot. _(без него 24-часовият hint важи само за platform default policy)_
 - [ ] Created/updated timestamps.
 - [ ] Better create response с new reservation ID. _(иначе списъкът се чете повторно, за да се намери редът — §11)_
 
@@ -712,6 +728,11 @@ MatchPoint трябва да комбинира:
 - [ ] Submission status и timestamp.
 - [ ] Spam/rate protection.
 
+> Трите остават отворени, защото са в `matchpoint-api`. Контрактът, който фронтендът вече
+> праща — path, body, error envelope и `client_token` — е записан в README → „Club leads“,
+> така че имплементацията отсреща не трябва да гадае. `status` и `created_at` са част от
+> отговора, който `Lead` очаква.
+
 ---
 
 ## 16. Accessibility requirements
@@ -720,9 +741,9 @@ MatchPoint трябва да комбинира:
 - [x] Skip link към main content.
 - [ ] Semantic landmarks и heading hierarchy.
 - [x] Dialog focus trap, Escape close и focus restoration.
-- [ ] Keyboard navigation за tabs, date strip, slots и menus.
-- [ ] Slot states с text/ARIA, не само color.
-- [ ] Accessible names за всички icon-only actions.
+- [x] Keyboard navigation за tabs, date strip, slots и menus.
+- [x] Slot states с text/ARIA, не само color.
+- [x] Accessible names за всички icon-only actions.
 - [x] Form errors да бъдат свързани с полетата (`Field` управлява `aria-describedby`/`aria-invalid`).
 - [x] Toast/status updates чрез подходящ live region.
 - [ ] WCAG AA contrast.
@@ -758,7 +779,12 @@ MatchPoint трябва да комбинира:
 ## 18. Performance и reliability
 
 - [ ] Route-level code splitting, особено за club workspace и staff forms.
-- [ ] Responsive images, lazy loading и explicit dimensions.
+- [x] Lazy loading и explicit dimensions. _(Всеки `<img>` носи `width`/`height`;
+      `loading="lazy"` стои навсякъде освен на главната снимка в `ClubGallery`
+      (тя е LCP) и на локалния preview в `ImageUpload` — и двете нарочно.)_
+- [ ] Responsive images. _(Няма `srcset`/`sizes` никъде, а Cloudinary URL-ите се
+      подават сурови — без `f_auto`, `q_auto` или `w_`. За 120×80 thumbnail в
+      галерията се тегли оригиналът в пълен размер.)_
 - [ ] Избягвай layout shift при изображения и loading states.
 - [ ] Availability винаги остава network-fresh.
 - [ ] Prefetch club details при реален navigation intent, без прекомерни заявки.
@@ -846,54 +872,54 @@ Analytics не трябва да включва чувствителни persona
 
 ### Milestone 0 — Contracts and decisions
 
-- [ ] Потвърди reservation-only срещу online payment.
-- [ ] Потвърди hold strategy.
-- [ ] Потвърди aggregated search API.
+- [x] Потвърди reservation-only срещу online payment.
+- [x] Потвърди hold strategy. _(MVP е без hold — §11)_
+- [x] Потвърди aggregated search API. _(няма такъв endpoint; остава backend dependency — §8)_
 - [ ] Потвърди новите club/reservation fields.
-- [ ] Потвърди routing migration strategy.
+- [x] Потвърди routing migration strategy. _(`/players`, `/search`, `/clubs/:id`, `/book/…`, `/club/…` + legacy redirect)_
 
 ### Milestone 1 — Foundations
 
-- [ ] Design tokens и shared primitives.
-- [ ] Player shell и navigation.
-- [ ] Accessibility foundations.
-- [ ] Component showcase.
+- [x] Design tokens и shared primitives.
+- [x] Player shell и navigation.
+- [x] Accessibility foundations.
+- [x] Component showcase.
 
 ### Milestone 2 — Discovery
 
-- [ ] Search landing.
-- [ ] URL search state.
-- [ ] Club results.
+- [x] Search landing.
+- [x] URL search state.
+- [x] Club results.
 - [ ] Results filters и states.
 
 ### Milestone 3 — Availability
 
-- [ ] New club details layout.
-- [ ] Court-grouped availability.
-- [ ] Slot selection.
-- [ ] Responsive booking summary.
+- [x] New club details layout.
+- [x] Court-grouped availability.
+- [x] Slot selection.
+- [x] Responsive booking summary.
 
 ### Milestone 4 — Booking
 
-- [ ] Booking intent persistence.
-- [ ] Review.
-- [ ] Auth return flow.
+- [x] Booking intent persistence.
+- [x] Review.
+- [x] Auth return flow.
 - [ ] Hold/confirm.
-- [ ] Confirmation page.
+- [x] Confirmation page.
 
 ### Milestone 5 — Account
 
-- [ ] My bookings.
-- [ ] Booking details.
-- [ ] Cancel/reschedule.
-- [ ] Account/settings.
+- [x] My bookings.
+- [x] Booking details.
+- [x] Cancel/reschedule.
+- [x] Account/settings.
 
 ### Milestone 6 — Clubs
 
-- [ ] For Clubs landing.
-- [ ] Lead form/success.
-- [ ] Separate club workspace.
-- [ ] Migrate existing staff tools.
+- [x] For Clubs landing.
+- [x] Lead form/success.
+- [x] Separate club workspace.
+- [x] Migrate existing staff tools.
 
 ### Milestone 7 — Hardening
 

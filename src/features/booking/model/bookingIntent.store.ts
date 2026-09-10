@@ -41,5 +41,17 @@ export function bookingIntentUrl(intent: BookingIntent): string {
     start: intent.start,
     end: intent.end,
   });
+  if (intent.rescheduleOf !== undefined) params.set('reschedule', String(intent.rescheduleOf));
   return `/book/${intent.courtId}/review?${params.toString()}`;
+}
+
+/**
+ * Back to the availability this intent came from. Carries `reschedule` along —
+ * without it, "change time" would quietly drop a player who is moving a booking
+ * into a flow that creates a second one.
+ */
+export function clubBookingUrl(intent: BookingIntent): string {
+  const params = new URLSearchParams({ date: intent.date });
+  if (intent.rescheduleOf !== undefined) params.set('reschedule', String(intent.rescheduleOf));
+  return `/clubs/${intent.clubId}?${params.toString()}`;
 }

@@ -132,6 +132,8 @@ index.html              Vite entry: #root plus the anti-flash theme script
 vite.config.ts          Build config + PWA manifest/service-worker generation
 Dockerfile              Multi-stage build → nginx
 nginx.conf              Static-serving config used by the image
+docker-compose.api.yml  Overlay adding Postgres + the Django API, for the full stack
+scripts/seed_api.py     Demo clubs/courts/hours/prices/logins for the local backend
 docker-compose.yml      web (production) + dev (Vite HMR) services
 make_icons.py           Regenerates public/icons/ from icon-512.png
 public/icons/           PWA icons (any + maskable + apple-touch + favicons)
@@ -187,14 +189,63 @@ instead of an app where every request 401s.
 > **Password-reset emails.** Routing is hash-based, so Django's reset email must link to
 > `<site>/#/reset-password/<uid>/<token>`.
 
+## Run the whole stack
+
+`docker-compose.api.yml` is an overlay that brings up Postgres, the
+[MatchPoint API](https://github.com/Corentin-dupriez/matchpoint) and this front end together.
+Check the API out as a sibling directory (`../matchpoint-api`, or set `API_PATH`) and:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.api.yml up --build
+```
+
+| | |
+|---|---|
+| App | <http://localhost:8080> |
+| API | <http://localhost:8000/api/> |
+| Swagger | <http://localhost:8000/api/schema/swagger-ui/> |
+| Django admin | <http://localhost:8000/admin/> |
+
+The API container runs migrations, seeds demo data, then starts the dev server. Nothing is
+written into the API checkout — its settings module reads everything from the environment,
+which the overlay supplies, so that repository stays exactly as cloned.
+
+**Seed data.** `scripts/seed_api.py` is mounted read-only into the API container and creates
+three Sofia clubs with courts, seven-day opening hours and peak/off-peak prices, plus these
+logins (password `matchpoint` for all of them):
+
+| Email | Role |
+|---|---|
+| `player@matchpoint.bg` | Ordinary player |
+| `admin@matchpoint.bg` | Django superuser — sees the club workspace and every booking |
+| `staff@lozenets.example`, `staff@center.example`, `staff@vitosha.example` | Employee of that one club |
+
+It is idempotent, so a restart tops the data up rather than duplicating it. `SEED=0` skips it.
+To reseed by hand at any point:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.api.yml \
+  exec -T api python manage.py shell < scripts/seed_api.py
+```
+
+`docker compose … down -v` drops the `pg-matchpoint` volume and starts over from empty.
+
+For the Vite dev server against the same backend, with hot reload and demo mode off:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.api.yml --profile dev up dev
+```
+
 ## Connect to the backend
 
 In development the app opens in **Demo mode** (sample Sofia clubs, any email/password
 works) so the design is usable immediately. To develop against your real API:
 
-1. Start the Django backend (`python manage.py runserver` → `http://localhost:8000`).
-2. Turn **Demo mode off** in **Settings** (a card that exists only on the dev server and in demo
-   images, alongside the API base URL).
+1. Start the Django backend (`python manage.py runserver` → `http://localhost:8000`, or the
+   stack above).
+2. Run the dev server with fixtures off — `VITE_DEMO=0 npm run dev` — or turn **Demo mode off**
+   in **Settings** (a card that exists only on the dev server and in demo images, alongside the
+   API base URL).
 
 > CORS: allow the front-end origin on the Django side (e.g. `django-cors-headers`,
 > `CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]`). Deployments can skip this by using
@@ -227,7 +278,7 @@ TanStack Query owns server-state caching and invalidation.
 | `GET /api/clubs/{id}/employees/` | **View staff** modal (staff) |
 | `PATCH /api/clubs/{id}/` | **Edit club** modal (staff) |
 | `GET /api/courts/{id}/` | Court detail header |
-| `GET /api/courts/{id}/availabilities/?date=` | The **booking scoreboard** (date picker → slots) |
+| `GET /api/courts/{id}/availabilities/?date=` | The **booking scoreboard** — one call per court, fanned out by `availabilityApi.club` to build a club-wide grid |
 | `GET · PUT /api/courts/{id}/prices/` | **Set prices** modal (staff) |
 | `GET · PUT /api/courts/{id}/unavailabilities/` | **Block time** modal (staff) |
 | `POST /api/courts/` | **New court** modal (staff) |
@@ -295,6 +346,84 @@ python3 make_icons.py
 
 Regenerates every size in `public/icons/` from `icon-512.png`, padding the maskable
 variants into Android's safe zone.
+
+## Where the API stops short
+
+Found while wiring this front end to the backend on `main`. None of it is fixable from here;
+each one has a defined behaviour in the UI rather than a blank screen.
+
+- **No club-wide availability endpoint.** `/api/clubs/{id}/availability/` is a 404, so
+  `src/features/booking/api/availability.api.ts` assembles the same shape from
+  `/api/clubs/{id}/courts/` plus one `/api/courts/{id}/availabilities/` per court, in parallel.
+  A club closed on the chosen weekday answers 400 per court; that is read as "no slots", not
+  as an error.
+- **Slots carry no `status`.** `CourtOpeningSerializer` sends `{start, end, available, price}`
+  only. `normalizeSlots` derives past/booked/available from `end` and `available`, which is
+  what the selection logic reads. The API cannot distinguish a reservation from an exceptional
+  closure, so both show as booked.
+- **The user serializer has no id.** `/api/v1/auth/user/` returns no `pk` and `/api/users/` is
+  admin-only, so `shared/api/session.ts` reads `user_id` out of the JWT — otherwise editing
+  your own profile has no URL to PATCH.
+- **`/api/openinghours/{pk}/` rejects everyone.** `IsClubEmployeeOrAdmin.has_object_permission`
+  only answers for `Club` and `Court` objects and returns `None` for anything else, which DRF
+  treats as denied — so PATCH and DELETE 403 even for a superuser. The same applies to
+  `/api/pricing/{pk}/` and `/api/unavailabilities/{pk}/`. Adding hours to a day that has none
+  still works (that is a POST on the club). The editor says so instead of showing the
+  misleading permission text.
+- **`/api/clubs/{id}/employees/` requires `IsAdminUser`,** so a club's own manager cannot list
+  their colleagues — only a Django superuser can.
+- **No "clubs I work for" endpoint,** so the club workspace lists every club and asks the
+  operator to pick one (`useStaffClub`).
+- **`GET /api/clubs/` has no ordering,** so Postgres returns the rows in whatever order it
+  likes; `clubsApi.list` sorts by name to keep the grid stable between refetches.
+- **Password reset needs an email backend.** Django's default is SMTP, which the local stack
+  has none of, so `POST /api/v1/auth/password/reset/` fails there.
+- Clubs carry no `facilities`, `gallery_urls`, `cancellation_policy` or `starting_price`; the
+  UI falls back to platform defaults or hides those blocks. `header_image` from the list
+  serializer is mapped onto `thumbnail_url`.
+- **There is no club-lead endpoint.** `/for-clubs` has a full inquiry form (ToDoRedesign §13)
+  with nowhere to send it, so only the demo path completes today. The contract below is what
+  `src/features/leads/api/leads.api.ts` already posts; the day the endpoint lands, the flow
+  works with no UI change.
+
+### Club leads — the contract the front end expects
+
+`POST /api/v1/leads/` — public, unauthenticated (a club owner writing in has no account).
+
+```jsonc
+{
+  "club_name":    "Lokomotiv Tennis Club",  // required, <= 120
+  "city":         "Plovdiv",                // required, <= 80, free text (not the search city list)
+  "contact_name": "Georgi Dimitrov",        // required, <= 120
+  "email":        "club@example.bg",        // required
+  "phone":        "+359 88 812 3456",       // required, 6-20 digits, any punctuation
+  "courts_count": 4,                        // required, integer 1-60
+  "website":      "https://lokomotiv.bg",   // optional, omitted when blank, scheme added client-side
+  "message":      "…",                      // optional, omitted when blank, <= 1000
+  "client_token": "3f9c…"                   // idempotency key, see below
+}
+```
+
+`201` returns `{id, reference, status, created_at}`. `reference` is shown to the club as the
+code to quote — anything short and human-readable works (`MP-7K2F9` is what demo mode makes).
+
+Errors use the standard envelope. Field errors are placed under the control that caused them
+by `leadServerErrors.ts`, which maps the snake_case names above onto the form; `non_field_errors`
+and any key it does not recognise are shown at form level rather than dropped:
+
+```json
+{ "status": "error", "errors": { "email": ["Enter a valid email address."] } }
+```
+
+`client_token` is a UUID generated once per form instance and reused across retries, so a
+submission the network duplicated should resolve to one lead. Returning `409` with a
+`non_field_errors` message for a token already seen is what demo mode does; ignoring the field
+entirely is also safe — the client has its own duplicate guards.
+
+**Still needed on the backend, and not solvable from here** (§13, §15): rate limiting — the API
+defines no `DEFAULT_THROTTLE_CLASSES` anywhere — and server-side spam checks. The client sends a
+honeypot-filtered, time-gated submission, but every one of those guards runs in the browser and
+is therefore advisory.
 
 ## Known gaps
 

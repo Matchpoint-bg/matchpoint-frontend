@@ -1,0 +1,294 @@
+/*
+ * Everything here is sized in em against the frame's own font-size, so the
+ * whole miniature scales with one number and never reflows into a broken
+ * half-size layout the way a real responsive screen would.
+ */
+.frame {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .frame {
+    font-size: 11px;
+  }
+}
+
+.chrome {
+  display: flex;
+  align-items: center;
+  padding: 0.7em 0.9em;
+  border-bottom: var(--border-width) solid var(--line);
+  background: var(--card-2);
+  gap: 0.4em;
+}
+
+.dot {
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: var(--radius-full);
+  background: var(--line-2);
+}
+
+.chromeTitle {
+  margin-left: 0.6em;
+  color: var(--faint);
+  font-size: 0.8em;
+  font-weight: var(--weight-semibold);
+}
+
+.body {
+  padding: 1em;
+}
+
+/* ---- Schedule ----------------------------------------------------------- */
+
+.schedule {
+  display: grid;
+  gap: 0.5em;
+}
+
+.scheduleHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2em;
+}
+
+.scheduleTitle {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 1.15em;
+  font-weight: var(--weight-display);
+  letter-spacing: -0.02em;
+}
+
+.pill {
+  padding: 0.25em 0.7em;
+  border-radius: var(--radius-full);
+  background: var(--pale);
+  color: var(--ok);
+  font-size: 0.75em;
+  font-weight: var(--weight-bold);
+}
+
+.times,
+.courtRow {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 7em 1fr;
+  gap: 0.5em;
+}
+
+.times {
+  grid-template-columns: 7em repeat(4, 1fr);
+}
+
+.time {
+  color: var(--faint);
+  font-size: 0.75em;
+  font-weight: var(--weight-semibold);
+}
+
+.courtName {
+  color: var(--muted);
+  font-size: 0.8em;
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.2em;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2em;
+  border-radius: 0.35em;
+  overflow: hidden;
+}
+
+.slotFree {
+  border: var(--border-width) dashed var(--line-2);
+  background: var(--card-2);
+}
+
+.slotBooked {
+  background: var(--ball);
+  color: var(--brand-ink);
+}
+
+.slotLabel {
+  font-size: 0.65em;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* ---- Search ------------------------------------------------------------- */
+
+.search {
+  display: grid;
+  gap: 0.7em;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  padding: 0.7em 0.9em;
+  border: var(--border-width) solid var(--line-2);
+  border-radius: var(--radius-md);
+  background: var(--card-2);
+  gap: 0.5em;
+}
+
+.searchIcon {
+  width: 1.1em;
+  height: 1.1em;
+  color: var(--muted);
+}
+
+.searchText {
+  color: var(--ink);
+  font-size: 0.85em;
+  font-weight: var(--weight-semibold);
+}
+
+.result {
+  display: grid;
+  align-items: center;
+  padding: 0.7em;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--card-2);
+  grid-template-columns: 3.4em 1fr auto;
+  gap: 0.7em;
+}
+
+.thumb {
+  height: 3.4em;
+  border-radius: 0.4em;
+  background: linear-gradient(140deg, var(--ball), var(--clay));
+  opacity: 0.85;
+}
+
+.resultBody {
+  display: grid;
+  min-width: 0;
+  gap: 0.25em;
+}
+
+.resultName {
+  color: var(--ink);
+  font-size: 0.9em;
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultMeta {
+  color: var(--faint);
+  font-size: 0.75em;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+}
+
+.slotChip {
+  padding: 0.2em 0.5em;
+  border: var(--border-width) solid var(--line-2);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 0.7em;
+  font-weight: var(--weight-bold);
+}
+
+.price {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.85em;
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+/* ---- Booking ------------------------------------------------------------ */
+
+.booking {
+  display: grid;
+  gap: 0.35em;
+}
+
+.bookingHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3em;
+}
+
+.badge {
+  padding: 0.25em 0.7em;
+  border-radius: var(--radius-full);
+  background: var(--pale);
+  color: var(--ok);
+  font-size: 0.7em;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bookingRef {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 0.75em;
+}
+
+.bookingTitle {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 1.15em;
+  font-weight: var(--weight-display);
+  letter-spacing: -0.02em;
+}
+
+.bookingMeta {
+  margin-bottom: 0.4em;
+  color: var(--muted);
+  font-size: 0.8em;
+}
+
+.bookingRows {
+  display: grid;
+  border-top: var(--border-width) solid var(--line);
+}
+
+.bookingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55em 0;
+  border-bottom: var(--border-width) solid var(--line);
+  color: var(--muted);
+  font-size: 0.8em;
+  gap: 1em;
+}
+
+.bookingRow strong {
+  color: var(--ink);
+}

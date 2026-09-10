@@ -2,6 +2,34 @@ import { LS } from '../shared/storage/store';
 import type { Club, Employee, Weekday } from '../features/clubs/model/club.types';
 import type { Court, Slot } from '../features/courts/model/court.types';
 import type { DemoReservation } from '../features/reservations/model/reservation.types';
+import type { DemoLead } from '../features/leads/model/lead.types';
+
+/**
+ * A stand-in court photo, drawn rather than fetched.
+ *
+ * Demo mode is meant to run with no backend and no network — pointing these at
+ * an image host would make the gallery the one part of it that needs both. The
+ * result is a data URI, so it behaves like any other image `src`.
+ */
+function demoPhoto(sky: string, ground: string, line: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="480" viewBox="0 0 720 480">
+<rect width="720" height="480" fill="${sky}"/>
+<rect y="150" width="720" height="330" fill="${ground}"/>
+<g stroke="${line}" stroke-width="3" fill="none" opacity=".85">
+<path d="M120 430 L280 200 L440 200 L600 430 Z"/>
+<path d="M170 360 L550 360"/><path d="M215 290 L505 290"/><path d="M360 200 L360 430"/>
+</g>
+<path d="M60 235 H660" stroke="${line}" stroke-width="5" opacity=".95"/>
+</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+const DEMO_PHOTOS = {
+  clay: demoPhoto('#9fb8dd', '#c2643c', '#fff'),
+  hard: demoPhoto('#8fd3e8', '#2f6fa8', '#fff'),
+  grass: demoPhoto('#cfe9ff', '#3f8b46', '#fff'),
+  dome: demoPhoto('#2a3340', '#3d5a80', '#e8eef5'),
+};
 
 export const DEMO: {
   clubs: Club[];
@@ -26,6 +54,7 @@ export const DEMO: {
       latitude: 42.6727,
       longitude: 23.3186,
       starting_price: 14,
+      thumbnail_url: DEMO_PHOTOS.clay,
     },
     {
       id: 2,
@@ -60,16 +89,17 @@ export const DEMO: {
       latitude: 42.6376,
       longitude: 23.3077,
       starting_price: 20,
+      thumbnail_url: DEMO_PHOTOS.grass,
     },
   ],
   courts: [
     { id: 11, club_id: 1, name: 'Court 1 — Centre', sport_type: 'Tennis', surface_type: 'Clay', is_indoor: false, is_lit: true },
-    { id: 12, club_id: 1, name: 'Court 2 — Clay', sport_type: 'Tennis', surface_type: 'Clay', is_indoor: false, is_lit: true },
-    { id: 13, club_id: 1, name: 'Court 3 — Indoor Hard', sport_type: 'Tennis', surface_type: 'Hard', is_indoor: true, is_lit: true },
+    { id: 12, club_id: 1, name: 'Court 2 — Clay', sport_type: 'Tennis', surface_type: 'Clay', is_indoor: false, is_lit: true, image_urls: [DEMO_PHOTOS.clay] },
+    { id: 13, club_id: 1, name: 'Court 3 — Indoor Hard', sport_type: 'Tennis', surface_type: 'Hard', is_indoor: true, is_lit: true, image_urls: [DEMO_PHOTOS.hard, DEMO_PHOTOS.dome] },
     { id: 21, club_id: 2, name: 'Arena A', sport_type: 'Tennis', surface_type: 'Hard', is_indoor: false, is_lit: true },
     { id: 22, club_id: 2, name: 'Arena B', sport_type: 'Tennis', surface_type: 'Hard', is_indoor: false, is_lit: true },
-    { id: 23, club_id: 2, name: 'Dome (Indoor)', sport_type: 'Tennis', surface_type: 'Hard', is_indoor: true, is_lit: true },
-    { id: 31, club_id: 3, name: 'Lawn 1', sport_type: 'Tennis', surface_type: 'Grass', is_indoor: false, is_lit: false },
+    { id: 23, club_id: 2, name: 'Dome (Indoor)', sport_type: 'Tennis', surface_type: 'Hard', is_indoor: true, is_lit: true, image_urls: [DEMO_PHOTOS.dome] },
+    { id: 31, club_id: 3, name: 'Lawn 1', sport_type: 'Tennis', surface_type: 'Grass', is_indoor: false, is_lit: false, image_urls: [DEMO_PHOTOS.grass] },
     { id: 32, club_id: 3, name: 'Lawn 2', sport_type: 'Tennis', surface_type: 'Grass', is_indoor: false, is_lit: false },
   ],
   openingHours: {
@@ -109,6 +139,25 @@ export function demoReservations(): DemoReservation[] {
 
 export function saveDemoReservations(reservations: DemoReservation[]): void {
   localStorage.setItem(LS.demoRes, JSON.stringify(reservations));
+}
+
+/**
+ * Club inquiries submitted in demo mode.
+ *
+ * Kept the same way reservations are — in localStorage, so a demo build has
+ * somewhere to put a lead with no backend behind it, and so the duplicate-submit
+ * guard has real prior submissions to recognise.
+ */
+export function demoLeads(): DemoLead[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS.demoLeads) || '[]') as DemoLead[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveDemoLeads(leads: DemoLead[]): void {
+  localStorage.setItem(LS.demoLeads, JSON.stringify(leads));
 }
 
 function seeded(value: string): number {

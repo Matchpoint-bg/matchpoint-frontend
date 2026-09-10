@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import {
+  Accordion,
   BackLink,
   Badge,
   BookingStatus,
@@ -14,6 +15,7 @@ import {
   DateTime,
   Divider,
   EmptyState,
+  ImageUpload,
   ErrorState,
   Field,
   FilterChip,
@@ -389,6 +391,19 @@ export function ShowcasePage() {
             />
           </div>
         </Row>
+        <Row label="Accordion">
+          <div style={{ width: '100%' }}>
+            <Accordion
+              label="Frequently asked"
+              defaultOpen={['cost']}
+              items={[
+                { value: 'cost', title: 'What does it cost?', body: <p>Agreed per club, with no setup fee.</p> },
+                { value: 'setup', title: 'How long does setup take?', body: <p>Usually a few days.</p> },
+                { value: 'gone', title: 'Disabled section', body: <p>Skipped by the arrow keys.</p>, disabled: true },
+              ]}
+            />
+          </div>
+        </Row>
         <Row label="Toolbar (align=between)">
           <Toolbar align="between" aria-label="Results" style={{ width: '100%' }}>
             <span className="muted">12 clubs in Sofia</span>
@@ -522,6 +537,20 @@ export function ShowcasePage() {
           </ChipRow>
           <Field label="Date">{(control) => <DateField {...control} />}</Field>
         </Sheet>
+      </Section>
+
+      <Divider />
+
+      <Section eyebrow="Media" title="Image upload">
+        <Card padded>
+          <ImageUpload
+            onSelect={() => undefined}
+            label="Upload photo"
+            hint="PNG, JPG or WebP, up to 5 MB."
+            invalidFormatMessage="Use a PNG, JPG or WebP image"
+            tooLargeMessage="That image is over 5 MB — pick a smaller one"
+          />
+        </Card>
       </Section>
 
       <Divider />

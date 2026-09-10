@@ -37,6 +37,8 @@ const PATHS = {
   search: { viewBox: '0 0 24 24', inner: <><circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2"/><path d="M15.8 15.8L20 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></> },
   arrowRight: { viewBox: '0 0 24 24', inner: <><path d="M4 12h15m0 0l-5.5-5.5M19 12l-5.5 5.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></> },
   chevronDown: { viewBox: '0 0 24 24', inner: <><path d="M6 9.5l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></> },
+  image: { viewBox: '0 0 24 24', inner: <><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" strokeWidth="2"/><circle cx="8.5" cy="10" r="1.6" stroke="currentColor" strokeWidth="1.8"/><path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></> },
+  upload: { viewBox: '0 0 24 24', inner: <><path d="M12 16V4m0 0L8 8m4-4l4 4M5 20h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></> },
 } as const;
 
 export type IconName = keyof typeof PATHS;

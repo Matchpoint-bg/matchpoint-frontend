@@ -1,0 +1,88 @@
+# Runs the MatchPoint backend alongside this front end, as an overlay on
+# docker-compose.yml:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.api.yml up --build
+#
+# It expects the API checkout as a sibling directory (../matchpoint-api; override
+# with API_PATH) and changes nothing inside it — the settings module reads its
+# configuration from the environment, so everything below is passed in here.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: "${DB_NAME:-postgres}"
+      POSTGRES_USER: "${DB_USER:-postgres}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-example}"
+    volumes:
+      - pg-matchpoint:/var/lib/postgresql/data
+    healthcheck:
+      # Without -d the probe hits the "postgres" database, which need not be the
+      # one the API uses; api waits on this, so it has to test the real target.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build:
+      context: "${API_PATH:-../matchpoint-api}"
+    image: matchpoint-api
+    # Migrations on every start (they are no-ops once applied), then the demo
+    # fixtures unless SEED=0, then the dev server. seed_api.py is mounted read-only
+    # from this repo: the API image never learns about it.
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             { [ \"$${SEED}\" = 0 ] || python manage.py shell < /seed/seed_api.py; } &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      SEED: "${SEED:-1}"
+      # Dev-only defaults. A real deployment sets its own SECRET_KEY and DEBUG=False.
+      SECRET_KEY: "${SECRET_KEY:-dev-only-not-a-real-secret}"
+      DEBUG: "${API_DEBUG:-True}"
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-*}"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: "${DB_NAME:-postgres}"
+      DB_USER: "${DB_USER:-postgres}"
+      DB_PASSWORD: "${DB_PASSWORD:-example}"
+      # Only the Vite dev server needs this: the nginx image proxies /api/ on its
+      # own origin, so the built app makes no cross-origin request at all.
+      CORS_ALLOWED_ORIGIN: "${CORS_ALLOWED_ORIGIN:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080}"
+      # django-cloudinary-storage is imported at settings time and insists on
+      # credentials. Uploads fail against these; everything else is unaffected.
+      CLOUDINARY_CLOUD_NAME: "${CLOUDINARY_CLOUD_NAME:-unset}"
+      CLOUDINARY_API_KEY: "${CLOUDINARY_API_KEY:-unset}"
+      CLOUDINARY_API_SECRET: "${CLOUDINARY_API_SECRET:-unset}"
+      GOOGLE_OAUTH_CLIENT_ID: "${GOOGLE_OAUTH_CLIENT_ID:-}"
+      GOOGLE_OAUTH_CLIENT_SECRET: "${GOOGLE_OAUTH_CLIENT_SECRET:-}"
+      GOOGLE_OAUTH_CALLBACK_URL: "${GOOGLE_OAUTH_CALLBACK_URL:-http://localhost:8000/api/v1/auth/google/callback/}"
+    volumes:
+      - ./scripts:/seed:ro
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    environment:
+      # In-network, so no host.docker.internal and no extra_hosts needed.
+      API_ORIGIN: "http://api:8000"
+    depends_on:
+      - api
+
+  dev:
+    environment:
+      # The browser reaches the API on the published host port, not the compose
+      # network, so this is localhost even though Vite runs in a container.
+      VITE_API_URL: "${VITE_API_URL:-http://localhost:8000}"
+      # docker-compose.yml's dev service reads .env.development, which turns the
+      # demo fixtures on. This stack has a real backend, so turn them back off.
+      VITE_DEMO: "0"
+    depends_on:
+      - api
+
+volumes:
+  pg-matchpoint:

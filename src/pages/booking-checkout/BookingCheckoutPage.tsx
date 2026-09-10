@@ -4,10 +4,16 @@ import { AppShell } from '../../app/layout/AppShell';
 import {
   BookingIntentCard,
   bookingIntentStore,
+  clubBookingUrl,
   useBookingIntentValidation,
 } from '../../features/booking';
 import type { BookingConfirmationSnapshot } from '../../features/booking';
-import { useCreateReservationMutation, useResolveReservationId } from '../../features/reservations';
+import {
+  bookingReference,
+  useCreateReservationMutation,
+  useResolveReservationId,
+  useUpdateReservationMutation,
+} from '../../features/reservations';
 import { useI18n } from '../../i18n';
 import { BackLink, Button, EmptyState, ErrorState, Spinner } from '../../shared/ui';
 import styles from '../booking-review/BookingReviewPage.module.css';
@@ -18,10 +24,14 @@ export function BookingCheckoutPage() {
   const { t } = useI18n();
   const { intent, query, valid } = useBookingIntentValidation(courtId);
   const createReservation = useCreateReservationMutation();
+  const updateReservation = useUpdateReservationMutation();
   const resolveReservationId = useResolveReservationId();
   const submitting = useRef(false);
   const reviewUrl = `/book/${courtId}/review`;
   const checking = query.isPending || query.isFetching;
+  const clubUrl = intent ? clubBookingUrl(intent) : '/players';
+  const pending = createReservation.isPending || updateReservation.isPending;
+  const submitError = createReservation.error ?? updateReservation.error;
 
   const confirm = async () => {
     if (!intent || !valid || submitting.current) return;
@@ -32,6 +42,24 @@ export function BookingCheckoutPage() {
       end_datetime: intent.end,
     };
     try {
+      // Moving a booking is a PATCH, so the player keeps the old time right up
+      // until the new one is accepted — never a delete-then-rebook.
+      if (intent.rescheduleOf !== undefined) {
+        const id = intent.rescheduleOf;
+        await updateReservation.mutateAsync({ id, body });
+        const moved: BookingConfirmationSnapshot = {
+          ...intent,
+          reservationId: id,
+          bookingReference: bookingReference(id),
+          status: 'confirmed',
+          confirmedAt: new Date().toISOString(),
+        };
+        bookingIntentStore.clear();
+        bookingIntentStore.saveConfirmation(moved);
+        navigate(`/booking/confirmation/${id}`, { replace: true });
+        return;
+      }
+
       const created = await createReservation.mutateAsync({
         body,
         meta: { amt: intent.quotedPrice, date: intent.date },
@@ -48,7 +76,7 @@ export function BookingCheckoutPage() {
       const snapshot: BookingConfirmationSnapshot = {
         ...intent,
         reservationId: id,
-        bookingReference: `MP-${id}`,
+        bookingReference: bookingReference(id),
         status: 'confirmed',
         confirmedAt: new Date().toISOString(),
       };
@@ -82,7 +110,7 @@ export function BookingCheckoutPage() {
       )}
       {intent && !checking && !query.error && !valid && (
         <EmptyState title={t('booking_conflict_title')} desc={t('booking_conflict_desc')} icon="clock">
-          <Button onClick={() => navigate(`/clubs/${intent.clubId}?date=${intent.date}`)}>
+          <Button onClick={() => navigate(clubUrl)}>
             {t('change_time')}
           </Button>
         </EmptyState>
@@ -91,22 +119,17 @@ export function BookingCheckoutPage() {
         <div className={styles.layout}>
           <BookingIntentCard intent={intent} />
           <aside className={styles.actionCard}>
-            <Button
-              block
-              icon="check"
-              loading={createReservation.isPending}
-              onClick={() => void confirm()}
-            >
-              {t('confirm_booking')}
+            <Button block icon="check" loading={pending} onClick={() => void confirm()}>
+              {intent.rescheduleOf !== undefined ? t('confirm_reschedule') : t('confirm_booking')}
             </Button>
-            {createReservation.error && (
+            {submitError && (
               <div role="alert" className={styles.accountNote}>
                 <div>
-                  <p>{createReservation.error.message}</p>
+                  <p>{submitError.message}</p>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/clubs/${intent.clubId}?date=${intent.date}`)}
+                    onClick={() => navigate(clubUrl)}
                   >
                     {t('change_time')}
                   </Button>
