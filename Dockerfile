@@ -36,8 +36,11 @@ ENV API_ORIGIN="http://host.docker.internal:8000"
 ENV CSP_CONNECT_SRC="'self'"
 # Club and court photos are served straight from Cloudinary, so the default CSP
 # has to allow that origin or every uploaded image is blocked. `data:` stays for
-# the demo fixtures, which draw their placeholder photos inline.
-ENV CSP_IMG_SRC="'self' data: https://res.cloudinary.com"
+# the demo fixtures, which draw their placeholder photos inline. `blob:` is what
+# ImageUpload previews a picked file with, before the upload resolves — without
+# it the drop zone stays empty in the built image, and only there, since dev
+# serves no CSP at all.
+ENV CSP_IMG_SRC="'self' data: blob: https://res.cloudinary.com"
 
 COPY --from=build /app/dist /usr/share/nginx/html
 

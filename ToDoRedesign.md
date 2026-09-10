@@ -779,7 +779,12 @@ MatchPoint трябва да комбинира:
 ## 18. Performance и reliability
 
 - [ ] Route-level code splitting, особено за club workspace и staff forms.
-- [ ] Responsive images, lazy loading и explicit dimensions.
+- [x] Lazy loading и explicit dimensions. _(Всеки `<img>` носи `width`/`height`;
+      `loading="lazy"` стои навсякъде освен на главната снимка в `ClubGallery`
+      (тя е LCP) и на локалния preview в `ImageUpload` — и двете нарочно.)_
+- [ ] Responsive images. _(Няма `srcset`/`sizes` никъде, а Cloudinary URL-ите се
+      подават сурови — без `f_auto`, `q_auto` или `w_`. За 120×80 thumbnail в
+      галерията се тегли оригиналът в пълен размер.)_
 - [ ] Избягвай layout shift при изображения и loading states.
 - [ ] Availability винаги остава network-fresh.
 - [ ] Prefetch club details при реален navigation intent, без прекомерни заявки.
